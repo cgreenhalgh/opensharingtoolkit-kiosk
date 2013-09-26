@@ -40,6 +40,10 @@ public class BrowserActivity extends Activity {
         WebView webView = (WebView)findViewById(R.id.webView);
         webView.getSettings().setJavaScriptEnabled(true);
         webView.getSettings().setAllowFileAccessFromFileURLs(true);
+        webView.getSettings().setDatabaseEnabled(true);
+        webView.getSettings().setBuiltInZoomControls(false);
+        webView.getSettings().setDatabasePath(getApplicationContext().getFilesDir().getPath()+"/org.opensharingtoolkit.kiosk/databases/");
+        webView.getSettings().setDomStorageEnabled(true);
         webView.setWebChromeClient(new WebChromeClient() {
         	public void onProgressChanged(WebView view, int progress) {
         		Log.d(TAG,"progress "+progress);
@@ -78,6 +82,7 @@ public class BrowserActivity extends Activity {
 			@Override
 			public boolean onJsAlert(WebView view, String url, String message,
 					JsResult result) {
+				Log.w(TAG,"onJsAlert: ("+url+") "+message+" ("+result+")");
 				// TODO Auto-generated method stub
 				return super.onJsAlert(view, url, message, result);
 			}
@@ -198,9 +203,19 @@ public class BrowserActivity extends Activity {
         webView.loadUrl(url);
     }
 
+	protected boolean handleBackPressed() {
+        WebView webView = (WebView)findViewById(R.id.webView);
+        if (webView!=null && webView.canGoBack()) {
+    		Log.d(TAG,"Back in web history");
+        	webView.goBack();
+        	return true;
+        }		
+        return false;
+	}
+	
 	@Override
 	public void onBackPressed() {
-		Log.d(TAG,"Back");
-		super.onBackPressed();
+		if (!handleBackPressed())
+			super.onBackPressed();
 	}    
 }

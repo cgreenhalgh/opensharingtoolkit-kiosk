@@ -25,6 +25,10 @@
                 <category android:name="android.intent.category.HOME" />
             </intent-filter>
         </activity>
+        <service 
+            android:name=".Service"
+            android:exported="false">            
+        </service>
     </application>
 
 </manifest>
