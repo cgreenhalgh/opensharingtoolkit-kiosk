@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+ 
+        <title>Example Feed</title>
+        <link rel="self" href="file:///android_asset/test.xml" />
+        <id>tag:cmg@cs.nott.ac.uk,2013-09-26:atom/test/1</id>
+        <updated>2013-09-26T12:32:00Z</updated>
+
+        <entry>
+                <title>First thing</title>
+                <category term="exciting" label="Exciting"/>
+                <link rel="alternate" type="image/png" href="thing1.png" />
+                <link rel="enclosure" type="application/pdf" href="thing1.pdf" />
+                <id>tag:cmg@cs.nott.ac.uk,2013-09-26:atom/test/1/1</id>
+                <updated>2013-09-26T12:32:01Z</updated>
+                <summary>A PDF document about the first thing.</summary>
+                <author>
+                      <name>Chris Greenhalgh</name>
+                      <email>cmg@cs.nott.ac.uk</email>
+                </author>
+        </entry>
+ 
+</feed>

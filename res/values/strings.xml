@@ -4,5 +4,6 @@
     <string name="app_name">OpenSharingToolkit Kiosk</string>
     <string name="action_settings">Settings</string>
     <string name="hello_world">Hello world!</string>
+    <string name="default_url">file:///android_asset/default.html</string>
 
 </resources>
