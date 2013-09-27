@@ -5,7 +5,7 @@ package org.opensharingtoolkit.kiosk;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.UnsupportedEncodingException;
+import java.util.Locale;
 
 import org.opensharingtoolkit.httpserver.HttpContinuation;
 import org.opensharingtoolkit.httpserver.HttpError;
@@ -14,7 +14,6 @@ import org.opensharingtoolkit.httpserver.HttpListener;
 import android.app.Notification;
 import android.app.PendingIntent;
 import android.content.Intent;
-import android.content.res.AssetFileDescriptor;
 import android.content.res.AssetManager;
 import android.os.IBinder;
 import android.util.Log;
@@ -100,6 +99,13 @@ public class Service extends android.app.Service {
 
 	public void postRequest(String path, String requestBody,
 			HttpContinuation httpContinuation) throws IOException, HttpError {
+		if (path.startsWith("/a/"))
+			handleAssetRequest(path.substring("/a".length()), requestBody, httpContinuation);
+
+		httpContinuation.done(404, "File not found", "text/plain", -1, null);		
+	}
+	private void handleAssetRequest(String path, String requestBody,
+			HttpContinuation httpContinuation) throws IOException, HttpError {
 		if (path.startsWith("/"))
 			path = path.substring(1);
 		int ix = path.lastIndexOf('/');
@@ -113,7 +119,7 @@ public class Service extends android.app.Service {
 			throw new HttpError(403, "Access denied");
 		ix = filename.lastIndexOf(".");
 		if (ix>=0) {
-			String extension = filename.substring(ix+1).toLowerCase();
+			String extension = filename.substring(ix+1).toLowerCase(Locale.US);
 			if (extension.equals("html") || extension.equals("htm"))
 				mimeType = "text/html";
 			else if (extension.equals("xml"))

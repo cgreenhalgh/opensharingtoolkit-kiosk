@@ -2,4 +2,47 @@ h1 {
 	font-family: sans-serif;
 	font-size: 24px;
 	color: red;
+};
+div#tray {
+	width: 100%;
+}
+img.loading {
+	display: block;
+	margin-left: auto;
+	margin-right: auto;
+}
+div.entry {
+	width: 128px;
+	height: 128px;
+	float: left;
+	margin: 2px;
+	border: 1px solid #000;
+	/*background-color: #c0c0c0;*/
+}
+div.entrytouched {
+	background-color: #ccc;
+}
+p.entrytitle {
+	float: none;
+	font-family: sans-serif;
+	font-size: 16px;
+	font-color: blue;
+	text-align: center;	
+}
+div.entryicon {
+	float: none;
+	position: relative;
+	left: 32px;
+	width: 64px;
+	height: 64px;
+	background-color: white;
+	display: table-cell;
+	vertical-align: middle;
+}
+img.entryicon {
+	display: block;
+	margin-left: auto;
+	margin-right: auto;
+	width: 64px;
+	height: 64px;
 }

@@ -38,6 +38,7 @@ public class BrowserActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_browser);
         WebView webView = (WebView)findViewById(R.id.webView);
+        webView.addJavascriptInterface(new JavascriptHelper(), "kiosk");
         webView.getSettings().setJavaScriptEnabled(true);
         webView.getSettings().setAllowFileAccessFromFileURLs(true);
         webView.getSettings().setDatabaseEnabled(true);
