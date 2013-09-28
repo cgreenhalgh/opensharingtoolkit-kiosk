@@ -126,6 +126,7 @@ public class BrowserActivity extends Activity {
         webView.setWebViewClient(new WebViewClient() {
         	public void onReceivedError(WebView view, int errorCode, String description, String failingUrl) {
         		// this picks up local errors aswell
+        		Log.d(TAG,"onReceivedError errorCode="+errorCode+", description="+description+", failingUrl="+failingUrl); 
         		Toast.makeText(BrowserActivity.this, "Oh no! " + description, Toast.LENGTH_SHORT).show();
         	}
 
@@ -195,6 +196,21 @@ public class BrowserActivity extends Activity {
 				Log.d(TAG,"shouldInterceptRequest "+url);
 				// TODO Auto-generated method stub
 				return super.shouldInterceptRequest(view, url);
+			}
+
+			@Override
+			public void doUpdateVisitedHistory(WebView view, String url,
+					boolean isReload) {
+				Log.d(TAG,"doUpdateVisitedHistory url="+url+", isReload="+isReload);
+				// TODO Auto-generated method stub
+				super.doUpdateVisitedHistory(view, url, isReload);
+			}
+
+			@Override
+			public boolean shouldOverrideUrlLoading(WebView view, String url) {
+				Log.d(TAG,"shouldOverrideUrlLoading url="+url);
+				// TODO Auto-generated method stub
+				return super.shouldOverrideUrlLoading(view, url);
 			}
         	
         });

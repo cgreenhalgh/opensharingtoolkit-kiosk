@@ -12,12 +12,13 @@ var entries = [];
 var mousedownEvent = null;
 var mousemoved = false;
 var MOUSE_MOVE_MIN = 10;
+var currententry = null;
 
 function getTouchedEntry(ev) {
 	var el = ev.target;
 	while (el) {
 		var id = el.id;
-		console.log('- check target '+el+' ('+id+')');
+		//console.log('- check target '+el+' ('+id+')');
 		if (id && id.indexOf('entry_')==0)
 			break;
 		el = el.parentNode;
@@ -25,9 +26,39 @@ function getTouchedEntry(ev) {
 	if (el) {
 		var index = el.id.substring(6);
 		console.log('touch entry '+index);
-		return index;
+		return entries[index];
 	}
 	return undefined;
+}
+
+function addEntry(atomentry) {
+	index = entries.length;
+	var title = $('title', atomentry).text();
+	var iconurl = $('link[rel=\'alternate\'][type^=\'image\']', atomentry).attr('href');
+	if (!iconurl) {
+		iconurl = "_blank.png";
+		console.log('iconurl unknown for '+title);
+	}
+	var summary = $('summary', atomentry).text();	
+	var entry = { title: title, iconurl: iconurl, summary: summary, index: index };
+	entry.enclosures = [];
+	$('link[rel=\'enclosure\']', atomentry).each(function(index, el) {
+		var type = $(el).attr('type');
+		var href = $(el).attr('href');
+		if (href) {
+			entry.enclosures.push({mimeType: type, url: href});
+		}
+	});
+	
+	entries[index] = entry;
+	console.log('  entry['+index+']: '+title);
+	$('#tray').append('<div id="entry_'+index+'" class="entry"><p class="entrytitle">'+title+'</p>'+
+			'<div class="entryicon"><img src="loading.gif" alt="loading" class="loading entryicon"></div>'+
+			'</div>');
+	// replace icon with actual one; 
+	// TODO handle load delay?
+	$('div#entry_'+index+' .entryicon img', tray).replaceWith('<img src="'+iconurl+'" alt="'+title+' icon" class="entryicon">');
+	//console.log('icon = '+iconurl);
 }
 
 function addEntries(atomurl) {
@@ -46,23 +77,7 @@ function addEntries(atomurl) {
 			$( '>img[class=\'loading\']:first', tray).remove();
 			
 			$( data ).find('entry').each(function(index, el) {
-				index = entries.length;
-				entries[index] = el;
-				var title = $('title', el).text();
-				console.log('  entry['+index+']: '+title);
-				var iconurl = $('link[rel=\'alternate\'][type^=\'image\']', el).attr('href');
-				
-				$('#tray').append('<div id="entry_'+index+'" class="entry"><p class="entrytitle">'+title+'</p>'+
-						'<div class="entryicon"><img src="loading.gif" alt="loading" class="loading"></div>'+
-						'</div>');
-				// replace icon with actual one; 
-				if (iconurl) {
-					$('div.entryicon img', tray).replaceWith('<img src="'+iconurl+'" alt="'+title+' icon" class="entryicon">');
-					console.log('icon = '+iconurl);
-				// TODO default
-				}
-				else
-					console.log('iconurl unknown for '+title);
+				addEntry(el);
 			});
 		},
 		error: function(xhr, textStatus, errorThrown) {
@@ -74,6 +89,39 @@ function addEntries(atomurl) {
 	
 }
 
+function showEntryPopup(entry) {
+	currententry = entry;
+	$('#entrypopup_title').text(entry.title);
+	$('#entrypopup_summary').html(entry.summary);
+
+	$('#entrypopup_icon img').replaceWith('<img src="'+entry.iconurl+'" alt="'+entry.title+' icon" class="entrypopup_icon">');
+
+	// options...
+	$('#entrypopup_options').empty();
+	
+	$('#entrypopup_options').append('<p class="option" id="option_back">Back</p>');
+	if (entry.enclosures.length>0)
+		// kiosk...?
+		$('#entrypopup_options').append('<p class="option" id="option_view">View</p>');
+	
+	$('#entrypopup').css('visibility','visible');
+	$('#entrypopup').show();
+}
+
+function handleOption(optionid) {
+	$('#entrypopup').hide();
+	if ('option_back'==optionid) {
+		// no-op (other than hide)
+		currententry = null;
+	}
+	else if ('option_view'==optionid) {
+		// TODO view current entry
+		var enc = currententry.enclosures[0];
+		console.log('view '+currententry.title+' as '+enc.url);
+		window.open(enc.url,'_self','',false);
+	}
+}
+
 $( document ).ready(function() {
 	$('#status').html('Loaded!');
 
@@ -82,12 +130,19 @@ $( document ).ready(function() {
 	// touch listeners
 	$( 'body' ).on('touchstart',function(ev) {
 		console.log('touchstart '+ev);
+		var entry= getTouchedEntry(ev);
+		if (entry!==undefined)
+			$('div#entry_'+entry.index).addClass('entrytouched');
+		if ($(ev.target).hasClass('option'))
+			$(ev.target).addClass('optiontouched');
 	});
 	$( 'body' ).on('touchmove',function(ev) {
 		console.log('touchmove'+ev);
 	});
 	$( 'body' ).on('touchend',function(ev) {
 		console.log('touchend '+ev);
+		$('div.entry').removeClass('entrytouched');
+		$('.optiontouched').removeClass('optiontouched');
 	});
 	$( 'body' ).on('touchcancel',function(ev) {
 		console.log('touchcancel '+ev);
@@ -98,9 +153,9 @@ $( document ).ready(function() {
 		console.log('mousedown at '+ev.pageX+','+ev.pageY+' on '+ev.target);
 		mousedownEvent = { pageX: ev.pageX, pageY: ev.pageY, target: ev.target };
 		mousemoved = false;
-		var index = getTouchedEntry(ev);
-		if (index!==undefined)
-			$('div#entry_'+index).addClass('entrytouched');
+		var entry= getTouchedEntry(ev);
+		if (entry!==undefined)
+			$('div#entry_'+entry.index).addClass('entrytouched');
 	});
 	$( 'body' ).on('mousemove',function(ev) {
 		if (mousedownEvent!==null && 
@@ -118,9 +173,12 @@ $( document ).ready(function() {
 			mousemoved = true;
 		if (!mousemoved) {
 			console.log('mouseup=touch (target equal? '+(mousedownEvent.target===ev.target)+')');	
-			var index = getTouchedEntry(ev);
-			if (index!==undefined) {
-				// ...
+			var entry = getTouchedEntry(ev);
+			if (entry!==undefined) {
+				showEntryPopup(entry);
+			}
+			if ($(ev.target).hasClass('option')) {
+				handleOption(ev.target.id);
 			}
 		}
 		else
