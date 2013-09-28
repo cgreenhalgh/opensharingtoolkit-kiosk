@@ -14,6 +14,7 @@ import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.net.Socket;
 import java.util.HashMap;
+import java.util.Locale;
 
 import org.opensharingtoolkit.kiosk.Service;
 
@@ -62,7 +63,7 @@ public class HttpClientHandler extends Thread {
 				int ix = header.indexOf(":");
 				if (ix<0) 
 					throw HttpError.badRequest("Mal-formed header line ("+header+")");
-				String name = header.substring(0,ix).trim().toLowerCase();
+				String name = header.substring(0,ix).trim().toLowerCase(Locale.US);
 				String value = header.substring(ix+1).trim();
 				headers.put(name, value);
 			}
@@ -103,7 +104,9 @@ public class HttpClientHandler extends Thread {
 				service.postRequest(path, requestBody, new HttpContinuation() {
 
 					public void done(int status, String message, String mimeType, long length, InputStream content) {
+						Log.d(TAG,"http done: status="+status+", message="+message+", length="+length);
 						mStatus = status;
+						mMimeType = mimeType;
 						mMessage = message;
 						mResponseLength = length;
 						mResponseContent = content;

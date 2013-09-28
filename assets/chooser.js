@@ -117,8 +117,23 @@ function handleOption(optionid) {
 	else if ('option_view'==optionid) {
 		// TODO view current entry
 		var enc = currententry.enclosures[0];
-		console.log('view '+currententry.title+' as '+enc.url);
-		window.open(enc.url,'_self','',false);
+		var url = enc.url;
+		console.log('view '+currententry.title+' as '+url);
+		var done = false;
+		if (kiosk!==undefined) {
+			if (url.indexOf(':')<0) {
+				if (location.href.indexOf('file:///android_asset/'==0)) {
+					if (url.indexOf('/')!=0)
+						url = '/'+url;
+					url = 'http://'+kiosk.getHostAddress()+':'+kiosk.getPort()+'/a'+url;
+					console.log('open asset '+enc.url+' as '+url);
+				}
+			}
+			done = kiosk.openUrl(url, enc.mimeType, location.href);
+		} 
+		if (!done) {
+			window.open(url,'_self','',false);
+		}
 	}
 }
 

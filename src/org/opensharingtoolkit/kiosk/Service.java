@@ -27,7 +27,7 @@ public class Service extends android.app.Service {
 	private static final String TAG = "kiosk-service";
 	private static final int SERVICE_NOTIFICATION_ID = 1;
 	private HttpListener httpListener = null;
-	private static final int HTTP_PORT = 8080;
+	public static final int HTTP_PORT = 8080;
 	@Override
 	public void onCreate() {
 		super.onCreate();
@@ -101,8 +101,8 @@ public class Service extends android.app.Service {
 			HttpContinuation httpContinuation) throws IOException, HttpError {
 		if (path.startsWith("/a/"))
 			handleAssetRequest(path.substring("/a".length()), requestBody, httpContinuation);
-
-		httpContinuation.done(404, "File not found", "text/plain", -1, null);		
+		else 
+			httpContinuation.done(404, "File not found", "text/plain", -1, null);		
 	}
 	private void handleAssetRequest(String path, String requestBody,
 			HttpContinuation httpContinuation) throws IOException, HttpError {
@@ -152,7 +152,9 @@ public class Service extends android.app.Service {
 			// guess mime type
 			httpContinuation.done(200, "OK", mimeType, -1, content);
 		}
-		else
+		else {
+			Log.d(TAG,"Content not found");
 			httpContinuation.done(404, "File not found", "text/plain", -1, null);
+		}
 	}
 }
