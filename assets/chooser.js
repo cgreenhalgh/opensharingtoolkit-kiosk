@@ -1,6 +1,18 @@
 // chooser.js - Javascript for kiosk chooser view.
 // work in progress...
 
+// standard file types
+// Note: application/x-itunes-app is a made-up mime type for consistency
+var standardFileTypes = [ { mime: "application/pdf", ext: "pdf", icon: "icons/pdf.png", label: "PDF" },
+                          { mime: "text/html", ext: "html", icon: "icons/html.png", label: "HTML" },
+                          { mime: "application/vnd.android.package-archive", ext: "apk", icon: "icons/get_it_on_google_play.png", name: "Android app" },
+                          { mime: "application/x-itunes-app", icon: "icons/available_on_the_app_store.png", label: "iPhone app" },
+                          ];
+// main device types and standard (built-in supported) mime types.
+// Note: application/x-itunes-app is a made-up mime type for consistency
+var deviceTypes = [ { term: "android", label: "Android", supportsMime: [ "text/html", "application/vnd.android.package-archive" ] },
+                    { term: "ios", label: "iPhone", supportsMime: [ "text/html", "application/x-itunes-app" ] } ];
+
 function getHostAddress() {
 	if (kiosk!==undefined) 
 		return kiosk.getHostAddress();
@@ -8,7 +20,12 @@ function getHostAddress() {
 	return "localhost";
 }
 
+// entry type:
+// { title:, iconurl:, summary:, index:, enclosures: [{mime:, url:}], 
+//   supportsMime:["..."], requiresDevice:["..."] }
 var entries = [];
+// mime type -> label
+var customMimeTypeLabels = new Object;
 var mousedownEvent = null;
 var mousemoved = false;
 var MOUSE_MOVE_MIN = 10;
@@ -31,13 +48,24 @@ function getTouchedEntry(ev) {
 	return undefined;
 }
 
-function addEntry(atomentry) {
+function getPrefixedUrl(prefix, href) {
+	if (href.indexOf(':')<0 && href.indexOf('/')!=0) {
+		// no scheme and doesn't start with /
+		href = prefix+href;
+		// TODO relative ..?
+	}
+	return href;
+}
+
+function addEntry(atomentry, prefix) {
 	index = entries.length;
 	var title = $('title', atomentry).text();
 	var iconurl = $('link[rel=\'alternate\'][type^=\'image\']', atomentry).attr('href');
 	if (!iconurl) {
-		iconurl = "_blank.png";
+		iconurl = "icons/_blank.png";
 		console.log('iconurl unknown for '+title);
+	} else {
+		iconurl = getPrefixedUrl(prefix, iconurl);
 	}
 	var summary = $('summary', atomentry).text();	
 	var entry = { title: title, iconurl: iconurl, summary: summary, index: index };
@@ -46,14 +74,31 @@ function addEntry(atomentry) {
 		var type = $(el).attr('type');
 		var href = $(el).attr('href');
 		if (href) {
-			entry.enclosures.push({mimeType: type, url: href});
+			href = getPrefixedUrl(prefix,href);
+			entry.enclosures.push({mime: type, url: href});
+		}
+	});
+	entry.supportsMime = [];
+	$('category[scheme=\'supports-mime-type\']', atomentry).each(function(index, el) {
+		var mime = $(el).attr('term');
+		var label = $(el).attr('label');
+		if (mime) {
+			entry.supportsMime.push(mime);
+			customMimeTypeLabels[mime] = label;
+		}
+	});
+	entry.requiresDevice = [];
+	$('category[scheme=\'requires-device\']', atomentry).each(function(index, el) {
+		var device = $(el).attr('term');
+		if (device) {
+			entry.requiresDevice.push(device);
 		}
 	});
 	
 	entries[index] = entry;
 	console.log('  entry['+index+']: '+title);
 	$('#tray').append('<div id="entry_'+index+'" class="entry"><p class="entrytitle">'+title+'</p>'+
-			'<div class="entryicon"><img src="loading.gif" alt="loading" class="loading entryicon"></div>'+
+			'<div class="entryicon"><img src="icons/loading.gif" alt="loading" class="loading entryicon"></div>'+
 			'</div>');
 	// replace icon with actual one; 
 	// TODO handle load delay?
@@ -64,8 +109,14 @@ function addEntry(atomentry) {
 function addEntries(atomurl) {
 	console.log('loading entries from '+atomurl);
 	var tray = $('#tray');
+	var ix = atomurl.lastIndexOf('/');
+	var prefix = '';
+	if (ix>=0) {
+		prefix = atomurl.substring(0, ix+1);
+		console.log('entry loading prefix='+prefix);
+	}
 	// add loading animation
-	tray.append('<img src="loading.gif" alt="loading" class="loading">');
+	tray.append('<img src="icons/loading.gif" alt="loading" class="loading">');
 	$.ajax({
 		url: atomurl,
 		type: 'GET',
@@ -77,7 +128,7 @@ function addEntries(atomurl) {
 			$( '>img[class=\'loading\']:first', tray).remove();
 			
 			$( data ).find('entry').each(function(index, el) {
-				addEntry(el);
+				addEntry(el, prefix);
 			});
 		},
 		error: function(xhr, textStatus, errorThrown) {
@@ -95,7 +146,46 @@ function showEntryPopup(entry) {
 	$('#entrypopup_summary').html(entry.summary);
 
 	$('#entrypopup_icon img').replaceWith('<img src="'+entry.iconurl+'" alt="'+entry.title+' icon" class="entrypopup_icon">');
+	$('#entrypopup_requires').empty();
 
+	// requires...
+	// file icon(s)
+	for (var ei in entry.enclosures) {
+		var enc = entry.enclosures[ei];
+		var iconurl = null;
+		// standard file types
+		for (var si in standardFileTypes) {
+			var sft = standardFileTypes[si];
+			if (sft.mime==enc.mime && sft.icon) {
+				iconurl = sft.icon;
+				break;
+			}
+		}
+		// custom file types => use application icon
+		if (!iconurl) {
+			for (var eni in entries) {
+				var en2 = entries[eni];
+				if (en2.supportsMime.indexOf(enc.mime)>=0 && en2.iconurl) {
+					iconurl = en2.iconurl;
+				}
+			}
+		}
+		// fall-back
+		if (!iconurl)
+			iconurl = 'icons/_blank.png';
+		
+		console.log('requires '+iconurl);
+		$('#entrypopup_requires').append('<img src="'+iconurl+'" alt="'+enc.mime+'" class="entrypopup_requires_mime">');		
+	}
+	// device label(s)
+	for (var di in deviceTypes) {
+		var dt = deviceTypes[di];
+		if (entry.requiresDevice.indexOf(dt.term)>=0) {
+			console.log('requires '+dt.term);
+			$('#entrypopup_requires').append('<div class="entrypopup_requires_device">'+dt.label+'</p>');
+		}
+	}
+	$('#entrypopup_requires').append('<div id="entrypopup_requires_end"></div>');
 	// options...
 	$('#entrypopup_options').empty();
 	
@@ -157,7 +247,7 @@ function handleOption(optionid) {
 		if (kiosk!==undefined) {
 			url = getInternalUrl(url);
 			// try kiosk open...
-			done = kiosk.openUrl(url, enc.mimeType, location.href);
+			done = kiosk.openUrl(url, enc.mime, location.href);
 		} 
 		else
 			url = getExternalUrl(url);
@@ -181,7 +271,7 @@ function handleOption(optionid) {
 			$('#entrypopup_options').append('<p class="option_info">Join Wifi Network <span class="ssid">'+ssid+'</span> and scan/enter...</p>');
 
 			url = "http://"+getHostAddress()+":8080/a/phonehelper.html?mime="+
-				encodeURIComponent(enc.mimeType)+"&url="+encodeURIComponent(url)+
+				encodeURIComponent(enc.mime)+"&url="+encodeURIComponent(url)+
 				"&ssid="+encodeURIComponent(kiosk.getWifiSsid())+
 				"&title="+encodeURIComponent(currententry.title);
 			console.log('Using helper page url '+url);
@@ -270,5 +360,5 @@ $( document ).ready(function() {
 	$('#tray').empty();
 	entries = [];
 	
-	addEntries('test.xml');
+	addEntries('test/test.xml');
 });

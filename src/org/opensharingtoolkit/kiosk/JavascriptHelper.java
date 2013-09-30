@@ -3,7 +3,6 @@
  */
 package org.opensharingtoolkit.kiosk;
 
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.Inet4Address;
 import java.net.InetAddress;

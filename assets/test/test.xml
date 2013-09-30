@@ -32,5 +32,35 @@
                 </author>
         </entry>
  
+        <entry>
+                <title>Adobe Reader</title>
+                <!-- it's an app that supports a mime type -->
+                <category scheme="supports-mime-type" term="application/pdf" label="View PDF"/>
+                <!-- it's for a particular os -->
+                <category scheme="requires-device" term="android"/>
+                <link rel="alternate" type="image/png" href="adobe_reader.png" />
+                <link rel="enclosure" type="application/vnd.android.package-archive" href="http://play.google.com/store/apps/details?id=com.adobe.reader" />
+                <id>tag:cmg@cs.nott.ac.uk,2013-09-26:app/adobe_reader_for_android</id>
+                <updated>2013-09-30T20:30:01Z</updated>
+                <summary>One of the most popular PDF file viewers, from Adobe, available on Google Play.</summary>
+                <author>
+                      <name>Abode</name>
+                </author>
+        </entry>
         
+        <entry>
+                <title>Adobe Reader</title>
+                <!-- it's an app that supports a mime type -->
+                <category scheme="supports-mime-type" term="application/pdf" label="View PDF"/>
+                <!-- it's for a particular os -->
+                <category scheme="requires-device" term="ios"/>
+                <link rel="alternate" type="image/png" href="adobe_reader.png" />
+                <link rel="enclosure" type="application/x-itunes-app" href="https://itunes.apple.com/gb/app/adobe-reader/id469337564?mt=8&amp;uo=4" />
+                <id>tag:cmg@cs.nott.ac.uk,2013-09-26:app/adobe_reader_for_android</id>
+                <updated>2013-09-30T20:30:01Z</updated>
+                <summary>One of the most popular PDF file viewers, from Adobe, available on iTunes.</summary>
+                <author>
+                      <name>Abode</name>
+                </author>
+        </entry>
 </feed>
