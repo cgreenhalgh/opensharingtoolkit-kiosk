@@ -100,40 +100,67 @@ function showEntryPopup(entry) {
 	$('#entrypopup_options').empty();
 	
 	$('#entrypopup_options').append('<p class="option" id="option_back">Back</p>');
-	if (entry.enclosures.length>0)
+	if (entry.enclosures.length>0) {
 		// kiosk...?
 		$('#entrypopup_options').append('<p class="option" id="option_view">View</p>');
-	
+		
+		if (kiosk!==undefined) {
+			$('#entrypopup_options').append('<p class="option" id="option_send">Get on Phone</p>');			
+		}
+	}	
 	$('#entrypopup').css('visibility','visible');
 	$('#entrypopup').show();
 }
 
+// convert possibly internal URL to simple external/global URL
+function getExternalUrl(url) {
+	if (kiosk!==undefined) {
+		// convert to external URL
+		if (url.indexOf(':')<0) {
+			if (location.href.indexOf('file:///android_asset/'==0)) {
+				if (url.indexOf('/')!=0)
+					url = '/'+url;
+				url = 'http://'+kiosk.getHostAddress()+':'+kiosk.getPort()+'/a'+url;
+			}
+		}
+	} 
+	return url;
+}
+
 function handleOption(optionid) {
-	$('#entrypopup').hide();
 	if ('option_back'==optionid) {
 		// no-op (other than hide)
 		currententry = null;
+		$('#entrypopup').hide();
 	}
 	else if ('option_view'==optionid) {
-		// TODO view current entry
 		var enc = currententry.enclosures[0];
 		var url = enc.url;
+		url = getExternalUrl(url);
 		console.log('view '+currententry.title+' as '+url);
 		var done = false;
 		if (kiosk!==undefined) {
-			if (url.indexOf(':')<0) {
-				if (location.href.indexOf('file:///android_asset/'==0)) {
-					if (url.indexOf('/')!=0)
-						url = '/'+url;
-					url = 'http://'+kiosk.getHostAddress()+':'+kiosk.getPort()+'/a'+url;
-					console.log('open asset '+enc.url+' as '+url);
-				}
-			}
+			// try kiosk open...
 			done = kiosk.openUrl(url, enc.mimeType, location.href);
 		} 
 		if (!done) {
+			// if we are kiosk this is usually wrong 
 			window.open(url,'_self','',false);
 		}
+		$('#entrypopup').hide();
+	}
+	else if ('option_send'==optionid) {
+		var enc = currententry.enclosures[0];
+		var url = enc.url;
+		url = getExternalUrl(url);
+		console.log('send '+currententry.title+' as '+url);
+		// replace options...
+		$('#entrypopup_options').empty();
+		$('#entrypopup_options').append('<p class="option" id="option_back">Back</p>');
+		if (kiosk!==undefined)
+			$('#entrypopup_options').append('<img class="option_qrcode" src="http://'+kiosk.getHostAddress()+':'+kiosk.getPort()+'/qr?url='+encodeURIComponent(url)+'&size=150" alt="qrcode for item">');
+		$('#entrypopup_options').append('<p class="option_url">'+url+'</p>');
+
 	}
 }
 

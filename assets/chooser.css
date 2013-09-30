@@ -74,6 +74,7 @@ img.entryicon {
 	top: 3%;
 	width: 45%;
 	height: 94%;
+	overflow: scroll;
 	/*border: thin solid grey;*/
 }
 /*p*/#entrypopup_title {
@@ -117,4 +118,27 @@ p.option {
 }
 p.optiontouched {
 	background-color: #ccc;
+}
+img.option_qrcode {
+	display: block;
+	margin-left: auto;
+	margin-right: auto;
+	width: 300px;
+	height: 300px;
+	/* crisp image if scaled up: */
+	image-rendering: -moz-crisp-edges; /* Firefox */
+	image-rendering: -o-crisp-edges; /* Opera */
+	image-rendering: -webkit-optimize-contrast;
+	/* Webkit (non-standard naming) */
+	image-rendering: crisp-edges;
+	-ms-interpolation-mode: nearest-neighbor;
+	/* IE (non-standard property) */
+}
+p.option_url {
+	float: none;
+	font-size: 24px;
+	font-family: sans-serif;
+	font-weight: normal;
+	text-align: center;	
+	padding: 10px 0 10px 0;
 }

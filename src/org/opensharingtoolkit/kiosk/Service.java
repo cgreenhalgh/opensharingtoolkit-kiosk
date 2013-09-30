@@ -14,6 +14,7 @@ import org.opensharingtoolkit.httpserver.HttpListener;
 import android.app.Notification;
 import android.app.PendingIntent;
 import android.content.Intent;
+import android.content.res.AssetFileDescriptor;
 import android.content.res.AssetManager;
 import android.os.IBinder;
 import android.util.Log;
@@ -101,7 +102,9 @@ public class Service extends android.app.Service {
 			HttpContinuation httpContinuation) throws IOException, HttpError {
 		if (path.startsWith("/a/"))
 			handleAssetRequest(path.substring("/a".length()), requestBody, httpContinuation);
-		else 
+		else if (path.startsWith("/qr?"))
+			QRCodeServer.handleRequest(path, httpContinuation);
+		else
 			httpContinuation.done(404, "File not found", "text/plain", -1, null);		
 	}
 	private void handleAssetRequest(String path, String requestBody,
@@ -138,19 +141,47 @@ public class Service extends android.app.Service {
 				Log.w(TAG,"Unknown file extension "+extension+" (get "+path+")");
 		}			
 		Log.d(TAG,"Sending "+path+" as "+mimeType);
-		// TODO Auto-generated method stub
 		AssetManager assets = getApplicationContext().getAssets();
+		// try hard to get asset size
+		long length = -1;
+		try {
+			AssetFileDescriptor afd = assets.openFd(path);
+			length = afd.getDeclaredLength();
+			if (length==AssetFileDescriptor.UNKNOWN_LENGTH)
+				length = -1;
+		}
+		catch (Exception e) {
+			Log.d(TAG,"Anticipated error opening "+path+": "+e.getMessage());
+		}
+		if (length<0) {
+			// try again 
+			try {			
+				// first, length
+				InputStream content = assets.open(path);
+				byte buf[] = new byte[10000];
+				length = 0;
+				while(true) {
+					long cnt = content.read(buf);
+					if (cnt>0)
+						length += cnt;
+					else
+						break;
+				}
+				content.close();
+			} catch (IOException e) {
+				Log.w(TAG,"Error opening asset "+path, e);
+			}
+		}
+		// content
 		InputStream content = null;
 		try {
 			content = assets.open(path);
 		} catch (IOException e) {
 			Log.w(TAG,"Error opening asset "+path, e);
-			// TODO Auto-generated catch block
-			e.printStackTrace();
 		}
 		if (content!=null) {
 			// guess mime type
-			httpContinuation.done(200, "OK", mimeType, -1, content);
+			httpContinuation.done(200, "OK", mimeType, length, content);
 		}
 		else {
 			Log.d(TAG,"Content not found");
