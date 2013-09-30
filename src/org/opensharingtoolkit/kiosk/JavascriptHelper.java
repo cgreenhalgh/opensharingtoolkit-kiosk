@@ -3,6 +3,8 @@
  */
 package org.opensharingtoolkit.kiosk;
 
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.net.Inet4Address;
 import java.net.InetAddress;
 import java.net.InterfaceAddress;
@@ -18,6 +20,10 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.net.Uri;
+import android.net.wifi.SupplicantState;
+import android.net.wifi.WifiConfiguration;
+import android.net.wifi.WifiInfo;
+import android.net.wifi.WifiManager;
 import android.util.Log;
 import android.webkit.JavascriptInterface;
 
@@ -110,5 +116,46 @@ public class JavascriptHelper {
 			Log.w(TAG,"Error opening "+url+" "+mimeTypeHint+" using intent", e);
 			return false;
 		}
+	}
+	
+	/** get SSID of current wifi network.
+	 * 
+	 *  @return null if no network.
+	 */
+	@JavascriptInterface
+	public String getWifiSsid() {
+		WifiManager wifiManager = (WifiManager) mContext.getSystemService(Context.WIFI_SERVICE);
+		int state = wifiManager.getWifiState();
+		if (state==WifiManager.WIFI_STATE_ENABLED || state==WifiManager.WIFI_STATE_ENABLING) {
+			WifiInfo connectionInfo = wifiManager.getConnectionInfo();
+			String ssid = connectionInfo.getSSID();
+			// remove quotes (=> UTF-8 encodable)
+			if (ssid.startsWith("\"") && ssid.endsWith("\""))
+				ssid = ssid.substring(1, ssid.length()-1);
+			SupplicantState ss = connectionInfo.getSupplicantState();
+			Log.d(TAG,"Wifi is "+ssid+" ("+ss.name()+")"+(state==WifiManager.WIFI_STATE_ENABLING ? " enabling...":""));
+			return ssid;
+		}
+		else
+			Log.d(TAG,"Wifi state="+state);
+		// are we a hotspot? need non-documented methods...
+		// http://stackoverflow.com/questions/6394599/android-turn-on-off-wifi-hotspot-programmatically
+		//wifiControlMethod = mWifiManager.getClass().getMethod("setWifiApEnabled", WifiConfiguration.class,boolean.class);
+	    try {
+		    Method wifiApConfigurationMethod = wifiManager.getClass().getMethod("getWifiApConfiguration");
+			Method wifiApState = wifiManager.getClass().getMethod("getWifiApState");
+			int apstate = (Integer)wifiApState.invoke(wifiManager);
+			//if (apstate==WifiManager.WIFI_STATE_ENABLED || apstate==WifiManager.WIFI_STATE_ENABLING) {
+			WifiConfiguration configInfo = (WifiConfiguration)wifiApConfigurationMethod.invoke(wifiManager);
+			String ssid = configInfo!=null ? configInfo.SSID : null;
+			Log.d(TAG,"WifiAp is "+ssid+" (apstate="+apstate+")");
+			// apstate 13 seen when running hotspot...; 11 when not running
+			// cf 3 normal wifi enabled?
+			if (apstate==13 || apstate==12)
+				return ssid;
+		} catch (Exception e) {
+			Log.w(TAG,"Unable to find WifiAp methods: "+e);
+		}
+	    return null;
 	}
 }

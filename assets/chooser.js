@@ -173,8 +173,15 @@ function handleOption(optionid) {
 		// replace options...
 		$('#entrypopup_options').empty();
 		$('#entrypopup_options').append('<p class="option" id="option_back">Back</p>');
-		if (kiosk!==undefined)
+		if (kiosk!==undefined) {
+			var ssid = kiosk.getWifiSsid();
+			$('#entrypopup_options').append('<p class="option_info">Join Wifi Network <span class="ssid">'+ssid+'</span> and scan/enter...</p>');
+			
 			$('#entrypopup_options').append('<img class="option_qrcode" src="http://localhost:8080/qr?url='+encodeURIComponent(url)+'&size=150" alt="qrcode for item">');
+		} else {
+			// assume internet?? try google qrcode generator http://chart.apis.google.com/chart?cht=qr&chs=150x150&choe=UTF-8&chl=http%3A%2F%2F1.2.4
+			$('#entrypopup_options').append('<img class="option_qrcode" src="http://chart.apis.google.com/chart?cht=qr&chs=150x150&choe=UTF-8&chl='+encodeURIComponent(url)+'" alt="qrcode for item">');
+		}
 		$('#entrypopup_options').append('<p class="option_url">'+url+'</p>');
 
 	}
@@ -183,8 +190,11 @@ function handleOption(optionid) {
 $( document ).ready(function() {
 	$('#status').html('Loaded!');
 
-	$('#status').html('getHostAddress()='+getHostAddress());
-
+	if (kiosk!==undefined)
+		$('#status').html('getWifiSsid()='+kiosk.getWifiSsid()+', getHostAddress()='+getHostAddress());
+	else 
+		$('#status').html('getHostAddress()='+getHostAddress());
+		
 	// touch listeners
 	$( 'body' ).on('touchstart',function(ev) {
 		console.log('touchstart '+ev);
