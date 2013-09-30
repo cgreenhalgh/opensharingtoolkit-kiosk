@@ -15,6 +15,7 @@ import java.io.OutputStreamWriter;
 import java.net.Socket;
 import java.util.HashMap;
 import java.util.Locale;
+import java.util.Map;
 
 import org.opensharingtoolkit.kiosk.Service;
 
@@ -33,6 +34,7 @@ public class HttpClientHandler extends Thread {
 	private long mResponseLength = -1;
 	private InputStream mResponseContent = null;
 	private String mMimeType = null;
+	private Map<String, String> mExtraHeaders;
 
 	public HttpClientHandler(Service service, Socket s) {
 		this.service = service;
@@ -103,13 +105,14 @@ public class HttpClientHandler extends Thread {
 			synchronized (this) {
 				service.postRequest(path, requestBody, new HttpContinuation() {
 
-					public void done(int status, String message, String mimeType, long length, InputStream content) {
+					public void done(int status, String message, String mimeType, long length, InputStream content, Map<String,String> extraHeaders) {
 						Log.d(TAG,"http done: status="+status+", message="+message+", length="+length);
 						mStatus = status;
 						mMimeType = mimeType;
 						mMessage = message;
 						mResponseLength = length;
 						mResponseContent = content;
+						mExtraHeaders = extraHeaders;
 						synchronized (HttpClientHandler.this) {
 							HttpClientHandler.this.notify();
 						}
@@ -136,6 +139,10 @@ public class HttpClientHandler extends Thread {
 			else if (mResponseContent==null)
 				osw.write("Content-Length: 0\r\n");	
 			osw.write("Content-Type: "+mMimeType+"\r\n");
+			if (mExtraHeaders!=null) {
+				for (Map.Entry<String, String> hs : mExtraHeaders.entrySet()) 
+					osw.write(hs.getKey()+": "+hs.getValue()+"\r\n");
+			}
 			osw.write("\r\n");
 			osw.flush();
 			byte rbuf[] = new byte[100000];

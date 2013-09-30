@@ -25,6 +25,8 @@ import android.util.Log;
  */
 public class Service extends android.app.Service {
 
+	private IBinder mBinder = new LocalBinder();
+	
 	private static final String TAG = "kiosk-service";
 	private static final int SERVICE_NOTIFICATION_ID = 1;
 	private HttpListener httpListener = null;
@@ -44,7 +46,7 @@ public class Service extends android.app.Service {
 				.build();
 
 		startForeground(SERVICE_NOTIFICATION_ID, notification);
-		
+				
 		httpListener = new HttpListener(this, HTTP_PORT);
 		httpListener.start();
 	}
@@ -52,7 +54,6 @@ public class Service extends android.app.Service {
 	@Override
 	public void onDestroy() {
 		Log.d(TAG,"service onDestroy");
-		// TODO Auto-generated method stub
 		super.onDestroy();
 		
 		stopForeground(true);
@@ -69,7 +70,6 @@ public class Service extends android.app.Service {
 
 	// starting service...
 	private void handleCommand(Intent intent) {
-		// TODO Auto-generated method stub
 		Log.d(TAG,"handleCommand "+intent.getAction());
 	}
 
@@ -94,23 +94,34 @@ public class Service extends android.app.Service {
 	 */
 	@Override
 	public IBinder onBind(Intent arg0) {
-		// TODO Auto-generated method stub
-		return null;
+		return mBinder;
 	}
-
+	/** Binder subclass (inner class) with methods for local interaction with service */
+	public class LocalBinder extends android.os.Binder {
+		// local methods... direct access to service
+		public Service getService() {
+			return Service.this;
+		}
+	}
+	
 	public void postRequest(String path, String requestBody,
 			HttpContinuation httpContinuation) throws IOException, HttpError {
 		if (path.startsWith("/a/"))
 			handleAssetRequest(path.substring("/a".length()), requestBody, httpContinuation);
 		else if (path.startsWith("/qr?"))
 			QRCodeServer.handleRequest(path, httpContinuation);
+		else if (path.startsWith("/r/")) 
+			RedirectServer.singleton().handleRequest(path, httpContinuation);
 		else
-			httpContinuation.done(404, "File not found", "text/plain", -1, null);		
+			httpContinuation.done(404, "File not found", "text/plain", -1, null, null);		
 	}
 	private void handleAssetRequest(String path, String requestBody,
 			HttpContinuation httpContinuation) throws IOException, HttpError {
 		if (path.startsWith("/"))
 			path = path.substring(1);
+		int qix = path.indexOf("?");
+		if (qix>=0)
+			path = path.substring(0,qix);
 		int ix = path.lastIndexOf('/');
 		String mimeType = "application/unknown";
 		String filename = path;
@@ -183,11 +194,11 @@ public class Service extends android.app.Service {
 		}
 		if (content!=null) {
 			// guess mime type
-			httpContinuation.done(200, "OK", mimeType, length, content);
+			httpContinuation.done(200, "OK", mimeType, length, content, null);
 		}
 		else {
 			Log.d(TAG,"Content not found");
-			httpContinuation.done(404, "File not found", "text/plain", 0, null);
+			httpContinuation.done(404, "File not found", "text/plain", 0, null, null);
 		}
 	}
 }

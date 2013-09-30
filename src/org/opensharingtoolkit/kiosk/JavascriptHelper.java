@@ -35,11 +35,13 @@ import android.webkit.JavascriptInterface;
 public class JavascriptHelper {
 	private static final String TAG = "JavascriptHelper";
 	private Context mContext;
+	//private RedirectServer mRedirectServer;
 	
 	
-	public JavascriptHelper(Context mContext) {
+	public JavascriptHelper(Context context/*, RedirectServer redirectServer*/) {
 		super();
-		this.mContext = mContext;
+		this.mContext = context;
+		//this.mRedirectServer = redirectServer;
 	}
 	
 	/** get local IP address/domain name for use in URLs by other machines on network;
@@ -157,5 +159,15 @@ public class JavascriptHelper {
 			Log.w(TAG,"Unable to find WifiAp methods: "+e);
 		}
 	    return null;
+	}
+
+	/** register temporary redirect.
+	 * 
+	 *  @return Redirect path 
+	 */
+	@JavascriptInterface
+	public String registerTempRedirect(String toUrl, long lifetimeMs) {
+		
+		return RedirectServer.singleton().registerTempRedirect(toUrl, lifetimeMs);
 	}
 }

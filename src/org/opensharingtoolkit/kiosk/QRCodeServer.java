@@ -108,6 +108,6 @@ public class QRCodeServer {
 	    bitmap.compress(CompressFormat.PNG, 100, stream);
 	    byte[] image = stream.toByteArray();
 	    Log.d(TAG,"qrcode as PNG is "+image.length+" bytes");
-	    httpContinuation.done(200, "OK", "image/png", image.length, new ByteArrayInputStream(image));
+	    httpContinuation.done(200, "OK", "image/png", image.length, new ByteArrayInputStream(image), null);
 	}
 }

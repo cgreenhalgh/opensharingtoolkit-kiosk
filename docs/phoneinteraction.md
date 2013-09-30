@@ -26,4 +26,10 @@ Variables:
 - environment
   - light, e.g. glare
 
+## Steps
+
+### Join Wifi Network
+
+Prompts with SSID - OK.
+
 

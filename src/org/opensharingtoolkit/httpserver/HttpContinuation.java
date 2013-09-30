@@ -7,11 +7,12 @@
 package org.opensharingtoolkit.httpserver;
 
 import java.io.InputStream;
+import java.util.Map;
 
 /**
  * @author cmg
  *
  */
 public interface HttpContinuation {
-	void done(int status, String message, String mimeType, long length, InputStream content);
+	void done(int status, String message, String mimeType, long length, InputStream content, Map<String,String> extraHeaders);
 }

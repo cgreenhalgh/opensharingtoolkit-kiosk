@@ -140,6 +140,9 @@ function getInternalUrl(url) {
 	return url;
 }
 
+// 60 minutes
+var REDIRECT_LIFETIME_MS = (60*60*1000);
+	
 function handleOption(optionid) {
 	if ('option_back'==optionid) {
 		// no-op (other than hide)
@@ -176,6 +179,16 @@ function handleOption(optionid) {
 		if (kiosk!==undefined) {
 			var ssid = kiosk.getWifiSsid();
 			$('#entrypopup_options').append('<p class="option_info">Join Wifi Network <span class="ssid">'+ssid+'</span> and scan/enter...</p>');
+
+			url = "http://"+getHostAddress()+":8080/a/phonehelper.html?mime="+
+				encodeURIComponent(enc.mimeType)+"&url="+encodeURIComponent(url)+
+				"&ssid="+encodeURIComponent(kiosk.getWifiSsid())+
+				"&title="+encodeURIComponent(currententry.title);
+			console.log('Using helper page url '+url);
+
+			var redir = kiosk.registerTempRedirect(url, REDIRECT_LIFETIME_MS);
+			url = "http://"+getHostAddress()+":8080"+redir;
+			console.log('Using temp url '+url);
 			
 			$('#entrypopup_options').append('<img class="option_qrcode" src="http://localhost:8080/qr?url='+encodeURIComponent(url)+'&size=150" alt="qrcode for item">');
 		} else {

@@ -1,0 +1,31 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<meta name="viewport" content="width=device-width, user-scalable=false;">
+<title>Kiosk phone helper</title>
+<script type="text/javascript">
+/* URL parameters - http://stackoverflow.com/questions/901115/how-can-i-get-query-string-values */
+var urlParams;
+(window.onpopstate = function () {
+    var match,
+        pl     = /\+/g,  // Regex for replacing addition symbol with a space
+        search = /([^&=]+)=?([^&]*)/g,
+        decode = function (s) { return decodeURIComponent(s.replace(pl, " ")); },
+        query  = window.location.search.substring(1);
+
+    urlParams = {};
+    while (match = search.exec(query))
+       urlParams[decode(match[1])] = decode(match[2]);
+})();
+</script>
+</head>
+<body>
+<p>Great! You're on the right network (<script type="text/javascript">document.write(urlParams.ssid);</script>)</p>
+<h1 style="">Get <script type="text/javascript">document.write(urlParams.title);</script></h1>
+<p><script type="text/javascript">
+document.write('<a style="font-size:24pt;" href="'+urlParams.url+'" style="">Download</a>');
+</script></p>
+<p>(Mime type <script type="text/javascript">document.write(urlParams.mime);</script>)</p>
+</body>
+</html>
