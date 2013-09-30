@@ -135,6 +135,8 @@ public class Service extends android.app.Service {
 				mimeType = "text/css";
 			else if (extension.equals("png"))
 				mimeType = "image/png";
+			else if (extension.equals("gif"))
+				mimeType = "image/gif";
 			else if (extension.equals("pdf"))
 				mimeType = "application/pdf";
 			else
@@ -185,7 +187,7 @@ public class Service extends android.app.Service {
 		}
 		else {
 			Log.d(TAG,"Content not found");
-			httpContinuation.done(404, "File not found", "text/plain", -1, null);
+			httpContinuation.done(404, "File not found", "text/plain", 0, null);
 		}
 	}
 }

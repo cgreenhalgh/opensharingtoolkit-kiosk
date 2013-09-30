@@ -5,7 +5,7 @@ function getHostAddress() {
 	if (kiosk!==undefined) 
 		return kiosk.getHostAddress();
 	console.log('Note: kiosk undefined');
-	return "127.0.0.1";
+	return "localhost";
 }
 
 var entries = [];
@@ -126,6 +126,19 @@ function getExternalUrl(url) {
 	} 
 	return url;
 }
+function getInternalUrl(url) {
+	if (kiosk!==undefined) {
+		// convert to external URL
+		if (url.indexOf(':')<0) {
+			if (location.href.indexOf('file:///android_asset/'==0)) {
+				if (url.indexOf('/')!=0)
+					url = '/'+url;
+				url = 'http://localhost:'+kiosk.getPort()+'/a'+url;
+			}
+		}
+	} 
+	return url;
+}
 
 function handleOption(optionid) {
 	if ('option_back'==optionid) {
@@ -136,13 +149,16 @@ function handleOption(optionid) {
 	else if ('option_view'==optionid) {
 		var enc = currententry.enclosures[0];
 		var url = enc.url;
-		url = getExternalUrl(url);
 		console.log('view '+currententry.title+' as '+url);
 		var done = false;
 		if (kiosk!==undefined) {
+			url = getInternalUrl(url);
 			// try kiosk open...
 			done = kiosk.openUrl(url, enc.mimeType, location.href);
 		} 
+		else
+			url = getExternalUrl(url);
+
 		if (!done) {
 			// if we are kiosk this is usually wrong 
 			window.open(url,'_self','',false);
@@ -158,7 +174,7 @@ function handleOption(optionid) {
 		$('#entrypopup_options').empty();
 		$('#entrypopup_options').append('<p class="option" id="option_back">Back</p>');
 		if (kiosk!==undefined)
-			$('#entrypopup_options').append('<img class="option_qrcode" src="http://'+kiosk.getHostAddress()+':'+kiosk.getPort()+'/qr?url='+encodeURIComponent(url)+'&size=150" alt="qrcode for item">');
+			$('#entrypopup_options').append('<img class="option_qrcode" src="http://localhost:8080/qr?url='+encodeURIComponent(url)+'&size=150" alt="qrcode for item">');
 		$('#entrypopup_options').append('<p class="option_url">'+url+'</p>');
 
 	}
