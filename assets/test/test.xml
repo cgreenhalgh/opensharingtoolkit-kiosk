@@ -63,4 +63,33 @@
                       <name>Abode</name>
                 </author>
         </entry>
+
+        <entry>
+                <title>Placebooks</title>
+                <!-- it's an app that supports a mime type -->
+                <category scheme="supports-mime-type" term="application/x-placebooks" label="Placebook"/>
+                <!-- it's for a particular os -->
+                <category scheme="requires-device" term="android"/>
+                <link rel="alternate" type="image/png" href="placebook.png" />
+                <link rel="enclosure" type="application/vnd.android.package-archive" href="http://play.google.com/store/apps/details?id=com.peoplescollection.placebooks" />
+                <id>tag:cmg@cs.nott.ac.uk,2013-09-26:app/placebooks_for_android</id>
+                <updated>2013-09-30T20:30:01Z</updated>
+                <summary>A research application for viewing location-based "placebooks", available on Google Play.</summary>
+                <author>
+                      <name>People's Collection Wales</name>
+                </author>
+        </entry>
+
+        <entry>
+                <title>A Walk Around Jubilee Campus</title>
+                <link rel="enclosure" type="application/x-placebooks" href="jubilee.placebook" />
+                <id>tag:cmg@cs.nott.ac.uk,2013-09-26:atom/test/placebook/jubilee/1</id>
+                <updated>2013-09-26T12:32:01Z</updated>
+                <summary>An in-situ guide to the University of Nottinhgam's Jubilee Campus. (Sorry, this doesn't actually exist at the moment.)</summary>
+                <author>
+                      <name>Chris Greenhalgh</name>
+                      <email>cmg@cs.nott.ac.uk</email>
+                </author>
+        </entry>
+        
 </feed>

@@ -8,10 +8,22 @@
 <title>Default kiosk view</title>
 </head>
 <body>
-<h1>Default</h1>
-<p id="status">Loading...</p>
-<div id="tray"></div>
-<div style="visibility: hidden;" id="entrypopup">
+<div id="screen_requires_javascript">
+	<p>This page requires Javascript, which doesn't seem to be working.</p>
+	<p>Please check that Javascript is enabled in your browser and re-load the page.</p>
+</div>
+<div id="screen_debug">
+	<h1>Default</h1>
+	<p id="status">Loading...</p>
+</div>
+<div style="visibility: hidden" id="screen_tray" class="screen">
+	<div class="screenheader">
+		<div class="optionsbutton touchable">Options...</div>
+		<div class="screentitle">Downloads for SmartPhones</div>
+	</div>
+	<div id="tray" class="scrollhint"></div>
+</div>
+<div style="visibility: hidden;" id="screen_entrypopup" class="screen">
 	<div id="entrypopup_details" class="scrollhint">
 		<p id="entrypopup_title">entrytitle</p>
 		<div id="entrypopup_icon"><img src="loading.gif" alt="loading" class="loading entrypopup_icon"></div>
@@ -19,6 +31,19 @@
 		<p id="entrypopup_summary">entrysummary</p>
 	</div>
 	<div id="entrypopup_options" class="scrollhint">
+	</div>
+</div>
+<div style="visibility: hidden;" id="screen_options" class="screen scrollhint">
+	<div class="screenheader">
+		<div class="backbutton touchable">&lt;</div>
+		<div class="screentitle">Options</div>
+	</div>
+	<div class="scrollhint" style="overflow:scroll;">
+	
+	<div class="optiontitle">Phone</div>	
+	<div id="option_device"></div>
+	<div class="optiontitle">Media types</div>
+	<div id="option_mediatype"></div>
 	</div>
 </div>
 </body>

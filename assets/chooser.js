@@ -5,13 +5,15 @@
 // Note: application/x-itunes-app is a made-up mime type for consistency
 var standardFileTypes = [ { mime: "application/pdf", ext: "pdf", icon: "icons/pdf.png", label: "PDF" },
                           { mime: "text/html", ext: "html", icon: "icons/html.png", label: "HTML" },
-                          { mime: "application/vnd.android.package-archive", ext: "apk", icon: "icons/get_it_on_google_play.png", name: "Android app" },
+                          { mime: "application/vnd.android.package-archive", ext: "apk", icon: "icons/get_it_on_google_play.png", label: "Android app" },
                           { mime: "application/x-itunes-app", icon: "icons/available_on_the_app_store.png", label: "iPhone app" },
                           ];
 // main device types and standard (built-in supported) mime types.
 // Note: application/x-itunes-app is a made-up mime type for consistency
 var deviceTypes = [ { term: "android", label: "Android", supportsMime: [ "text/html", "application/vnd.android.package-archive" ] },
-                    { term: "ios", label: "iPhone", supportsMime: [ "text/html", "application/x-itunes-app" ] } ];
+                    { term: "ios", label: "iPhone", supportsMime: [ "text/html", "application/x-itunes-app" ] },
+                    { term: "other", label: "Other smartphone", supportsMime: [ "text/html" ] },
+                    ];
 
 function getHostAddress() {
 	if (kiosk!==undefined) 
@@ -25,10 +27,10 @@ function getHostAddress() {
 //   supportsMime:["..."], requiresDevice:["..."] }
 var entries = [];
 // mime type -> label
-var customMimeTypeLabels = new Object;
+var allFileTypes = new Object();
 var mousedownEvent = null;
 var mousemoved = false;
-var MOUSE_MOVE_MIN = 10;
+var MOUSE_MOVE_MIN = 20;
 var currententry = null;
 
 function getTouchedEntry(ev) {
@@ -84,7 +86,10 @@ function addEntry(atomentry, prefix) {
 		var label = $(el).attr('label');
 		if (mime) {
 			entry.supportsMime.push(mime);
-			customMimeTypeLabels[mime] = label;
+			if (!allFileTypes[mime]) 
+				allFileTypes[mime] = { mime: mime, label: label };
+			if (!allFileTypes[mime].icon || allFileTypes[mime].icon=="icons/_blank.png")
+				allFileTypes[mime].icon = iconurl;
 		}
 	});
 	entry.requiresDevice = [];
@@ -97,13 +102,44 @@ function addEntry(atomentry, prefix) {
 	
 	entries[index] = entry;
 	console.log('  entry['+index+']: '+title);
-	$('#tray').append('<div id="entry_'+index+'" class="entry"><p class="entrytitle">'+title+'</p>'+
-			'<div class="entryicon"><img src="icons/loading.gif" alt="loading" class="loading entryicon"></div>'+
-			'</div>');
-	// replace icon with actual one; 
-	// TODO handle load delay?
-	$('div#entry_'+index+' .entryicon img', tray).replaceWith('<img src="'+iconurl+'" alt="'+title+' icon" class="entryicon">');
-	//console.log('icon = '+iconurl);
+}
+function refreshTray() {
+	$('#tray').empty();
+	for (var index in entries) {
+		var entry = entries[index];
+		// filter
+		var title = entry.title;
+		var iconurl = entry.iconurl;
+		// device
+		if (entry.requiresDevice.length>0) {
+			if (options.device && entry.requiresDevice.indexOf(options.device)<0) {
+				console.log('entry not supported on '+options.device+': '+title);
+				continue;
+			}
+		}
+		// mime type(s)
+		var mimeok = false;
+		for (var enci in entry.enclosures) {
+			var enc = entry.enclosures[enci];
+			var mime = enc.mime;
+			if (options.mediatypes && options.mediatypes[mime]===false) {
+				console.log('mimetype not wanted: '+mime+' for '+title+' '+enc.url);
+				continue;
+			}
+			mimeok = true;
+			break;
+		}
+		if (!mimeok)
+			continue;
+		
+		$('#tray').append('<div id="entry_'+index+'" class="entry touchable"><p class="entrytitle">'+title+'</p>'+
+				'<div class="entryicon"><img src="icons/loading.gif" alt="loading" class="loading entryicon"></div>'+
+		'</div>');
+		// replace icon with actual one; 
+		// TODO handle load delay?
+		$('div#entry_'+index+' .entryicon img', tray).replaceWith('<img src="'+iconurl+'" alt="'+title+' icon" class="entryicon">');
+		//console.log('icon = '+iconurl);
+	}
 }
 
 function addEntries(atomurl) {
@@ -130,6 +166,7 @@ function addEntries(atomurl) {
 			$( data ).find('entry').each(function(index, el) {
 				addEntry(el, prefix);
 			});
+			refreshTray();
 		},
 		error: function(xhr, textStatus, errorThrown) {
 			console.log('error, '+textStatus+': '+errorThrown);
@@ -154,52 +191,44 @@ function showEntryPopup(entry) {
 		var enc = entry.enclosures[ei];
 		var iconurl = null;
 		// standard file types
-		for (var si in standardFileTypes) {
-			var sft = standardFileTypes[si];
+		for (var si in allFileTypes) {
+			var sft = allFileTypes[si];
 			if (sft.mime==enc.mime && sft.icon) {
 				iconurl = sft.icon;
 				break;
 			}
 		}
-		// custom file types => use application icon
-		if (!iconurl) {
-			for (var eni in entries) {
-				var en2 = entries[eni];
-				if (en2.supportsMime.indexOf(enc.mime)>=0 && en2.iconurl) {
-					iconurl = en2.iconurl;
-				}
-			}
-		}
 		// fall-back
-		if (!iconurl)
+		if (!iconurl) {
+			console.log('Could not file icon for '+enc.mime);
 			iconurl = 'icons/_blank.png';
+		}
 		
 		console.log('requires '+iconurl);
-		$('#entrypopup_requires').append('<img src="'+iconurl+'" alt="'+enc.mime+'" class="entrypopup_requires_mime">');		
+		$('#entrypopup_requires').append('<img src="'+iconurl+'" alt="'+enc.mime+'" class="entrypopup_requires_mime touchable">');		
 	}
 	// device label(s)
 	for (var di in deviceTypes) {
 		var dt = deviceTypes[di];
 		if (entry.requiresDevice.indexOf(dt.term)>=0) {
 			console.log('requires '+dt.term);
-			$('#entrypopup_requires').append('<div class="entrypopup_requires_device">'+dt.label+'</div>');
+			$('#entrypopup_requires').append('<div class="entrypopup_requires_device touchable">'+dt.label+'</div>');
 		}
 	}
 	$('#entrypopup_requires').append('<div id="entrypopup_requires_end"></div>');
 	// options...
 	$('#entrypopup_options').empty();
 	
-	$('#entrypopup_options').append('<p class="option" id="option_back">Back</p>');
+	$('#entrypopup_options').append('<p class="option touchable" id="option_back">Back</p>');
 	if (entry.enclosures.length>0) {
 		// kiosk...?
-		$('#entrypopup_options').append('<p class="option" id="option_view">View</p>');
+		$('#entrypopup_options').append('<p class="option touchable" id="option_view">View</p>');
 		
 		if (kiosk!==undefined) {
-			$('#entrypopup_options').append('<p class="option" id="option_send">Get on Phone</p>');			
+			$('#entrypopup_options').append('<p class="option touchable" id="option_send">Get on Phone</p>');			
 		}
 	}	
-	$('#entrypopup').css('visibility','visible');
-	$('#entrypopup').show();
+	showScreen('screen_entrypopup');
 
 	updateScrollHints();
 }
@@ -239,7 +268,7 @@ function handleOption(optionid) {
 	if ('option_back'==optionid) {
 		// no-op (other than hide)
 		currententry = null;
-		$('#entrypopup').hide();
+		showScreen('screen_tray');
 	}
 	else if ('option_view'==optionid) {
 		var enc = currententry.enclosures[0];
@@ -258,7 +287,7 @@ function handleOption(optionid) {
 			// if we are kiosk this is usually wrong 
 			window.open(url,'_self','',false);
 		}
-		$('#entrypopup').hide();
+		showScreen('screen_tray');
 	}
 	else if ('option_send'==optionid) {
 		var enc = currententry.enclosures[0];
@@ -267,7 +296,7 @@ function handleOption(optionid) {
 		console.log('send '+currententry.title+' as '+url);
 		// replace options...
 		$('#entrypopup_options').empty();
-		$('#entrypopup_options').append('<p class="option" id="option_back">Back</p>');
+		$('#entrypopup_options').append('<p class="option touchable" id="option_back">Back</p>');
 		if (kiosk!==undefined) {
 			var ssid = kiosk.getWifiSsid();
 			$('#entrypopup_options').append('<p class="option_info">Join Wifi Network <span class="ssid">'+ssid+'</span> and scan/enter...</p>');
@@ -314,9 +343,196 @@ function updateScrollHint(el) {
 	}
 }
 
+function vibrate() {
+	var done = false;
+	try {
+		if (window.navigator.vibrate)
+			done = window.navigator.vibrate(100);
+	} catch (e) {
+		console.log('error on vibrate: '+e.message);
+	}
+	if (!done) {
+		// sound?
+	}
+}
+
+function initFileTypes() {
+	for (var i in standardFileTypes) {
+		var sft = standardFileTypes[i];
+		allFileTypes[sft.mime] = sft;
+	}
+}
+
+var options = new Object();
+
+// initialise the options screen 
+function initOptions() {
+	// phone types (term: label:)
+	for (var di in deviceTypes) {
+		var dt = deviceTypes[di];
+		$('#option_device').append('<div id="option_device_'+dt.term+'" class="optionvalue touchable"><img src="icons/emptybox.png" alt="blank" class="optionvalueicon"><div class="optionvaluelabel">'+dt.label+'</div></div>');
+	}
+	$('#option_device').append('<div id="option_device_any" class="optionvalue touchable"><img src="icons/emptybox.png" alt="blank" class="optionvalueicon"><div class="optionvaluelabel">Any!</div></div>');
+}
+// update the options screen
+function updateOptions() {
+	// device
+	$('#option_device div.optionvalue img').attr('src', 'icons/emptybox.png');
+	if (options.device) 
+		$('#option_device_'+options.device+' img').attr('src', 'icons/tick.png');
+	else
+		$('#option_device_any img').attr('src', 'icons/tick.png');
+	
+	// mime types
+	var mts = [];
+	for (var mti in allFileTypes) {
+		var ft = allFileTypes[mti];
+		mts.push(ft);
+		//console.log('got file type '+ft.mime);
+	}
+	$('#option_mediatype').empty();
+	for (var mti in mts) {
+		var mt = mts[mti];
+		var allow = true;
+		//if (options.mediatypes && options.mediatypes[mt.mime]===false)
+		// explicit disallowed, e.g. unsupported?!
+		//continue;
+		if (options.mediatypes && options.mediatypes[mt.mime]!==undefined)
+			allow = options.mediatypes[mt.mime];
+		var iconurl = allow ? 'icons/tick.png' : 'icons/emptybox.png';
+		var id = 'option_mediatype_'+mti;
+		$('#option_mediatype').append('<div id="'+id+'" '+
+				'class="optionvalue touchable"><img src="'+iconurl+'" alt="'+iconurl+'" '+
+				'class="optionvalueicon"><div class="optionvaluelabel">'+
+				mt.label+'</div></div>');
+		$('#'+id).data('mime', mt.mime);
+		//console.log('added option for media type '+mt.mime);
+	}
+	//$('#option_mediatype').append('<div id="option_device_any" class="optionvalue touchable"><img src="icons/emptybox.png" alt="blank" class="optionvalueicon"><div class="optionvaluelabel">Any!</div></div>');
+}
+function handleOptionvalue(el) {
+	var id = el.id;
+	console.log('handleOptionvalue('+id+')');
+	if (!id)
+		return;
+	if (id.indexOf('option_device_')==0) {
+		var dev = id.substring('option_device_'.length);
+		console.log('select device '+dev);
+		if (dev=='any')  {
+			delete options.device;
+			// initialise mediatype options for any device
+			options.mediatypes = new Object();
+		}
+		else  {
+			options.device = dev;
+			// initialise mediatype options for device
+			options.mediatypes = new Object();
+			var deviceType = null;
+			for (var dti in deviceTypes) {
+				var dt = deviceTypes[dti];
+				if (dt.term==options.device) {
+					deviceType = dt;
+					break;
+				}
+			}
+			for (var mti in allFileTypes) {
+				var mt = allFileTypes[mti];
+				if (deviceType && deviceType.supportsMime.indexOf(mt.mime)>=0)
+					// build-in support
+					options.mediatypes[mt.mime] = true;
+				else {
+					var apps = [];
+					// check applications
+					for (var ei in entries) {
+						var app = entries[ei];
+						if (app.supportsMime.indexOf(mt.mime)>=0) {
+							if (app.requiresDevice.length==0 || app.requiresDevice.indexOf(options.device)>=0) {
+								// ok with this app
+								apps.push(app);
+								console.log('device '+options.device+' requires app for '+mt.mime+' such as '+app.title);
+							}
+						}
+					}
+					if (apps.length==0) {
+						console.log('device '+options.device+' does not support '+mt.mime);
+						options.mediatypes[mt.mime] = false;
+					}
+				}
+			}
+		}
+		updateOptions();
+	} else if (id.indexOf('option_mediatype_')==0) {
+		var mime = $('#'+id).data('mime');
+		if (mime) {
+			if (options.mediatypes===undefined)
+				options.mediatypes = new Object();
+			var val = options.mediatypes[mime];
+			// toggle
+			if (val===undefined || val)
+				options.mediatypes[mime] = false;
+			else
+				options.mediatypes[mime] = true;
+			updateOptions();
+		}
+	}
+}
+
+var supportsTouch = false;
+
+var currentScreen;
+function showScreen(screenid) {
+	if (currentScreen)
+		$('#'+currentScreen).hide();
+	if (screenid=='screen_tray')
+		refreshTray();
+	$('#'+screenid).show();
+	currentScreen = screenid;
+}
+
+function handleUserInput(ev) {
+	$('.touched').removeClass('touched');
+	
+	console.log('handleUserInput=touch');
+	var entry = getTouchedEntry(ev);
+	if (entry!==undefined) {
+		showEntryPopup(entry);
+	}
+	else if ($(ev.target).hasClass('option')) {
+		handleOption(ev.target.id);
+	}
+	else if ($(ev.target).hasClass('optionsbutton')) {
+		updateOptions();
+		showScreen('screen_options');
+	}
+	else if ($(ev.target).hasClass('backbutton')) {
+		showScreen('screen_tray');
+	}
+	else {
+		var el = ev.target;
+		while (el) {
+			if ($(el).hasClass('touchable'))
+				break;
+			el = el.parentNode;
+		}
+		if (el && $(el).hasClass('optionvalue')) {
+			handleOptionvalue(el);
+		}
+	}
+}
+
 $( document ).ready(function() {
+	$('#screen_requires_javascript').hide();
 	$('#status').html('Loaded!');
 
+	// fix initial visbilities
+	$('.screen').css('visibility','visible');
+	$('.screen').hide();
+	showScreen('screen_tray');
+	
+	// initialise...
+	initFileTypes();
+	initOptions();
+	
 	$('.scrollhint').on('scroll', function(ev) { 
 		updateScrollHints(ev.target);
 	});
@@ -325,63 +541,68 @@ $( document ).ready(function() {
 		$('#status').html('getWifiSsid()='+kiosk.getWifiSsid()+', getHostAddress()='+getHostAddress());
 	else 
 		$('#status').html('getHostAddress()='+getHostAddress());
-		
+
+	$('#screen_debug').hide();
+	
 	// touch listeners
 	$( 'body' ).on('touchstart',function(ev) {
 		console.log('touchstart '+ev);
-		var entry= getTouchedEntry(ev);
-		if (entry!==undefined)
-			$('div#entry_'+entry.index).addClass('entrytouched');
-		if ($(ev.target).hasClass('option'))
-			$(ev.target).addClass('optiontouched');
+		supportsTouch = true;
+		var el = ev.target;
+		while (el) {
+			if ($(el).hasClass('touchable')) {
+				$(el).addClass('touched');
+				//vibrate();
+				break;
+			}
+			el = el.parentNode;
+		}
+		mousedownEvent = { screenX: ev.originalEvent.touches[0].screenX, screenY: ev.originalEvent.touches[0].screenY, target: ev.target };
+		mousemoved = false;
 	});
 	$( 'body' ).on('touchmove',function(ev) {
-		console.log('touchmove'+ev);
+		//console.log('touch move page='+ev.originalEvent.touches[0].pageX+','+ev.originalEvent.touches[0].pageY+' screen='+ev.originalEvent.touches[0].screenX+','+ev.originalEvent.touches[0].screenY+' client='+ev.originalEvent.touches[0].clientX+','+ev.originalEvent.touches[0].clientY);
+		//console.log('touchmove'+ev);
+		if (ev.target!==mousedownEvent.target || 
+				Math.abs(ev.originalEvent.touches[0].screenX-mousedownEvent.screenX)>MOUSE_MOVE_MIN ||
+				Math.abs(ev.originalEvent.touches[0].screenY-mousedownEvent.screenY)>MOUSE_MOVE_MIN) {
+			mousemoved = true;
+			$('.touched').removeClass('touched');
+		}
 	});
 	$( 'body' ).on('touchend',function(ev) {
-		console.log('touchend '+ev);
-		$('div.entry').removeClass('entrytouched');
-		$('.optiontouched').removeClass('optiontouched');
+		//console.log('touchend '+ev);
+		$('.touched').removeClass('touched');
+		if (!mousemoved)
+			handleUserInput(ev);			
 	});
 	$( 'body' ).on('touchcancel',function(ev) {
 		console.log('touchcancel '+ev);
+		$('.touched').removeClass('touched');
 	});
 	// touchend, touchmove, touchcancel
 	// mouse listeners
 	$( 'body' ).on('mousedown',function(ev) {
-		console.log('mousedown at '+ev.pageX+','+ev.pageY+' on '+ev.target);
-		mousedownEvent = { pageX: ev.pageX, pageY: ev.pageY, target: ev.target };
-		mousemoved = false;
-		var entry= getTouchedEntry(ev);
-		if (entry!==undefined)
-			$('div#entry_'+entry.index).addClass('entrytouched');
+		if (!supportsTouch) {
+			console.log('mousedown at '+ev.screenX+','+ev.screenY+' on '+ev.target);
+			mousedownEvent = { screenX: ev.screenX, screenY: ev.screenY, target: ev.target };
+			mousemoved = false;
+			if ($(ev.target).hasClass('touchable'))
+				$(ev.target).addClass('touched');
+		}
 	});
 	$( 'body' ).on('mousemove',function(ev) {
-		if (mousedownEvent!==null && 
-				(Math.abs(ev.pageX-mousedownEvent.pageX)>MOUSE_MOVE_MIN ||
-				Math.abs(ev.pageY-mousedownEvent.pageY)>MOUSE_MOVE_MIN)) {
+		if (!supportsTouch && mousedownEvent && (ev.target!==mousedownEvent.target || 
+				Math.abs(ev.screenX-mousedownEvent.screenX)>MOUSE_MOVE_MIN ||
+				Math.abs(ev.screenY-mousedownEvent.screenY)>MOUSE_MOVE_MIN)) {
 			mousemoved = true;
-			$('div.entry').removeClass('entrytouched');
+			$('.touched').removeClass('touched');
 		}
 	});
 	$( 'body' ).on('mouseup',function(ev) {
-		$('div.entry').removeClass('entrytouched');
-		if (mousedownEvent!==null && 
-				(Math.abs(ev.pageX-mousedownEvent.pageX)>MOUSE_MOVE_MIN ||
-				Math.abs(ev.pageY-mousedownEvent.pageY)>MOUSE_MOVE_MIN))
-			mousemoved = true;
-		if (!mousemoved) {
-			console.log('mouseup=touch (target equal? '+(mousedownEvent.target===ev.target)+')');	
-			var entry = getTouchedEntry(ev);
-			if (entry!==undefined) {
-				showEntryPopup(entry);
-			}
-			if ($(ev.target).hasClass('option')) {
-				handleOption(ev.target.id);
-			}
+		if (!supportsTouch && !mousemoved) {
+			handleUserInput(ev);
 		}
-		else
-			console.log('mouseup moved');
 	});
 	
 	// load test/initial entries
