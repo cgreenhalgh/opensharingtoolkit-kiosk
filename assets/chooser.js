@@ -182,7 +182,7 @@ function showEntryPopup(entry) {
 		var dt = deviceTypes[di];
 		if (entry.requiresDevice.indexOf(dt.term)>=0) {
 			console.log('requires '+dt.term);
-			$('#entrypopup_requires').append('<div class="entrypopup_requires_device">'+dt.label+'</p>');
+			$('#entrypopup_requires').append('<div class="entrypopup_requires_device">'+dt.label+'</div>');
 		}
 	}
 	$('#entrypopup_requires').append('<div id="entrypopup_requires_end"></div>');
@@ -200,6 +200,8 @@ function showEntryPopup(entry) {
 	}	
 	$('#entrypopup').css('visibility','visible');
 	$('#entrypopup').show();
+
+	updateScrollHints();
 }
 
 // convert possibly internal URL to simple external/global URL
@@ -287,12 +289,38 @@ function handleOption(optionid) {
 		}
 		$('#entrypopup_options').append('<p class="option_url">'+url+'</p>');
 
+		updateScrollHint($('#entrypopup_options').get(0));
+	}
+}
+
+function updateScrollHints() {
+	$('.scrollhint').each(function (ix, el) { updateScrollHint(el); });
+}
+function updateScrollHint(el) {
+	if( el.offsetHeight < el.scrollHeight) {
+		if ( el.offsetHeight+el.scrollTop < el.scrollHeight ) {
+			$(el).addClass('scrollhint_bottom');
+			$(el).removeClass('scrollhint_top');
+		}
+		else {
+			$(el).addClass('scrollhint_top');
+			$(el).removeClass('scrollhint_bottom');			
+		}
+	}
+	else{
+	   //your element don't have overflow
+		$(el).removeClass('scrollhint_bottom');
+		$(el).removeClass('scrollhint_top');
 	}
 }
 
 $( document ).ready(function() {
 	$('#status').html('Loaded!');
 
+	$('.scrollhint').on('scroll', function(ev) { 
+		updateScrollHints(ev.target);
+	});
+	
 	if (kiosk!==undefined)
 		$('#status').html('getWifiSsid()='+kiosk.getWifiSsid()+', getHostAddress()='+getHostAddress());
 	else 

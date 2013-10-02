@@ -5,6 +5,7 @@ h1 {
 };
 div#tray {
 	width: 100%;
+	overflow: scroll;
 }
 img.loading {
 	display: block;
@@ -12,9 +13,10 @@ img.loading {
 	margin-right: auto;
 }
 div.entry {
+	display: block;
+	float: left;
 	width: 128px;
 	height: 128px;
-	float: left;
 	margin: 2px;
 	border: 4px solid #000;
 	border-radius: 4px;
@@ -24,14 +26,12 @@ div.entrytouched {
 	background-color: #ccc;
 }
 p.entrytitle {
-	float: none;
 	font-family: sans-serif;
 	font-size: 16px;
 	font-color: blue;
 	text-align: center;	
 }
 div.entryicon {
-	float: none;
 	position: relative;
 	width: inherit;
 	height: 64px;
@@ -46,8 +46,7 @@ img.entryicon {
 	height: 64px;
 }
 #entrypopup {
-	float: none;
-	position: absolute;
+	position: fixed;
 	border: 1px solid;
 	border-radius: 15px;
 	cursor: default;
@@ -68,6 +67,18 @@ img.entryicon {
 	overflow: scroll;
 	/*border: thin solid grey;*/
 }
+.scrollhint_top {
+		/* shadow - scroll hint - hor ver blur spread col */
+   	-moz-box-shadow:	inset 0 10px 10px -5px rgba(0,0,0,0.5);
+   	-webkit-box-shadow: inset 0 10px 10px -5px rgba(0,0,0,0.5);
+    box-shadow:         inset 0 10px 10px -5px rgba(0,0,0,0.5);
+}
+.scrollhint_bottom {
+		/* shadow - scroll hint - hor ver blur spread col */
+   	-moz-box-shadow:    inset 0 -10px 5px -5px rgba(0,0,0,0.5);
+   	-webkit-box-shadow: inset 0 -10px 5px -5px rgba(0,0,0,0.5);
+    box-shadow:         inset 0 -10px 5px -5px rgba(0,0,0,0.5);
+}
 /*div*/#entrypopup_options {
 	position: absolute;
 	left: 52%;
@@ -78,14 +89,12 @@ img.entryicon {
 	/*border: thin solid grey;*/
 }
 /*p*/#entrypopup_title {
-	float: none;
 	font-family: sans-serif;
 	font-size: 32px;
 	font-color: blue;
 	text-align: center;	
 }
 /*div*/#entrypopup_icon {
-	float: none;
 	width: 100%;
 	height: 128px;
 	background-color: white;
@@ -100,12 +109,11 @@ img.entryicon {
 }
 /*div*/#entrypopup_requires {
 	display: block;
-	float: none;
 	width: 100%;
+	overflow: auto;
 }
 img.entrypopup_requires_mime {
-	display: block;
-	float: left;
+	display: inline;
 	width: 48px;
 	height: 48px;
 	font-size: 24pt;
@@ -119,7 +127,6 @@ img.entrypopup_requires_mime {
 .entrypopup_requires_device {
 	display: block;
 	float: left;
-	width: 96px;
 	height: 48px;
 	overflow: hidden;
 	font-size: 20pt;
@@ -131,18 +138,15 @@ img.entrypopup_requires_mime {
 	margin: 4px;
 }
 #entrypopup_requires_end {
-	float: none;
-	width: 100%;
+	clear: left;
 }
 /*p*/#entrypopup_summary {
-	float: none;
 	font-family: sans-serif;
 	font-size: 20px;
 	text-align: justify;
 	margin: 10px;
 }
 p.option {
-	float: none;
 	font-size: 32px;
 	font-family: sans-serif;
 	font-weight: bold;
@@ -174,7 +178,6 @@ img.option_qrcode {
 	border: 0px;
 }
 p.option_url {
-	float: none;
 	font-size: 24px;
 	font-family: sans-serif;
 	font-weight: normal;
@@ -184,7 +187,6 @@ p.option_url {
 	border: 0px;
 }
 p.option_info {
-	float: none;
 	font-size: 24px;
 	font-family: sans-serif;
 	font-weight: normal;
