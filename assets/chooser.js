@@ -16,7 +16,7 @@ var deviceTypes = [ { term: "android", label: "Android", supportsMime: [ "text/h
                     ];
 
 function getHostAddress() {
-	if (kiosk!==undefined) 
+	if (isKiosk()) 
 		return kiosk.getHostAddress();
 	console.log('Note: kiosk undefined');
 	return "localhost";
@@ -224,7 +224,7 @@ function showEntryPopup(entry) {
 		// kiosk...?
 		$('#entrypopup_options').append('<p class="option touchable" id="option_view">View</p>');
 		
-		if (kiosk!==undefined) {
+		if (isKiosk()) {
 			$('#entrypopup_options').append('<p class="option touchable" id="option_send">Get on Phone</p>');			
 		}
 	}	
@@ -235,7 +235,7 @@ function showEntryPopup(entry) {
 
 // convert possibly internal URL to simple external/global URL
 function getExternalUrl(url) {
-	if (kiosk!==undefined) {
+	if (isKiosk()) {
 		// convert to external URL
 		if (url.indexOf(':')<0) {
 			if (location.href.indexOf('file:///android_asset/'==0)) {
@@ -248,7 +248,7 @@ function getExternalUrl(url) {
 	return url;
 }
 function getInternalUrl(url) {
-	if (kiosk!==undefined) {
+	if (isKiosk()) {
 		// convert to external URL
 		if (url.indexOf(':')<0) {
 			if (location.href.indexOf('file:///android_asset/'==0)) {
@@ -275,7 +275,7 @@ function handleOption(optionid) {
 		var url = enc.url;
 		console.log('view '+currententry.title+' as '+url);
 		var done = false;
-		if (kiosk!==undefined) {
+		if (isKiosk()) {
 			url = getInternalUrl(url);
 			// try kiosk open...
 			done = kiosk.openUrl(url, enc.mime, location.href);
@@ -297,7 +297,7 @@ function handleOption(optionid) {
 		// replace options...
 		$('#entrypopup_options').empty();
 		$('#entrypopup_options').append('<p class="option touchable" id="option_back">Back</p>');
-		if (kiosk!==undefined) {
+		if (isKiosk()) {
 			var ssid = kiosk.getWifiSsid();
 			$('#entrypopup_options').append('<p class="option_info">Join Wifi Network <span class="ssid">'+ssid+'</span> and scan/enter...</p>');
 
@@ -520,6 +520,10 @@ function handleUserInput(ev) {
 	}
 }
 
+function isKiosk() {
+	return typeof kiosk != 'undefined' && kiosk !== undefined;
+}
+
 $( document ).ready(function() {
 	$('#screen_requires_javascript').hide();
 	$('#status').html('Loaded!');
@@ -537,7 +541,7 @@ $( document ).ready(function() {
 		updateScrollHints(ev.target);
 	});
 	
-	if (kiosk!==undefined)
+	if (isKiosk())
 		$('#status').html('getWifiSsid()='+kiosk.getWifiSsid()+', getHostAddress()='+getHostAddress());
 	else 
 		$('#status').html('getHostAddress()='+getHostAddress());
