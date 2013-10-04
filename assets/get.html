@@ -36,6 +36,8 @@ if (appurl!==undefined) {
 		document.write('<p>Warning: this content may not be supported on your device!</p>');
 	else {
 		document.write('<p>Note: you may need <a href="'+appurl+'">this helper application</a> to view this download.</p>'); 
+		if (ssid) 
+			document.write('<p>You may need to switch back to standard Internet to download the helper application.</p>');
 	}
 }
 </script>

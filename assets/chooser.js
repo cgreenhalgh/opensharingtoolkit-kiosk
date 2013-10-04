@@ -62,7 +62,7 @@ function getPrefixedUrl(prefix, href) {
 	return href;
 }
 
-function addEntry(atomentry, prefix) {
+function addEntry(atomentry, prefix, cacheinfo) {
 	index = entries.length;
 	var title = $('title', atomentry).text();
 	var iconurl = $('link[rel=\'alternate\'][type^=\'image\']', atomentry).attr('href');
@@ -73,7 +73,7 @@ function addEntry(atomentry, prefix) {
 		iconurl = getPrefixedUrl(prefix, iconurl);
 	}
 	var summary = $('summary', atomentry).text();	
-	var entry = { title: title, iconurl: iconurl, summary: summary, index: index };
+	var entry = { title: title, iconurl: iconurl, summary: summary, index: index, prefix: prefix, cacheinfo: cacheinfo };
 	entry.enclosures = [];
 	$('link[rel=\'enclosure\']', atomentry).each(function(index, el) {
 		var type = $(el).attr('type');
@@ -90,6 +90,8 @@ function addEntry(atomentry, prefix) {
 			entry.requiresDevice.push(device);
 		}
 	});
+	// add before support check
+	entries[index] = entry;
 	entry.supportsMime = [];
 	$('category[scheme=\'supports-mime-type\']', atomentry).each(function(index, el) {
 		var mime = $(el).attr('term');
@@ -97,7 +99,7 @@ function addEntry(atomentry, prefix) {
 		if (mime) {
 			entry.supportsMime.push(mime);
 			if (!allFileTypes[mime]) {
-				mt = { mime: mime, label: label, requiresApp: {} };
+				mt = { mime: mime, label: label };
 				allFileTypes[mime] = mt;
 				checkFileTypeSupport(mt);
 			}
@@ -106,7 +108,6 @@ function addEntry(atomentry, prefix) {
 		}
 	});
 	
-	entries[index] = entry;
 	console.log('  entry['+index+']: '+title);
 }
 function refreshTray() {
@@ -159,6 +160,23 @@ function addEntries(atomurl) {
 	}
 	// add loading animation
 	tray.append('<img src="icons/loading.gif" alt="loading" class="loading">');
+	// _ost/cache.json ?
+	$.ajax({
+		url: prefix+'ost/cache.json',
+		type: 'GET',
+		dataType: 'json',
+		timeout: 10000,
+		success: function(data, textStatus, xhr) {
+			console.log('ok, got cache.json '+data);
+			loadAtomFile(atomurl, prefix, data);
+		},
+		error: function(xhr, textStatus, errorThrown) {
+			console.log('error getting cache.json: '+textStatus+': '+errorThrown);
+			loadAtomFile(atomurl, prefix, null);
+		}
+	});
+}
+function loadAtomFile(atomurl, prefix, cacheinfo) {
 	$.ajax({
 		url: atomurl,
 		type: 'GET',
@@ -170,7 +188,7 @@ function addEntries(atomurl) {
 			$( '>img[class=\'loading\']:first', tray).remove();
 			
 			$( data ).find('entry').each(function(index, el) {
-				addEntry(el, prefix);
+				addEntry(el, prefix, cacheinfo);
 			});
 			refreshTray();
 		},
@@ -327,6 +345,7 @@ function handleOption(optionid) {
 		showScreen('screen_tray');
 	}
 	else if ('option_get'==optionid) {
+		// non-kiosk only!
 		var enc = currententry.enclosures[0];
 		var url = enc.url;
 		url = getExternalUrl(url);
@@ -354,12 +373,66 @@ function handleOption(optionid) {
 	else if ('option_send'==optionid) {
 		var enc = currententry.enclosures[0];
 		var url = enc.url;
-		url = getExternalUrl(url);
+
+		if (isKiosk() && localNetworkMode) {
+			url = getExternalUrl(url);
+		} 
+		else {
+			var url2 = url;
+			// remove prefix?
+			if (currententry.prefix && url2.indexOf(currententry.prefix)==0)
+				url2 = url.substring(currententry.prefix.length);
+			
+			if (url2.indexOf(':')<0 && currententry.cacheinfo && currententry.cacheinfo.baseurl) {
+
+				// not absolute, had cacheinfo with baseurl...
+				if (currententry.cacheinfo.baseurl.lastIndexOf('/')!=currententry.cacheinfo.baseurl.length-1) {
+					url2 = '/'+url2;
+				}
+				url = currententry.cacheinfo.baseurl+url2;
+				console.log('using cache baseurl for '+url);
+			}
+			url = getExternalUrl(url);
+		}
+		
 		console.log('send '+currententry.title+' as '+url);
 		// replace options...
 		$('#entrypopup_options').empty();
 
 		var as = getAppUrls(enc.mime);
+
+		// url for get helper - needs to be made transferable...
+		var geturl = "get.html";
+
+		var baseurl = location.href;
+		var ix = baseurl.lastIndexOf('/');
+		if (ix>=0)
+			baseurl = baseurl.substring(0,ix+1);
+
+		if (isKiosk() && localNetworkMode) {
+			geturl = 'http://'+getHostAddress()+':8080/a/get.html';
+		}
+		else if (cacheinfo && cacheinfo.baseurl) {
+			if (cacheinfo.baseurl.lastIndexOf('/')!=cacheinfo.baseurl.length-1)
+				geturl = '/'+geturl
+			geturl = cacheinfo.baseurl+geturl;
+		} else  if (isKiosk() && (baseurl.indexOf('localhost')>=0 || baseurl.indexOf('file:///android_asset/')==0)) {
+			// localhost would be bad!
+			// as would using a file asset url
+			geturl = 'http://'+getHostAddress()+':8080/a/get.html';
+		} else {
+			// work with relative
+			geturl = baseurl+geturl;
+		}
+		console.log('using geturl '+geturl);
+
+		url = geturl+'?'+
+		'u='+encodeURIComponent(url)+
+		'&t='+encodeURIComponent(currententry.title);
+		for (var ai in as) {
+			url = url+'&a='+encodeURIComponent(as[ai]);
+		}
+		console.log('Using helper page url '+url);
 
 		// back is handled in title bar
 		if (isKiosk()) {
@@ -368,15 +441,8 @@ function handleOption(optionid) {
 				var ssid = kiosk.getWifiSsid();
 				$('#entrypopup_options').append('<p class="option_info">Join Wifi Network <span class="ssid">'+ssid+'</span> and scan/enter...</p>');
 
-				// TODO alternate Internet URL for phonehelper if not in localNetworkMode?!
-				url = 'http://'+getHostAddress()+':8080/a/get.html?'+
-						'u='+encodeURIComponent(url)+
-						'&n='+encodeURIComponent(kiosk.getWifiSsid())+
-						'&t='+encodeURIComponent(currententry.title);
-				for (var ai in as) {
-					url = url+'&a='+encodeURIComponent(as[ai]);
-				}
-				console.log('Using helper page url '+url);
+				url = url+'&n='+encodeURIComponent(kiosk.getWifiSsid());
+				console.log('with network '+ssid);
 
 				// temporary redirect for short URL
 				var redir = kiosk.registerTempRedirect(url, REDIRECT_LIFETIME_MS);
@@ -386,34 +452,12 @@ function handleOption(optionid) {
 			else {
 				$('#entrypopup_options').append('<p class="option_info">Enable internet access and scan/enter...</p>');
 
-				// TODO alternate Internet URL for phonehelper if not in localNetworkMode?!
-				url = 'http://'+getHostAddress()+':8080/a/get.html?'+
-						'u='+encodeURIComponent(url)+
-						//"&ssid="+encodeURIComponent(kiosk.getWifiSsid())+
-						'&t='+encodeURIComponent(currententry.title);
-				for (var ai in as) {
-					url = url+'&a='+encodeURIComponent(as[ai]);
-				}
 				console.log('Using helper page url '+url);
-
 			}
 			
 			$('#entrypopup_options').append('<img class="option_qrcode" src="http://localhost:8080/qr?url='+encodeURIComponent(url)+'&size=150" alt="qrcode for item">');
 		} else {
 			$('#entrypopup_options').append('<p class="option_info">Enable internet access and scan/enter...</p>');
-
-			// relative URL
-			var baseurl = location.href;
-			var ix = baseurl.lastIndexOf('/');
-			if (ix>=0)
-				baseurl = baseurl.substring(0,ix+1);
-			url = baseurl+'get.html?'+
-				'u='+encodeURIComponent(url)+
-				'&t='+encodeURIComponent(currententry.title);
-			for (var ai in as) {
-				url = url+'&a='+encodeURIComponent(as[ai]);
-			}
-			console.log('Using helper page url '+url);
 
 			// assume internet?? try google qrcode generator http://chart.apis.google.com/chart?cht=qr&chs=150x150&choe=UTF-8&chl=http%3A%2F%2F1.2.4
 			$('#entrypopup_options').append('<img class="option_qrcode" src="http://chart.apis.google.com/chart?cht=qr&chs=150x150&choe=UTF-8&chl='+encodeURIComponent(url)+'" alt="qrcode for item">');
@@ -466,6 +510,7 @@ function initFileTypes() {
 }
 
 var options = new Object();
+options.mediatypes = new Object();
 var hostDevice = 'any';
 
 // initialise the options screen 
@@ -500,26 +545,27 @@ function initOptions() {
 // get entries for apps supporting given mime type on given device 
 // return array of entries, or null if none, empty array if built-in
 function getSupportingEntries(mime, device) {
+	var builtin = false;
 	for (var di in deviceTypes) {
 		var dt = deviceTypes[di];
-		if (dt.term==device && dt.supportsMime.indexOf(mime)>=0) {
-			console.log('Mime type '+mt.mime+' built-in on device '+options.device);
-			return [];
+		if ((device===undefined || dt.term==device) && dt.supportsMime.indexOf(mime)>=0) {
+			console.log('Mime type '+mime+' built-in on device '+options.device);
+			builtin = true;
 		}
 	}
 	var apps = [];
 	for (var ei in entries) {
 		var entry = entries[ei];
 		if (entry.supportsMime && entry.supportsMime.indexOf(mime)>=0) {
-			if (!entry.requiresDevice || device=='any' || entry.requiresDevice.indexOf(device)>=0) {
+			if (!entry.requiresDevice || device===undefined || device=='any' || entry.requiresDevice.indexOf(device)>=0) {
 				// ok
 				apps.push(entry);
-				console.log('Mime type '+mt.mime+' built-in on device '+options.device+' supported by '+entry.title);
+				console.log('Mime type '+mime+' supported on device '+options.device+' by '+entry.title);
 			}
 		}
 	}
-	if (apps.length==0) {
-		console.log('Mime type '+mt.mime+' unsupported on device '+options.device);
+	if (!builtin && apps.length==0) {
+		console.log('Mime type '+mime+' unsupported on device '+options.device);
 		return null;
 	}
 	return apps;
@@ -527,10 +573,17 @@ function getSupportingEntries(mime, device) {
 // update the options screen
 function updateOptions() {
 	// kiosk options
-	if (isKiosk()) 
+	if (isKiosk()) {
 		$('#option_kiosk_holder').hide();
+		$('#option_localnetwork_holder').show();
+		if (localNetworkMode)
+			$('#option_localnetwork_mode img').attr('src', 'icons/tick.png');
+		else
+			$('#option_localnetwork_mode img').attr('src', 'icons/emptybox.png');
+	}
 	else {
 		$('#option_kiosk_holder').show();
+		$('#option_localnetwork_holder').hide();
 		if (kioskMode)
 			$('#option_kiosk_mode img').attr('src', 'icons/tick.png');
 		else
@@ -585,6 +638,10 @@ function updateOptions() {
 }
 function checkFileTypeSupport(mt, deviceType) {
 	if (deviceType===undefined) {
+		if (options.device===undefined)
+			// maybe!
+			return;
+
 		for (var dti in deviceTypes) {
 			var dt = deviceTypes[dti];
 			if (dt.term==options.device) {
@@ -673,6 +730,12 @@ function handleOptionvalue(el) {
 			setOptionDevice(hostDevice);
 			$('#option_device_holder').hide();
 		}
+		updateOptions();
+	}
+	else if (id=='option_localnetwork_mode') {
+		// toggle
+		localNetworkMode = !localNetworkMode;
+		console.log('toggle localNetworkMode, now '+localNetworkMode);
 		updateOptions();
 	}
 }
@@ -811,5 +874,38 @@ $( document ).ready(function() {
 	$('#tray').empty();
 	entries = [];
 	
-	addEntries('test/test.xml');
+	loadInitialContent();
 });
+
+var cacheinfo = null;
+
+function loadInitialContent() {
+	var url = location.href;
+	var ix = url.lastIndexOf('/');
+	var prefix = '';
+	if (ix>=0) {
+		prefix = url.substring(0, ix+1);
+		console.log('javascript loading prefix='+prefix);
+	}
+	var doLoadEntries = function() {
+		addEntries('test/_ost.xml');
+	};
+	console.log('local top-level cacheinfo');
+	// _ost/cache.json ?
+	$.ajax({
+		url: prefix+'ost/cache.json',
+		type: 'GET',
+		dataType: 'json',
+		timeout: 10000,
+		success: function(data, textStatus, xhr) {
+			console.log('ok, got top-level cache.json '+data);
+			cacheinfo = data;
+			doLoadEntries();
+		},
+		error: function(xhr, textStatus, errorThrown) {
+			console.log('error getting top-evel cache.json: '+textStatus+': '+errorThrown);
+			doLoadEntries();
+		}
+	});
+
+}
