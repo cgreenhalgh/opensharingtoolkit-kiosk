@@ -29,6 +29,16 @@ else
 	document.write('Internet');
 </script></p>
 <h1 style="">Get <script type="text/javascript">document.write(urlParams.t);</script></h1>
+<script type="text/javascript">
+var appurl = urlParams.a;
+if (appurl!==undefined) {
+	if (appurl=='') 
+		document.write('<p>Warning: this content may not be supported on your device!</p>');
+	else {
+		document.write('<p>Note: you may need <a href="'+appurl+'">this helper application</a> to view this download.</p>'); 
+	}
+}
+</script>
 <p><script type="text/javascript">
 var url = urlParams.u;
 if (url)
@@ -36,6 +46,5 @@ if (url)
 else
 	document.write('Sorry, something went wrong opening this page - I don\'t know what content you were trying to get; please go back and try again.');	
 </script></p>
-<p>Debug - User agent= <script type="text/javascript">document.write(navigator.userAgent);</script>)</p>
 </body>
 </html>

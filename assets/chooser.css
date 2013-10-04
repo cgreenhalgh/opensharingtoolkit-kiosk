@@ -66,6 +66,9 @@ div.screenheader {
 	margin-top: 6px;
 	overflow: auto;
 }
+.optionvalueend {
+	clear:both;
+}
 .optionvaluelabel {
 	min-height: 50px;
 	margin-top: 10px;
@@ -77,16 +80,26 @@ div.screenheader {
 	vertical-align: middle;
 }
 .optionvalueicon {
-	position: absolute;
-	left: 0;
-	top: 0;
+	float: left;
 	display: block;
 	border: 4px solid;
 	border-radius: 6px;
 	cursor: pointer;
-	padding: 2px;
+	padding: 4px;
 	width: 48px;
 	height: 48px;
+}
+.optionvalue_requires_app {
+	display: block;
+	float: right;
+	width: 48px;
+	height: 48px;
+	font-size: 24pt;
+	font-weight: bold;
+	border: 4px solid grey;
+	border-radius: 6px;
+	cursor: pointer;
+	padding: 4px;
 }
 /*div*/#tray {
 	clear: both;

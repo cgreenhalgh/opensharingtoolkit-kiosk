@@ -29,7 +29,7 @@ function getHostAddress() {
 // { title:, iconurl:, summary:, index:, enclosures: [{mime:, url:}], 
 //   supportsMime:["..."], requiresDevice:["..."] }
 var entries = [];
-// mime type -> label
+// mime type -> {mime: label: icon: ?ext: }
 var allFileTypes = new Object();
 var mousedownEvent = null;
 var mousemoved = false;
@@ -83,6 +83,13 @@ function addEntry(atomentry, prefix) {
 			entry.enclosures.push({mime: type, url: href});
 		}
 	});
+	entry.requiresDevice = [];
+	$('category[scheme=\'requires-device\']', atomentry).each(function(index, el) {
+		var device = $(el).attr('term');
+		if (device) {
+			entry.requiresDevice.push(device);
+		}
+	});
 	entry.supportsMime = [];
 	$('category[scheme=\'supports-mime-type\']', atomentry).each(function(index, el) {
 		var mime = $(el).attr('term');
@@ -90,19 +97,12 @@ function addEntry(atomentry, prefix) {
 		if (mime) {
 			entry.supportsMime.push(mime);
 			if (!allFileTypes[mime]) {
-				mt = { mime: mime, label: label };
+				mt = { mime: mime, label: label, requiresApp: {} };
 				allFileTypes[mime] = mt;
 				checkFileTypeSupport(mt);
 			}
 			if (!allFileTypes[mime].icon || allFileTypes[mime].icon=="icons/_blank.png")
 				allFileTypes[mime].icon = iconurl;
-		}
-	});
-	entry.requiresDevice = [];
-	$('category[scheme=\'requires-device\']', atomentry).each(function(index, el) {
-		var device = $(el).attr('term');
-		if (device) {
-			entry.requiresDevice.push(device);
 		}
 	});
 	
@@ -273,6 +273,39 @@ function getInternalUrl(url) {
 // 60 minutes
 var REDIRECT_LIFETIME_MS = (60*60*1000);
 	
+// get URLs of apps supporting mime type
+function getAppUrls(mime) {
+	var as = [];
+	if (mime) {
+		var apps = getSupportingEntries(mime, options.device);
+		if (apps==null)
+			// unknown support
+			as.push('');
+		else if (apps.length==0) {
+			// built-in
+		}
+		else {
+			for (var ai in apps) {
+				var app = apps[ai];
+				if (!app.enclosures)
+					continue;
+				for (var enci in app.enclosures) {
+					var appenc = app.enclosures[enci];
+					if (appenc.url) {
+						as.push(appenc.url);
+						break;
+					}
+				}
+			}
+			if (as.length==0) {
+				console.log('Could not find url(s) for apps supporting '+enc.mime);
+				as.push('');
+			}
+		}
+	}
+	return as;
+}
+
 function handleOption(optionid) {
 	if ('option_view'==optionid) {
 		var enc = currententry.enclosures[0];
@@ -299,6 +332,8 @@ function handleOption(optionid) {
 		url = getExternalUrl(url);
 		console.log('get '+currententry.title+' as '+url);
 
+		var as = getAppUrls(enc.mime);
+		
 		// relative URL
 		var baseurl = location.href;
 		var ix = baseurl.lastIndexOf('/');
@@ -307,6 +342,10 @@ function handleOption(optionid) {
 		url = baseurl+'get.html?'+
 		'u='+encodeURIComponent(url)+
 		'&t='+encodeURIComponent(currententry.title);
+		for (var ai in as) {
+			url = url+'&a='+encodeURIComponent(as[ai]);
+		}
+		
 		console.log('Using helper page url '+url);
 		
 		window.open(url);
@@ -319,6 +358,9 @@ function handleOption(optionid) {
 		console.log('send '+currententry.title+' as '+url);
 		// replace options...
 		$('#entrypopup_options').empty();
+
+		var as = getAppUrls(enc.mime);
+
 		// back is handled in title bar
 		if (isKiosk()) {
 			
@@ -331,6 +373,9 @@ function handleOption(optionid) {
 						'u='+encodeURIComponent(url)+
 						'&n='+encodeURIComponent(kiosk.getWifiSsid())+
 						'&t='+encodeURIComponent(currententry.title);
+				for (var ai in as) {
+					url = url+'&a='+encodeURIComponent(as[ai]);
+				}
 				console.log('Using helper page url '+url);
 
 				// temporary redirect for short URL
@@ -346,6 +391,9 @@ function handleOption(optionid) {
 						'u='+encodeURIComponent(url)+
 						//"&ssid="+encodeURIComponent(kiosk.getWifiSsid())+
 						'&t='+encodeURIComponent(currententry.title);
+				for (var ai in as) {
+					url = url+'&a='+encodeURIComponent(as[ai]);
+				}
 				console.log('Using helper page url '+url);
 
 			}
@@ -362,6 +410,9 @@ function handleOption(optionid) {
 			url = baseurl+'get.html?'+
 				'u='+encodeURIComponent(url)+
 				'&t='+encodeURIComponent(currententry.title);
+			for (var ai in as) {
+				url = url+'&a='+encodeURIComponent(as[ai]);
+			}
 			console.log('Using helper page url '+url);
 
 			// assume internet?? try google qrcode generator http://chart.apis.google.com/chart?cht=qr&chs=150x150&choe=UTF-8&chl=http%3A%2F%2F1.2.4
@@ -437,6 +488,7 @@ function initOptions() {
 		}
 		hostDevice = dev;
 		setOptionDevice(dev);
+		$('#option_device_holder').hide();
 	}
 	// phone types (term: label:)
 	for (var di in deviceTypes) {
@@ -444,6 +496,33 @@ function initOptions() {
 		$('#option_device').append('<div id="option_device_'+dt.term+'" class="optionvalue touchable"><img src="icons/emptybox.png" alt="blank" class="optionvalueicon"><div class="optionvaluelabel">'+dt.label+'</div></div>');
 	}
 	$('#option_device').append('<div id="option_device_any" class="optionvalue touchable"><img src="icons/emptybox.png" alt="blank" class="optionvalueicon"><div class="optionvaluelabel">Any!</div></div>');
+}
+// get entries for apps supporting given mime type on given device 
+// return array of entries, or null if none, empty array if built-in
+function getSupportingEntries(mime, device) {
+	for (var di in deviceTypes) {
+		var dt = deviceTypes[di];
+		if (dt.term==device && dt.supportsMime.indexOf(mime)>=0) {
+			console.log('Mime type '+mt.mime+' built-in on device '+options.device);
+			return [];
+		}
+	}
+	var apps = [];
+	for (var ei in entries) {
+		var entry = entries[ei];
+		if (entry.supportsMime && entry.supportsMime.indexOf(mime)>=0) {
+			if (!entry.requiresDevice || device=='any' || entry.requiresDevice.indexOf(device)>=0) {
+				// ok
+				apps.push(entry);
+				console.log('Mime type '+mt.mime+' built-in on device '+options.device+' supported by '+entry.title);
+			}
+		}
+	}
+	if (apps.length==0) {
+		console.log('Mime type '+mt.mime+' unsupported on device '+options.device);
+		return null;
+	}
+	return apps;
 }
 // update the options screen
 function updateOptions() {
@@ -485,9 +564,21 @@ function updateOptions() {
 		var id = 'option_mediatype_'+mti;
 		$('#option_mediatype').append('<div id="'+id+'" '+
 				'class="optionvalue touchable"><img src="'+iconurl+'" alt="'+iconurl+'" '+
-				'class="optionvalueicon"><div class="optionvaluelabel">'+
-				mt.label+'</div></div>');
+				'class="optionvalueicon"></div>');
 		$('#'+id).data('mime', mt.mime);
+		// apps required?
+		var apps = getSupportingEntries(mt.mime, options.device);
+		if (!apps) {
+			//console.log('Mime type '+mt.mime+' unsupported on device '+options.device);
+			$('#'+id).append('<img src="icons/cross.png" alt="requires unknown app" class="optionvalue_requires_app touchable">');
+		} else {
+			for (var ai in apps) {
+				var app = apps[ai];
+				$('#'+id).append('<img src="'+app.iconurl+'" alt="requires '+app.title+'" class="optionvalue_requires_app touchable">');
+			}
+		}
+		$('#'+id).append('<div class="optionvaluelabel">'+mt.label+'</div>')
+		$('#'+id).append('<div class="optionvalueend"></div>')
 		//console.log('added option for media type '+mt.mime);
 	}
 	//$('#option_mediatype').append('<div id="option_device_any" class="optionvalue touchable"><img src="icons/emptybox.png" alt="blank" class="optionvalueicon"><div class="optionvaluelabel">Any!</div></div>');
@@ -576,6 +667,12 @@ function handleOptionvalue(el) {
 		// toggle
 		kioskMode = !kioskMode;
 		console.log('toggle kioskMode, now '+kioskMode);
+		if (kioskMode)
+			$('#option_device_holder').show();
+		else {
+			setOptionDevice(hostDevice);
+			$('#option_device_holder').hide();
+		}
 		updateOptions();
 	}
 }
