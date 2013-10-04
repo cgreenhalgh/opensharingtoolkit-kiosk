@@ -1,7 +1,13 @@
 .screen {
-	margin: 0px;
+	/* this border is really just debugging*/
 	border: 1px solid;
+	margin: 0px; 
 	padding: 0px;
+	/* position: fixed;
+	top: 1px;
+	left: 1px;
+	right: 1px;
+	bottom: 1px;*/
 }
 h1 {
 	font-family: sans-serif;
@@ -85,7 +91,7 @@ div.screenheader {
 /*div*/#tray {
 	clear: both;
 	width: 100%;
-	overflow: scroll;
+	overflow: auto;
 }
 img.loading {
 	display: block;
@@ -125,27 +131,33 @@ img.entryicon {
 	width: 64px;
 	height: 64px;
 }
-#entrypopup {
-	position: fixed;
-	border: 1px solid;
-	border-radius: 15px;
-	cursor: default;
-	z-index:1000; /*always on top*/
-	padding: 10px 0 10px 0;
-	width: 90%;
-    height: 90%;
-    left: 5%;
-    top: 5%;
-    background: white;
+/*div*/#screen_entrypopup {
+}
+@media (min-width: 400px) {
+	/*div*/#entrypopup_details {
+		width: 50%;
+	}
+	/*div*/#entrypopup_options {
+		width: 50%;
+	}
+}
+@media not (min-width: 400px) {
+	/*div*/#entrypopup_details {
+		width: 100%;
+	}
+	/*div*/#entrypopup_options {
+		width: 100%;
+	}
 }
 /*div*/#entrypopup_details {
-	position: absolute;
-	left: 3%;
-	top: 3%;
-	width: 45%;
-	height: 94%;
-	overflow: scroll;
-	/*border: thin solid grey;*/
+	/*media-dependent width: 50%;*/
+	min-width: 150px;
+	float: left;
+}
+/*div*/#entrypopup_options {
+	/*media-dependent width: 50%;*/
+	min-width: 150px;
+	float: left;
 }
 .scrollhint_top {
 		/* shadow - scroll hint - hor ver blur spread col */
@@ -158,15 +170,6 @@ img.entryicon {
    	-moz-box-shadow:    inset 0 -10px 5px -5px rgba(0,0,0,0.5);
    	-webkit-box-shadow: inset 0 -10px 5px -5px rgba(0,0,0,0.5);
     box-shadow:         inset 0 -10px 5px -5px rgba(0,0,0,0.5);
-}
-/*div*/#entrypopup_options {
-	position: absolute;
-	left: 52%;
-	top: 3%;
-	width: 45%;
-	height: 94%;
-	overflow: scroll;
-	/*border: thin solid grey;*/
 }
 /*p*/#entrypopup_title {
 	font-family: sans-serif;

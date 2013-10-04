@@ -10,10 +10,13 @@ var standardFileTypes = [ { mime: "application/pdf", ext: "pdf", icon: "icons/pd
                           ];
 // main device types and standard (built-in supported) mime types.
 // Note: application/x-itunes-app is a made-up mime type for consistency
-var deviceTypes = [ { term: "android", label: "Android", supportsMime: [ "text/html", "application/vnd.android.package-archive" ] },
-                    { term: "ios", label: "iPhone", supportsMime: [ "text/html", "application/x-itunes-app" ] },
+var deviceTypes = [ { term: "android", label: "Android", userAgentPattern: 'Android', supportsMime: [ "text/html", "application/vnd.android.package-archive" ] },
+                    { term: "ios", label: "iPhone", userAgentPattern: '(iPhone)|(iPod)|(iPad)', supportsMime: [ "text/html", "application/x-itunes-app" ] },
                     { term: "other", label: "Other smartphone", supportsMime: [ "text/html" ] },
                     ];
+
+var kioskMode = false;
+var localNetworkMode = false;
 
 function getHostAddress() {
 	if (isKiosk()) 
@@ -86,8 +89,11 @@ function addEntry(atomentry, prefix) {
 		var label = $(el).attr('label');
 		if (mime) {
 			entry.supportsMime.push(mime);
-			if (!allFileTypes[mime]) 
-				allFileTypes[mime] = { mime: mime, label: label };
+			if (!allFileTypes[mime]) {
+				mt = { mime: mime, label: label };
+				allFileTypes[mime] = mt;
+				checkFileTypeSupport(mt);
+			}
 			if (!allFileTypes[mime].icon || allFileTypes[mime].icon=="icons/_blank.png")
 				allFileTypes[mime].icon = iconurl;
 		}
@@ -219,13 +225,16 @@ function showEntryPopup(entry) {
 	// options...
 	$('#entrypopup_options').empty();
 	
-	$('#entrypopup_options').append('<p class="option touchable" id="option_back">Back</p>');
+	// back is handled in title bar
 	if (entry.enclosures.length>0) {
 		// kiosk...?
 		$('#entrypopup_options').append('<p class="option touchable" id="option_view">View</p>');
 		
-		if (isKiosk()) {
+		if (isKiosk() || kioskMode) {
 			$('#entrypopup_options').append('<p class="option touchable" id="option_send">Get on Phone</p>');			
+		}
+		if (!isKiosk()) {
+			$('#entrypopup_options').append('<p class="option touchable" id="option_get">Get on this device</p>');			
 		}
 	}	
 	showScreen('screen_entrypopup');
@@ -265,12 +274,7 @@ function getInternalUrl(url) {
 var REDIRECT_LIFETIME_MS = (60*60*1000);
 	
 function handleOption(optionid) {
-	if ('option_back'==optionid) {
-		// no-op (other than hide)
-		currententry = null;
-		showScreen('screen_tray');
-	}
-	else if ('option_view'==optionid) {
+	if ('option_view'==optionid) {
 		var enc = currententry.enclosures[0];
 		var url = enc.url;
 		console.log('view '+currententry.title+' as '+url);
@@ -289,6 +293,25 @@ function handleOption(optionid) {
 		}
 		showScreen('screen_tray');
 	}
+	else if ('option_get'==optionid) {
+		var enc = currententry.enclosures[0];
+		var url = enc.url;
+		url = getExternalUrl(url);
+		console.log('get '+currententry.title+' as '+url);
+
+		// relative URL
+		var baseurl = location.href;
+		var ix = baseurl.lastIndexOf('/');
+		if (ix>=0)
+			baseurl = baseurl.substring(0,ix+1);
+		url = baseurl+'get.html?'+
+		'u='+encodeURIComponent(url)+
+		'&t='+encodeURIComponent(currententry.title);
+		console.log('Using helper page url '+url);
+		
+		window.open(url);
+
+	}
 	else if ('option_send'==optionid) {
 		var enc = currententry.enclosures[0];
 		var url = enc.url;
@@ -296,23 +319,51 @@ function handleOption(optionid) {
 		console.log('send '+currententry.title+' as '+url);
 		// replace options...
 		$('#entrypopup_options').empty();
-		$('#entrypopup_options').append('<p class="option touchable" id="option_back">Back</p>');
+		// back is handled in title bar
 		if (isKiosk()) {
-			var ssid = kiosk.getWifiSsid();
-			$('#entrypopup_options').append('<p class="option_info">Join Wifi Network <span class="ssid">'+ssid+'</span> and scan/enter...</p>');
+			
+			if (localNetworkMode) {
+				var ssid = kiosk.getWifiSsid();
+				$('#entrypopup_options').append('<p class="option_info">Join Wifi Network <span class="ssid">'+ssid+'</span> and scan/enter...</p>');
 
-			url = "http://"+getHostAddress()+":8080/a/phonehelper.html?mime="+
-				encodeURIComponent(enc.mime)+"&url="+encodeURIComponent(url)+
-				"&ssid="+encodeURIComponent(kiosk.getWifiSsid())+
-				"&title="+encodeURIComponent(currententry.title);
-			console.log('Using helper page url '+url);
+				// TODO alternate Internet URL for phonehelper if not in localNetworkMode?!
+				url = 'http://'+getHostAddress()+':8080/a/get.html?'+
+						'u='+encodeURIComponent(url)+
+						'&n='+encodeURIComponent(kiosk.getWifiSsid())+
+						'&t='+encodeURIComponent(currententry.title);
+				console.log('Using helper page url '+url);
 
-			var redir = kiosk.registerTempRedirect(url, REDIRECT_LIFETIME_MS);
-			url = "http://"+getHostAddress()+":8080"+redir;
-			console.log('Using temp url '+url);
+				// temporary redirect for short URL
+				var redir = kiosk.registerTempRedirect(url, REDIRECT_LIFETIME_MS);
+				url = "http://"+getHostAddress()+":8080"+redir;
+				console.log('Using temp url '+url);
+			}
+			else {
+				$('#entrypopup_options').append('<p class="option_info">Enable internet access and scan/enter...</p>');
+
+				// TODO alternate Internet URL for phonehelper if not in localNetworkMode?!
+				url = 'http://'+getHostAddress()+':8080/a/get.html?'+
+						'u='+encodeURIComponent(url)+
+						//"&ssid="+encodeURIComponent(kiosk.getWifiSsid())+
+						'&t='+encodeURIComponent(currententry.title);
+				console.log('Using helper page url '+url);
+
+			}
 			
 			$('#entrypopup_options').append('<img class="option_qrcode" src="http://localhost:8080/qr?url='+encodeURIComponent(url)+'&size=150" alt="qrcode for item">');
 		} else {
+			$('#entrypopup_options').append('<p class="option_info">Enable internet access and scan/enter...</p>');
+
+			// relative URL
+			var baseurl = location.href;
+			var ix = baseurl.lastIndexOf('/');
+			if (ix>=0)
+				baseurl = baseurl.substring(0,ix+1);
+			url = baseurl+'get.html?'+
+				'u='+encodeURIComponent(url)+
+				'&t='+encodeURIComponent(currententry.title);
+			console.log('Using helper page url '+url);
+
 			// assume internet?? try google qrcode generator http://chart.apis.google.com/chart?cht=qr&chs=150x150&choe=UTF-8&chl=http%3A%2F%2F1.2.4
 			$('#entrypopup_options').append('<img class="option_qrcode" src="http://chart.apis.google.com/chart?cht=qr&chs=150x150&choe=UTF-8&chl='+encodeURIComponent(url)+'" alt="qrcode for item">');
 		}
@@ -364,9 +415,29 @@ function initFileTypes() {
 }
 
 var options = new Object();
+var hostDevice = 'any';
 
 // initialise the options screen 
 function initOptions() {
+	if (!isKiosk()) {
+		var userAgent = navigator.userAgent;
+		var dev = 'other';
+		for (var di in deviceTypes) {
+			var dt = deviceTypes[di];
+			if (dt.userAgentPattern) {
+				var pat = new RegExp(dt.userAgentPattern);
+				if (pat.test(userAgent)) {
+					console.log('host device seems to be '+dt.term+' (user agent: '+userAgent+')');
+					dev = dt.term;
+				}
+			}
+		}
+		if (dev==='other') {
+			console.log('non-kiosk using default device type '+options.device);
+		}
+		hostDevice = dev;
+		setOptionDevice(dev);
+	}
 	// phone types (term: label:)
 	for (var di in deviceTypes) {
 		var dt = deviceTypes[di];
@@ -376,6 +447,17 @@ function initOptions() {
 }
 // update the options screen
 function updateOptions() {
+	// kiosk options
+	if (isKiosk()) 
+		$('#option_kiosk_holder').hide();
+	else {
+		$('#option_kiosk_holder').show();
+		if (kioskMode)
+			$('#option_kiosk_mode img').attr('src', 'icons/tick.png');
+		else
+			$('#option_kiosk_mode img').attr('src', 'icons/emptybox.png');
+	}
+	
 	// device
 	$('#option_device div.optionvalue img').attr('src', 'icons/emptybox.png');
 	if (options.device) 
@@ -410,6 +492,62 @@ function updateOptions() {
 	}
 	//$('#option_mediatype').append('<div id="option_device_any" class="optionvalue touchable"><img src="icons/emptybox.png" alt="blank" class="optionvalueicon"><div class="optionvaluelabel">Any!</div></div>');
 }
+function checkFileTypeSupport(mt, deviceType) {
+	if (deviceType===undefined) {
+		for (var dti in deviceTypes) {
+			var dt = deviceTypes[dti];
+			if (dt.term==options.device) {
+				deviceType = dt;
+				break;
+			}
+		}
+	}
+	if (deviceType && deviceType.supportsMime.indexOf(mt.mime)>=0)
+		// build-in support
+		options.mediatypes[mt.mime] = true;
+	else {
+		var apps = [];
+		// check applications
+		for (var ei in entries) {
+			var app = entries[ei];
+			if (app.supportsMime.indexOf(mt.mime)>=0) {
+				if (app.requiresDevice.length==0 || app.requiresDevice.indexOf(options.device)>=0) {
+					// ok with this app
+					apps.push(app);
+					console.log('device '+options.device+' requires app for '+mt.mime+' such as '+app.title);
+				}
+			}
+		}
+		if (apps.length==0) {
+			console.log('device '+options.device+' does not support '+mt.mime);
+			options.mediatypes[mt.mime] = false;
+		}
+	}
+}
+function setOptionDevice(dev) {
+	if (dev=='any')  {
+		delete options.device;
+		// initialise mediatype options for any device
+		options.mediatypes = new Object();
+	}
+	else  {
+		options.device = dev;
+		// initialise mediatype options for device
+		options.mediatypes = new Object();
+		var deviceType = null;
+		for (var dti in deviceTypes) {
+			var dt = deviceTypes[dti];
+			if (dt.term==options.device) {
+				deviceType = dt;
+				break;
+			}
+		}
+		for (var mti in allFileTypes) {
+			var mt = allFileTypes[mti];
+			checkFileTypeSupport(mt, deviceType);
+		}
+	}
+}
 function handleOptionvalue(el) {
 	var id = el.id;
 	console.log('handleOptionvalue('+id+')');
@@ -418,48 +556,7 @@ function handleOptionvalue(el) {
 	if (id.indexOf('option_device_')==0) {
 		var dev = id.substring('option_device_'.length);
 		console.log('select device '+dev);
-		if (dev=='any')  {
-			delete options.device;
-			// initialise mediatype options for any device
-			options.mediatypes = new Object();
-		}
-		else  {
-			options.device = dev;
-			// initialise mediatype options for device
-			options.mediatypes = new Object();
-			var deviceType = null;
-			for (var dti in deviceTypes) {
-				var dt = deviceTypes[dti];
-				if (dt.term==options.device) {
-					deviceType = dt;
-					break;
-				}
-			}
-			for (var mti in allFileTypes) {
-				var mt = allFileTypes[mti];
-				if (deviceType && deviceType.supportsMime.indexOf(mt.mime)>=0)
-					// build-in support
-					options.mediatypes[mt.mime] = true;
-				else {
-					var apps = [];
-					// check applications
-					for (var ei in entries) {
-						var app = entries[ei];
-						if (app.supportsMime.indexOf(mt.mime)>=0) {
-							if (app.requiresDevice.length==0 || app.requiresDevice.indexOf(options.device)>=0) {
-								// ok with this app
-								apps.push(app);
-								console.log('device '+options.device+' requires app for '+mt.mime+' such as '+app.title);
-							}
-						}
-					}
-					if (apps.length==0) {
-						console.log('device '+options.device+' does not support '+mt.mime);
-						options.mediatypes[mt.mime] = false;
-					}
-				}
-			}
-		}
+		setOptionDevice(dev);
 		updateOptions();
 	} else if (id.indexOf('option_mediatype_')==0) {
 		var mime = $('#'+id).data('mime');
@@ -474,6 +571,12 @@ function handleOptionvalue(el) {
 				options.mediatypes[mime] = true;
 			updateOptions();
 		}
+	}
+	else if (id=='option_kiosk_mode') {
+		// toggle
+		kioskMode = !kioskMode;
+		console.log('toggle kioskMode, now '+kioskMode);
+		updateOptions();
 	}
 }
 
@@ -546,8 +649,6 @@ $( document ).ready(function() {
 	else 
 		$('#status').html('getHostAddress()='+getHostAddress());
 
-	$('#screen_debug').hide();
-	
 	// touch listeners
 	$( 'body' ).on('touchstart',function(ev) {
 		console.log('touchstart '+ev);

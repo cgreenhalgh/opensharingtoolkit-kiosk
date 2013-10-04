@@ -21,12 +21,21 @@ var urlParams;
 </script>
 </head>
 <body>
-<p>Great! You're on the right network (<script type="text/javascript">document.write(urlParams.ssid);</script>)</p>
-<h1 style="">Get <script type="text/javascript">document.write(urlParams.title);</script></h1>
-<p><script type="text/javascript">
-document.write('<a style="font-size:24pt;" href="'+urlParams.url+'" style="">Download</a>');
+<p>Great! You're on the <script type="text/javascript">
+var ssid = urlParams.n;
+if (ssid) 
+	document.write('right nextwork ('+ssid+')'); 
+else
+	document.write('Internet');
 </script></p>
-<p>Mime type: <script type="text/javascript">document.write(urlParams.mime);</script>)</p>
-<p>User agent: <script type="text/javascript">document.write(navigator.userAgent);</script>)</p>
+<h1 style="">Get <script type="text/javascript">document.write(urlParams.t);</script></h1>
+<p><script type="text/javascript">
+var url = urlParams.u;
+if (url)
+	document.write('<a style="font-size:24pt;" href="'+url+'" style="">Download</a>');
+else
+	document.write('Sorry, something went wrong opening this page - I don\'t know what content you were trying to get; please go back and try again.');	
+</script></p>
+<p>Debug - User agent= <script type="text/javascript">document.write(navigator.userAgent);</script>)</p>
 </body>
 </html>
