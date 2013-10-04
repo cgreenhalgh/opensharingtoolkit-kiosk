@@ -12,7 +12,7 @@ var standardFileTypes = [ { mime: "application/pdf", ext: "pdf", icon: "icons/pd
 // Note: application/x-itunes-app is a made-up mime type for consistency
 var deviceTypes = [ { term: "android", label: "Android", userAgentPattern: 'Android', supportsMime: [ "text/html", "application/vnd.android.package-archive" ] },
                     { term: "ios", label: "iPhone", userAgentPattern: '(iPhone)|(iPod)|(iPad)', supportsMime: [ "text/html", "application/x-itunes-app" ] },
-                    { term: "other", label: "Other smartphone", supportsMime: [ "text/html" ] },
+                    { term: "other", label: "Other Devices", supportsMime: [ "text/html" ] },
                     ];
 
 var kioskMode = false;
@@ -31,6 +31,8 @@ function getHostAddress() {
 var entries = [];
 // mime type -> {mime: label: icon: ?ext: }
 var allFileTypes = new Object();
+// url -> shorturl
+var shorturls = new Object();
 var mousedownEvent = null;
 var mousemoved = false;
 var MOUSE_MOVE_MIN = 20;
@@ -108,12 +110,25 @@ function addEntry(atomentry, prefix, cacheinfo) {
 		}
 	});
 	
+	$('category[scheme=\'visibility\']', atomentry).each(function(index, el) {
+		var visibility = $(el).attr('term');
+		if (visibility=='hidden')
+			entry.hidden = true;
+		console.log('entry visibility '+visibility+' (hidden='+entry.hidden+' for '+title);
+	});
+	$('category', atomentry).each(function(index, el) {
+		var term= $(el).attr('term');
+		var scheme = $(el).attr('scheme');
+		console.log('category '+scheme+'='+term);
+	});
 	console.log('  entry['+index+']: '+title);
 }
 function refreshTray() {
 	$('#tray').empty();
 	for (var index in entries) {
 		var entry = entries[index];
+		if (entry.hidden)
+			continue;
 		// filter
 		var title = entry.title;
 		var iconurl = entry.iconurl;
@@ -160,7 +175,7 @@ function addEntries(atomurl) {
 	}
 	// add loading animation
 	tray.append('<img src="icons/loading.gif" alt="loading" class="loading">');
-	// _ost/cache.json ?
+	// ost/cache.json ?
 	$.ajax({
 		url: prefix+'ost/cache.json',
 		type: 'GET',
@@ -173,6 +188,28 @@ function addEntries(atomurl) {
 		error: function(xhr, textStatus, errorThrown) {
 			console.log('error getting cache.json: '+textStatus+': '+errorThrown);
 			loadAtomFile(atomurl, prefix, null);
+		}
+	});
+	// ost/shorturls.json ?
+	$.ajax({
+		url: prefix+'ost/shorturls.json',
+		type: 'GET',
+		dataType: 'json',
+		timeout: 10000,
+		success: function(data, textStatus, xhr) {
+			console.log('ok, got '+prefix+'ost/shorturls.json '+data);
+			for (var si in data) {
+				var surl = data[si];
+				if (surl.url && surl.shorturl) {
+					shorturls[surl.url] = surl.shorturl;
+					console.log('adding shorturl '+surl.shorturl+' -> '+surl.url);
+				}
+				else
+					console.log('badly formatted shorturl '+JSON.stringify(surl));
+			}
+		},
+		error: function(xhr, textStatus, errorThrown) {
+			console.log('error getting '+prefix+'ost/shorturls.json: '+textStatus+': '+errorThrown);
 		}
 	});
 }
@@ -249,7 +286,7 @@ function showEntryPopup(entry) {
 		$('#entrypopup_options').append('<p class="option touchable" id="option_view">View</p>');
 		
 		if (isKiosk() || kioskMode) {
-			$('#entrypopup_options').append('<p class="option touchable" id="option_send">Get on Phone</p>');			
+			$('#entrypopup_options').append('<p class="option touchable" id="option_send">Get on Phone</p>');
 		}
 		if (!isKiosk()) {
 			$('#entrypopup_options').append('<p class="option touchable" id="option_get">Get on this device</p>');			
@@ -370,7 +407,8 @@ function handleOption(optionid) {
 		window.open(url);
 
 	}
-	else if ('option_send'==optionid) {
+	else if ('option_send'==optionid) {		
+		
 		var enc = currententry.enclosures[0];
 		var url = enc.url;
 
@@ -378,6 +416,13 @@ function handleOption(optionid) {
 			url = getExternalUrl(url);
 		} 
 		else {
+			// need device!
+			if (options.device===undefined) {
+				showScreen('screen_options');
+				alert('Please select you phone type first');
+				return;
+			}
+			
 			var url2 = url;
 			// remove prefix?
 			if (currententry.prefix && url2.indexOf(currententry.prefix)==0)
@@ -453,12 +498,21 @@ function handleOption(optionid) {
 				$('#entrypopup_options').append('<p class="option_info">Enable internet access and scan/enter...</p>');
 
 				console.log('Using helper page url '+url);
+				
+				if (shorturls[url]) {
+					url = shorturls[url];
+					console.log('using shorturl '+url);
+				}
 			}
 			
 			$('#entrypopup_options').append('<img class="option_qrcode" src="http://localhost:8080/qr?url='+encodeURIComponent(url)+'&size=150" alt="qrcode for item">');
 		} else {
 			$('#entrypopup_options').append('<p class="option_info">Enable internet access and scan/enter...</p>');
 
+			if (shorturls[url]) {
+				url = shorturls[url];
+				console.log('using shorturl '+url);
+			}
 			// assume internet?? try google qrcode generator http://chart.apis.google.com/chart?cht=qr&chs=150x150&choe=UTF-8&chl=http%3A%2F%2F1.2.4
 			$('#entrypopup_options').append('<img class="option_qrcode" src="http://chart.apis.google.com/chart?cht=qr&chs=150x150&choe=UTF-8&chl='+encodeURIComponent(url)+'" alt="qrcode for item">');
 		}
@@ -540,7 +594,7 @@ function initOptions() {
 		var dt = deviceTypes[di];
 		$('#option_device').append('<div id="option_device_'+dt.term+'" class="optionvalue touchable"><img src="icons/emptybox.png" alt="blank" class="optionvalueicon"><div class="optionvaluelabel">'+dt.label+'</div></div>');
 	}
-	$('#option_device').append('<div id="option_device_any" class="optionvalue touchable"><img src="icons/emptybox.png" alt="blank" class="optionvalueicon"><div class="optionvaluelabel">Any!</div></div>');
+	$('#option_device').append('<div id="option_device_any" class="optionvalue touchable"><img src="icons/emptybox.png" alt="blank" class="optionvalueicon"><div class="optionvaluelabel">Show me everything</div></div>');
 }
 // get entries for apps supporting given mime type on given device 
 // return array of entries, or null if none, empty array if built-in
@@ -677,6 +731,7 @@ function setOptionDevice(dev) {
 		delete options.device;
 		// initialise mediatype options for any device
 		options.mediatypes = new Object();
+		$('#tray_title').text('Downloads for Any Device');
 	}
 	else  {
 		options.device = dev;
@@ -690,6 +745,11 @@ function setOptionDevice(dev) {
 				break;
 			}
 		}
+		if (deviceType)
+			$('#tray_title').text('Downloads for '+deviceType.label);
+		else
+			$('#tray_title').text('Downloads for '+options.device);
+
 		for (var mti in allFileTypes) {
 			var mt = allFileTypes[mti];
 			checkFileTypeSupport(mt, deviceType);
