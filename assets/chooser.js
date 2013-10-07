@@ -608,7 +608,7 @@ function initOptions() {
 			console.log('non-kiosk using default device type '+options.device);
 		}
 		hostDevice = dev;
-		if (options.device===undefined) {
+		if (options.device===undefined && options.mediatypes===undefined) {
 			options.device = hostDevice;
 		}
 		// preserve any saved config
@@ -727,6 +727,9 @@ function updateOptions() {
 	//$('#option_mediatype').append('<div id="option_device_any" class="optionvalue touchable"><img src="icons/emptybox.png" alt="blank" class="optionvalueicon"><div class="optionvaluelabel">Any!</div></div>');
 }
 function checkFileTypeSupport(mt, deviceType) {
+	if (options.mediatypes[mt.mime]!==undefined)
+		// leave explicit options
+		return;
 	if (deviceType===undefined) {
 		if (options.device===undefined)
 			// maybe!
@@ -764,7 +767,7 @@ function checkFileTypeSupport(mt, deviceType) {
 	saveOptions();
 }
 function setOptionDevice(dev) {
-	if (dev=='any')  {
+	if (dev=='any' || dev===undefined)  {
 		delete options.device;
 		// initialise mediatype options for any device
 		options.mediatypes = new Object();
