@@ -15,9 +15,6 @@ var deviceTypes = [ { term: "android", label: "Android", userAgentPattern: 'Andr
                     { term: "other", label: "Other Devices", supportsMime: [ "text/html" ] },
                     ];
 
-var kioskMode = false;
-var localNetworkMode = false;
-
 function getHostAddress() {
 	if (isKiosk()) 
 		return kiosk.getHostAddress();
@@ -37,6 +34,27 @@ var mousedownEvent = null;
 var mousemoved = false;
 var MOUSE_MOVE_MIN = 20;
 var currententry = null;
+
+function saveOptions() {
+	// persistent?
+	if(typeof(Storage)!=="undefined") {
+		localStorage.options = JSON.stringify(options);
+		console.log('saved options');
+	}
+}
+function loadOptions() {
+	if(typeof(Storage)!=="undefined") {
+		if (localStorage.options) {
+			options = JSON.parse(localStorage.options);
+			console.log('loaded options');
+		}
+		else
+			console.log('no saved options');
+	}
+	else
+		console.log('Warning: No local storage available');
+	
+}
 
 function getTouchedEntry(ev) {
 	var el = ev.target;
@@ -285,7 +303,7 @@ function showEntryPopup(entry) {
 		// kiosk...?
 		$('#entrypopup_options').append('<p class="option touchable" id="option_view">View</p>');
 		
-		if (isKiosk() || kioskMode) {
+		if (isKiosk() || options.kioskMode) {
 			$('#entrypopup_options').append('<p class="option touchable" id="option_send">Get on Phone</p>');
 		}
 		if (!isKiosk()) {
@@ -377,7 +395,7 @@ function handleOption(optionid) {
 
 		if (!done) {
 			// if we are kiosk this is usually wrong 
-			window.open(url,'_self','',false);
+			window.open(url,'_blank','',false);
 		}
 		showScreen('screen_tray');
 	}
@@ -412,7 +430,7 @@ function handleOption(optionid) {
 		var enc = currententry.enclosures[0];
 		var url = enc.url;
 
-		if (isKiosk() && localNetworkMode) {
+		if (isKiosk() && options.localNetworkMode) {
 			url = getExternalUrl(url);
 		} 
 		else {
@@ -454,7 +472,7 @@ function handleOption(optionid) {
 		if (ix>=0)
 			baseurl = baseurl.substring(0,ix+1);
 
-		if (isKiosk() && localNetworkMode) {
+		if (isKiosk() && options.localNetworkMode) {
 			geturl = 'http://'+getHostAddress()+':8080/a/get.html';
 		}
 		else if (cacheinfo && cacheinfo.baseurl) {
@@ -482,7 +500,7 @@ function handleOption(optionid) {
 		// back is handled in title bar
 		if (isKiosk()) {
 			
-			if (localNetworkMode) {
+			if (options.localNetworkMode) {
 				var ssid = kiosk.getWifiSsid();
 				$('#entrypopup_options').append('<p class="option_info">Join Wifi Network <span class="ssid">'+ssid+'</span> and scan/enter...</p>');
 
@@ -564,11 +582,15 @@ function initFileTypes() {
 }
 
 var options = new Object();
-options.mediatypes = new Object();
 var hostDevice = 'any';
 
 // initialise the options screen 
 function initOptions() {
+	loadOptions();
+	if (options.localNetworkMode===undefined)
+		options.localNetworkMode = false;
+	if (options.kioskMode===undefined)
+		options.kioskMode = false;
 	if (!isKiosk()) {
 		var userAgent = navigator.userAgent;
 		var dev = 'other';
@@ -586,9 +608,20 @@ function initOptions() {
 			console.log('non-kiosk using default device type '+options.device);
 		}
 		hostDevice = dev;
-		setOptionDevice(dev);
+		if (options.device===undefined) {
+			options.device = hostDevice;
+		}
+		// preserve any saved config
+		var mediatypes = options.mediatypes;
+		setOptionDevice(options.device);
+		if (mediatypes) {
+			options.mediatypes = mediatypes;
+			saveOptions();
+		}
 		$('#option_device_holder').hide();
 	}
+	if (options.mediatypes===undefined)
+		options.mediatypes = new Object();
 	// phone types (term: label:)
 	for (var di in deviceTypes) {
 		var dt = deviceTypes[di];
@@ -630,7 +663,7 @@ function updateOptions() {
 	if (isKiosk()) {
 		$('#option_kiosk_holder').hide();
 		$('#option_localnetwork_holder').show();
-		if (localNetworkMode)
+		if (options.localNetworkMode)
 			$('#option_localnetwork_mode img').attr('src', 'icons/tick.png');
 		else
 			$('#option_localnetwork_mode img').attr('src', 'icons/emptybox.png');
@@ -638,10 +671,13 @@ function updateOptions() {
 	else {
 		$('#option_kiosk_holder').show();
 		$('#option_localnetwork_holder').hide();
-		if (kioskMode)
+		if (options.kioskMode) {
 			$('#option_kiosk_mode img').attr('src', 'icons/tick.png');
-		else
+			$('#option_device_holder').show();
+		} else {
 			$('#option_kiosk_mode img').attr('src', 'icons/emptybox.png');
+			$('#option_device_holder').hide();
+		}
 	}
 	
 	// device
@@ -725,6 +761,7 @@ function checkFileTypeSupport(mt, deviceType) {
 			options.mediatypes[mt.mime] = false;
 		}
 	}
+	saveOptions();
 }
 function setOptionDevice(dev) {
 	if (dev=='any')  {
@@ -755,6 +792,7 @@ function setOptionDevice(dev) {
 			checkFileTypeSupport(mt, deviceType);
 		}
 	}
+	saveOptions();
 }
 function handleOptionvalue(el) {
 	var id = el.id;
@@ -777,25 +815,24 @@ function handleOptionvalue(el) {
 				options.mediatypes[mime] = false;
 			else
 				options.mediatypes[mime] = true;
+			saveOptions();
 			updateOptions();
 		}
 	}
 	else if (id=='option_kiosk_mode') {
 		// toggle
-		kioskMode = !kioskMode;
-		console.log('toggle kioskMode, now '+kioskMode);
-		if (kioskMode)
-			$('#option_device_holder').show();
-		else {
+		options.kioskMode = !options.kioskMode;
+		saveOptions();
+		console.log('toggle kioskMode, now '+options.kioskMode);
+		if (!options.kioskMode)
 			setOptionDevice(hostDevice);
-			$('#option_device_holder').hide();
-		}
 		updateOptions();
 	}
 	else if (id=='option_localnetwork_mode') {
 		// toggle
-		localNetworkMode = !localNetworkMode;
-		console.log('toggle localNetworkMode, now '+localNetworkMode);
+		options.localNetworkMode = !options.localNetworkMode;
+		saveOptions();
+		console.log('toggle localNetworkMode, now '+options.localNetworkMode);
 		updateOptions();
 	}
 }
@@ -859,6 +896,7 @@ $( document ).ready(function() {
 	// initialise...
 	initFileTypes();
 	initOptions();
+	updateOptions();
 	
 	$('.scrollhint').on('scroll', function(ev) { 
 		updateScrollHints(ev.target);
