@@ -177,16 +177,27 @@ public class JavascriptHelper {
 	 * @return path
 	 */
 	@JavascriptInterface
-	public String getAtomFilePath() {
+	public String getAtomFile() {
+		SharedPreferences spref = PreferenceManager.getDefaultSharedPreferences(mContext);
+		String atomfile = spref.getString("pref_atomfile", "default.xml");
+		return atomfile;
+	}
+	/** get path prefix for local files
+	 * 
+	 * @return path
+	 */
+	@JavascriptInterface
+	public String getLocalFilePrefix() {
 		// should be on external storage
 		File dir = mContext.getExternalFilesDir(null);
 		if (dir==null) {
-			Log.w(TAG, "getAtomFilePath with external storage not available");
+			Log.w(TAG, "getLocalFilePrefix with external storage not available");
 			return null;
 		}
-		SharedPreferences spref = PreferenceManager.getDefaultSharedPreferences(mContext);
-		String atomfile = spref.getString("pref_atomfile", "default.xml");
-		File file = new File(dir, atomfile);
-		return file.toURI().toString();
+		String url = dir.toURI().toString();
+		if (url.startsWith("file:/") && !url.startsWith("file:///"))
+			// extra //
+			url = "file:///"+url.substring("file:/".length());
+		return url;
 	}
 }

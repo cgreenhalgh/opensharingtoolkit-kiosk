@@ -85,7 +85,7 @@ Each content item is specified by a single Atom `entry`. Currently of the mandat
 Entry elements that are used are as follows:
 
 - `title`: the displayed title of the content item.
-- `summary`: textual (HTML) description of item, shown on detail page.
+- `content`: (was summary) textual (HTML) description of item, shown on detail page.
 - `link` with attributes `rel`=`alternate` and `type`=`image/`*: icon for the item (attribute `href` is URL). (possibly RSS media:icon should be used instead)
 - `link` with attribute `rel`=`enclosure`: content file for the item, attribute `href` is URL and attribute `type` is MIME type.
 - `category` with attribute `scheme`=`requires-device`: device with which content is compatible (attribute `term` is device type ID, currently one of `android`, `ios` or `other`)
@@ -101,7 +101,7 @@ For example, a PDF document `thing1.pdf` (MIME type `application/pdf`) with icon
                 <link rel="enclosure" type="application/pdf" href="thing1.pdf" />
                 <id>tag:cmg@cs.nott.ac.uk,2013-09-26:atom/test/1/1</id>
                 <updated>2013-09-26T12:32:01Z</updated>
-                <summary>A PDF document about the first thing. A PDF document about the first thing. A PDF document about the first thing. A PDF document about the first thing. A PDF document about the first thing. A PDF document about the first thing. A PDF document about the first thing. A PDF document about the first thing. A PDF document about the first thing. A PDF document about the first thing. A PDF document about the first thing. A PDF document about the first thing. A PDF document about the first thing. </summary>
+                <content>A PDF document about the first thing. A PDF document about the first thing. A PDF document about the first thing. A PDF document about the first thing. A PDF document about the first thing. A PDF document about the first thing. A PDF document about the first thing. A PDF document about the first thing. A PDF document about the first thing. A PDF document about the first thing. A PDF document about the first thing. A PDF document about the first thing. A PDF document about the first thing. </content>
                 <author>
                       <name>Chris Greenhalgh</name>
                       <email>cmg@cs.nott.ac.uk</email>
@@ -123,7 +123,7 @@ For example, the Adobe reader application for Android, which provides support fo
                 <link rel="enclosure" type="application/vnd.android.package-archive" href="http://play.google.com/store/apps/details?id=com.adobe.reader" />
                 <id>tag:cmg@cs.nott.ac.uk,2013-09-26:app/adobe_reader_for_android</id>
                 <updated>2013-09-30T20:30:01Z</updated>
-                <summary>One of the most popular PDF file viewers, from Adobe, available on Google Play.</summary>
+                <content>One of the most popular PDF file viewers, from Adobe, available on Google Play.</content>
                 <author>
                       <name>Adobe</name>
                 </author>
@@ -144,7 +144,7 @@ Note that the app is hidden. The MIME type for an Android app is `application/vn
                 <link rel="enclosure" type="application/x-itunes-app" href="https://itunes.apple.com/gb/app/adobe-reader/id469337564?mt=8&amp;uo=4" />
                 <id>tag:cmg@cs.nott.ac.uk,2013-09-26:app/adobe_reader_for_android</id>
                 <updated>2013-09-30T20:30:01Z</updated>
-                <summary>One of the most popular PDF file viewers, from Adobe, available on iTunes.</summary>
+                <content>One of the most popular PDF file viewers, from Adobe, available on iTunes.</content>
                 <author>
                       <name>Adobe</name>
                 </author>

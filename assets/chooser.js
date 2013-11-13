@@ -35,6 +35,8 @@ var mousemoved = false;
 var MOUSE_MOVE_MIN = 20;
 var currententry = null;
 
+var kioskFilePrefix = null;
+
 function saveOptions() {
 	// persistent?
 	if(typeof(Storage)!=="undefined") {
@@ -73,7 +75,7 @@ function getTouchedEntry(ev) {
 	return undefined;
 }
 
-function getPrefixedUrl(prefix, href) {
+/*function getPrefixedUrl(prefix, href) {
 	if (href.indexOf(':')<0 && href.indexOf('/')!=0) {
 		// no scheme and doesn't start with /
 		href = prefix+href;
@@ -81,26 +83,69 @@ function getPrefixedUrl(prefix, href) {
 	}
 	return href;
 }
-
+*/
+function getCachePath(url, prefix, cacheinfo) {
+	if (!url)
+		return null;
+	var gurl = url;
+	var ix = gurl.indexOf(':');
+	if (ix<0) {
+		// make a global URL first
+		// - relative to cacheinfo.baseurl if set, else prefix
+		if (gurl.indexOf('/')==0)
+			gurl = gurl.substring(1);
+		if (cacheinfo && cacheinfo.baseurl)
+			// has /
+			gurl = cacheinfo.baseurl+gurl;
+		else if (prefix)
+			// has /
+			gurl = prefix+gurl;
+	}
+	// in cache??
+	if (cacheinfo && cacheinfo.files)
+   	  	for (var i=0; i<cacheinfo.files.length; i++) {
+   	  		file = cacheinfo.files[i];
+   	  		if (file.url==gurl && file.path) {
+   	  			console.log('Cache hit '+url+' -> '+gurl+' = '+file.path);
+   	  			return file.path
+   	  		}
+   	  	}
+	console.log('Cache miss '+url+' -> '+gurl);
+	return null;
+}
 function addEntry(atomentry, prefix, cacheinfo) {
+	// prefix is root path from which atom file was loaded;
+	// typically this would be correct for relative paths,
+	// but may be application-specific (asset) or 
+	// device-specific (file)
+	//
+	// cache baseurl is root path from atom file was 
+	// originally hosted on the web (and presumably still is).
+	// typically this would be correct for internet paths.
+	//
+	// cache path (if it exists) is relative to atom file/cache.js of a
+	// copy of the original file.
+	//
 	index = entries.length;
 	var title = $('title', atomentry).text();
 	var iconurl = $('link[rel=\'alternate\'][type^=\'image\']', atomentry).attr('href');
 	if (!iconurl) {
-		iconurl = "icons/_blank.png";
+		// relative to html page
+		//iconurl = "icons/_blank.png";
 		console.log('iconurl unknown for '+title);
-	} else {
-		iconurl = getPrefixedUrl(prefix, iconurl);
 	}
-	var summary = $('summary', atomentry).text();	
-	var entry = { title: title, iconurl: iconurl, summary: summary, index: index, prefix: prefix, cacheinfo: cacheinfo };
+	var iconpath = getCachePath(iconurl, prefix, cacheinfo)
+		
+	var summary = $('content', atomentry).text();		
+	
+	var entry = { title: title, iconurl: iconurl, iconpath: iconpath, summary: summary, index: index, prefix: prefix, cacheinfo: cacheinfo };
 	entry.enclosures = [];
 	$('link[rel=\'enclosure\']', atomentry).each(function(index, el) {
 		var type = $(el).attr('type');
 		var href = $(el).attr('href');
 		if (href) {
-			href = getPrefixedUrl(prefix,href);
-			entry.enclosures.push({mime: type, url: href});
+			var path = getCachePath(href, prefix, cacheinfo);
+			entry.enclosures.push({mime: type, url: href, path: path});
 		}
 	});
 	entry.requiresDevice = [];
@@ -124,7 +169,7 @@ function addEntry(atomentry, prefix, cacheinfo) {
 				checkFileTypeSupport(mt);
 			}
 			if (!allFileTypes[mime].icon || allFileTypes[mime].icon=="icons/_blank.png")
-				allFileTypes[mime].icon = iconurl;
+				allFileTypes[mime].icon = getIconUrl(entry);
 		}
 	});
 	
@@ -141,6 +186,30 @@ function addEntry(atomentry, prefix, cacheinfo) {
 	});
 	console.log('  entry['+index+']: '+title);
 }
+// get an icon URL that can be used within the browser/kiosk (only).
+// Should be from the cache if present.
+function getIconUrl(entry) {
+	var url = entry.iconurl;
+	if (!url)
+		// unknown - relative to HTML
+		return "icons/_blank.png";
+	
+	if (!isKiosk()) {
+		// not kiosk - build global address (with prefix), 
+		// but try cache if possible (from cache path and prefix)
+		if (entry.iconpath && entry.prefix) {
+			return entry.prefix+entry.iconpath;
+		}
+		var ix = url.indexOf(':');
+		if (ix>=0)
+			// global already
+			return url;
+		if (url.indexOf('/')==0)
+			url = url.substring(1);
+		return entry.prefix+url;
+	}
+}
+
 function refreshTray() {
 	$('#tray').empty();
 	for (var index in entries) {
@@ -149,7 +218,7 @@ function refreshTray() {
 			continue;
 		// filter
 		var title = entry.title;
-		var iconurl = entry.iconurl;
+		var iconurl = getIconUrl(entry);
 		// device
 		if (entry.requiresDevice.length>0) {
 			if (options.device && entry.requiresDevice.indexOf(options.device)<0) {
@@ -201,6 +270,10 @@ function addEntries(atomurl) {
 		timeout: 10000,
 		success: function(data, textStatus, xhr) {
 			console.log('ok, got cache.json '+data);
+			if (cacheinfo==null) {
+				console.log('Initialise get.html baseurl from '+prefix);
+				cacheinfo = { baseurl: data.baseurl };
+			}
 			loadAtomFile(atomurl, prefix, data);
 		},
 		error: function(xhr, textStatus, errorThrown) {
@@ -261,7 +334,7 @@ function showEntryPopup(entry) {
 	$('#entrypopup_title').text(entry.title);
 	$('#entrypopup_summary').html(entry.summary);
 
-	$('#entrypopup_icon img').replaceWith('<img src="'+entry.iconurl+'" alt="'+entry.title+' icon" class="entrypopup_icon">');
+	$('#entrypopup_icon img').replaceWith('<img src="'+getIconUrl(entry)+'" alt="'+entry.title+' icon" class="entrypopup_icon">');
 	$('#entrypopup_requires').empty();
 
 	// requires...
@@ -329,6 +402,8 @@ function getExternalUrl(url) {
 	} 
 	return url;
 }
+// this is only called by kiosk when open content for viewing
+// e.g. a URL for adobe reader to open on the local device
 function getInternalUrl(url) {
 	if (isKiosk()) {
 		// convert to external URL
@@ -337,6 +412,11 @@ function getInternalUrl(url) {
 				if (url.indexOf('/')!=0)
 					url = '/'+url;
 				url = 'http://localhost:'+kiosk.getPort()+'/a'+url;
+			}
+			else if (kioskFilePrefix!=null && location.href.indexOf(kioskFilePrefix)==0) {
+				if (url.indexOf('/')!=0)
+					url = '/'+url;
+				url = 'http://localhost:'+kiosk.getPort()+'/f'+url;				
 			}
 		}
 	} 
@@ -717,7 +797,7 @@ function updateOptions() {
 		} else {
 			for (var ai in apps) {
 				var app = apps[ai];
-				$('#'+id).append('<img src="'+app.iconurl+'" alt="requires '+app.title+'" class="optionvalue_requires_app touchable">');
+				$('#'+id).append('<img src="'+getIconUrl(app)+'" alt="requires '+app.title+'" class="optionvalue_requires_app touchable">');
 			}
 		}
 		$('#'+id).append('<div class="optionvaluelabel">'+mt.label+'</div>')
@@ -991,15 +1071,20 @@ function loadInitialContent() {
 	var doLoadEntries = function() {
 		var atomfile = "ost.xml"
 		if (isKiosk()) {
-			atomfile = kiosk.getAtomFilePath();
-			console.log('kiosk atomfile = '+atomfile);
-			if (!atomfile)
+			kioskFilePrefix = kiosk.getLocalFilePrefix();
+			if (kioskFilePrefix==null) {
+				alert('Could not get local file information: need local storage mounted');
 				atomfile = "ost.xml"
+			}
+			else
+				atomfile = kioskFilePrefix+"/"+kiosk.getAtomFile();
+
+			console.log('kiosk atomfile = '+atomfile);
 		}
 		addEntries(atomfile);
 	};
 	doLoadEntries();
-	//console.log('local top-level cacheinfo');
+	console.log('local top-level cacheinfo');
 	// _ost/cache.json ?
 	/*$.ajax({
 		url: prefix+'ost/cache.json',

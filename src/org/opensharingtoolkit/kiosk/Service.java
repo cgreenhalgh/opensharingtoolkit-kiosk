@@ -3,6 +3,8 @@
  */
 package org.opensharingtoolkit.kiosk;
 
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Locale;
@@ -108,6 +110,8 @@ public class Service extends android.app.Service {
 			HttpContinuation httpContinuation) throws IOException, HttpError {
 		if (path.startsWith("/a/"))
 			handleAssetRequest(path.substring("/a".length()), requestBody, httpContinuation);
+		else if (path.startsWith("/f/"))
+			handleFileRequest(path.substring("/f".length()), requestBody, httpContinuation);
 		else if (path.startsWith("/qr?"))
 			QRCodeServer.handleRequest(path, httpContinuation);
 		else if (path.startsWith("/r/")) 
@@ -115,13 +119,15 @@ public class Service extends android.app.Service {
 		else
 			httpContinuation.done(404, "File not found", "text/plain", -1, null, null);		
 	}
-	private void handleAssetRequest(String path, String requestBody,
-			HttpContinuation httpContinuation) throws IOException, HttpError {
+	private String checkPath(String path) {
 		if (path.startsWith("/"))
 			path = path.substring(1);
 		int qix = path.indexOf("?");
 		if (qix>=0)
 			path = path.substring(0,qix);
+		return path;
+	}
+	private String guessMimeType(String path) throws HttpError {
 		int ix = path.lastIndexOf('/');
 		String mimeType = "application/unknown";
 		String filename = path;
@@ -154,6 +160,12 @@ public class Service extends android.app.Service {
 				Log.w(TAG,"Unknown file extension "+extension+" (get "+path+")");
 		}			
 		Log.d(TAG,"Sending "+path+" as "+mimeType);
+		return mimeType;
+	}
+	private void handleAssetRequest(String path, String requestBody,
+			HttpContinuation httpContinuation) throws IOException, HttpError {
+		path = checkPath(path);
+		String mimeType = guessMimeType(path);
 		AssetManager assets = getApplicationContext().getAssets();
 		// try hard to get asset size
 		long length = -1;
@@ -200,5 +212,30 @@ public class Service extends android.app.Service {
 			Log.d(TAG,"Content not found");
 			httpContinuation.done(404, "File not found", "text/plain", 0, null, null);
 		}
+	}
+	private void handleFileRequest(String path, String requestBody,
+			HttpContinuation httpContinuation) throws IOException, HttpError {
+		path = checkPath(path);
+		if (path.contains(".."))
+			throw new HttpError(403, "Access denied");
+			
+		String mimeType = guessMimeType(path);
+		File dir = getExternalFilesDir(null);
+		if (dir==null) {
+			Log.w(TAG, "handleFileRequest with external storage not available");
+			throw new HttpError(404, "File not found");
+		}
+		File file = new File(dir, path);
+		// 0 if doesn't exist
+		long length = file.length();
+		InputStream content = null;
+		try {
+			content = new FileInputStream(file);
+		}
+		catch (IOException e) {
+			Log.d(TAG,"File not found: "+file);
+			throw new HttpError(403,"File not found");
+		}
+		httpContinuation.done(200, "OK", mimeType, length, content, null);
 	}
 }
