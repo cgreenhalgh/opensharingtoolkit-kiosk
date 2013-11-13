@@ -5,14 +5,11 @@ package org.opensharingtoolkit.kiosk;
 
 import java.io.ByteArrayInputStream;
 import java.nio.charset.Charset;
-import java.text.DecimalFormat;
-import java.text.NumberFormat;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
-import java.util.Vector;
 
 import org.opensharingtoolkit.httpserver.HttpContinuation;
 import org.opensharingtoolkit.httpserver.HttpError;
@@ -32,6 +29,7 @@ public class RedirectServer {
 		String toUrl;
 		long createdTime;
 		long expiresTime;
+		@SuppressWarnings("unused")
 		int useCount;
 	}
 	/** temp redirects, key is fromPath */

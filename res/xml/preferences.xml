@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android" >
+    <EditTextPreference android:enabled="true" android:title="@string/pref_atomfile" android:key="pref_atomfile" android:defaultValue="@string/pref_atomfile_default" android:selectable="true"/>
+    
+
+</PreferenceScreen>

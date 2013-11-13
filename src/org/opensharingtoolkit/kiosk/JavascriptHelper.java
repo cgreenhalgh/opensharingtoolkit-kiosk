@@ -3,6 +3,7 @@
  */
 package org.opensharingtoolkit.kiosk;
 
+import java.io.File;
 import java.lang.reflect.Method;
 import java.net.Inet4Address;
 import java.net.InetAddress;
@@ -16,6 +17,7 @@ import java.util.Locale;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.net.Uri;
@@ -23,6 +25,7 @@ import android.net.wifi.SupplicantState;
 import android.net.wifi.WifiConfiguration;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
+import android.preference.PreferenceManager;
 import android.util.Log;
 import android.webkit.JavascriptInterface;
 
@@ -168,5 +171,22 @@ public class JavascriptHelper {
 	public String registerTempRedirect(String toUrl, long lifetimeMs) {
 		
 		return RedirectServer.singleton().registerTempRedirect(toUrl, lifetimeMs);
+	}
+	/** get path of configured atom file
+	 * 
+	 * @return path
+	 */
+	@JavascriptInterface
+	public String getAtomFilePath() {
+		// should be on external storage
+		File dir = mContext.getExternalFilesDir(null);
+		if (dir==null) {
+			Log.w(TAG, "getAtomFilePath with external storage not available");
+			return null;
+		}
+		SharedPreferences spref = PreferenceManager.getDefaultSharedPreferences(mContext);
+		String atomfile = spref.getString("pref_atomfile", "default.xml");
+		File file = new File(dir, atomfile);
+		return file.toURI().toString();
 	}
 }

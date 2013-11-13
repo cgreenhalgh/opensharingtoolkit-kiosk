@@ -10,6 +10,10 @@ package org.opensharingtoolkit.httpserver;
  *
  */
 public class HttpError extends Exception {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -7084627967807287928L;
 	private int status;
 	private String message;
 	/**

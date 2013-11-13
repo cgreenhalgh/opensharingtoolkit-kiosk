@@ -41,6 +41,7 @@
         android:theme="@style/AppTheme" >
         <activity
             android:name="org.opensharingtoolkit.kiosk.MainActivity"
+			android:launchMode="singleTask"
             android:label="@string/app_name" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -54,6 +55,16 @@
             android:name=".Service"
             android:exported="false">            
         </service>
-    </application>
+        <activity android:name=".SettingsActivity"
+			android:launchMode="singleTop"
+			android:taskAffinity="org.opensharingtoolkit.kiosk.settings"
+            android:label="@string/add_settings_name" >
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.DEFAULT" />                
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        </application>
 
 </manifest>

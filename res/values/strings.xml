@@ -3,10 +3,12 @@
 
     <string name="app_name">OpenSharingToolkit Kiosk</string>
     <string name="action_settings">Settings</string>
-    <string name="hello_world">Hello world!</string>
     <string name="default_url">file:///android_asset/default.html</string>
     <string name="notification_start_message">Starting Kiosk Service</string>
     <string name="notification_title">Kiosk</string>
     <string name="notification_description">Kiosk service is active</string>
+    <string name="pref_atomfile">Kiosk Content File</string>
+    <string name="pref_atomfile_default">ost.xml</string>
+    <string name="add_settings_name">Kiosk Settings</string>
 
 </resources>

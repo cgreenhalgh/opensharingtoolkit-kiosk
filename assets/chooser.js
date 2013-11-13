@@ -193,9 +193,9 @@ function addEntries(atomurl) {
 	}
 	// add loading animation
 	tray.append('<img src="icons/loading.gif" alt="loading" class="loading">');
-	// ost/cache.json ?
+	// cache.json ?
 	$.ajax({
-		url: prefix+'ost/cache.json',
+		url: prefix+'cache.json',
 		type: 'GET',
 		dataType: 'json',
 		timeout: 10000,
@@ -208,14 +208,14 @@ function addEntries(atomurl) {
 			loadAtomFile(atomurl, prefix, null);
 		}
 	});
-	// ost/shorturls.json ?
+	// shorturls.json ?
 	$.ajax({
-		url: prefix+'ost/shorturls.json',
+		url: prefix+'shorturls.json',
 		type: 'GET',
 		dataType: 'json',
 		timeout: 10000,
 		success: function(data, textStatus, xhr) {
-			console.log('ok, got '+prefix+'ost/shorturls.json '+data);
+			console.log('ok, got '+prefix+'shorturls.json '+data);
 			for (var si in data) {
 				var surl = data[si];
 				if (surl.url && surl.shorturl) {
@@ -227,7 +227,7 @@ function addEntries(atomurl) {
 			}
 		},
 		error: function(xhr, textStatus, errorThrown) {
-			console.log('error getting '+prefix+'ost/shorturls.json: '+textStatus+': '+errorThrown);
+			console.log('error getting '+prefix+'shorturls.json: '+textStatus+': '+errorThrown);
 		}
 	});
 }
@@ -989,11 +989,19 @@ function loadInitialContent() {
 		console.log('javascript loading prefix='+prefix);
 	}
 	var doLoadEntries = function() {
-		addEntries('test/_ost.xml');
+		var atomfile = "ost.xml"
+		if (isKiosk()) {
+			atomfile = kiosk.getAtomFilePath();
+			console.log('kiosk atomfile = '+atomfile);
+			if (!atomfile)
+				atomfile = "ost.xml"
+		}
+		addEntries(atomfile);
 	};
-	console.log('local top-level cacheinfo');
+	doLoadEntries();
+	//console.log('local top-level cacheinfo');
 	// _ost/cache.json ?
-	$.ajax({
+	/*$.ajax({
 		url: prefix+'ost/cache.json',
 		type: 'GET',
 		dataType: 'json',
@@ -1008,5 +1016,5 @@ function loadInitialContent() {
 			doLoadEntries();
 		}
 	});
-
+	*/
 }

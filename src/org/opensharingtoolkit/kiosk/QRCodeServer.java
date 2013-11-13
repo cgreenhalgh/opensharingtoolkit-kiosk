@@ -16,7 +16,6 @@ import org.opensharingtoolkit.httpserver.HttpError;
 import android.graphics.Bitmap;
 import android.graphics.Bitmap.CompressFormat;
 import android.util.Log;
-import android.util.Xml.Encoding;
 
 import com.google.zxing.BarcodeFormat;
 import com.google.zxing.EncodeHintType;

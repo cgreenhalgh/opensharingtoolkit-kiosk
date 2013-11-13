@@ -194,7 +194,7 @@ public class HttpClientHandler extends Thread {
 		}
 	}
 
-	private String readLine(InputStreamReader isr) throws IOException {
+/*	private String readLine(InputStreamReader isr) throws IOException {
 		StringBuilder sb = new StringBuilder();
 		while (true) {
 			int c = isr.read();
@@ -209,7 +209,7 @@ public class HttpClientHandler extends Thread {
 		}
 		return sb.toString();
 	}
-
+*/
 	private String readLine(BufferedInputStream bis) throws IOException {
 		StringBuilder sb = new StringBuilder();
 		while (true) {
