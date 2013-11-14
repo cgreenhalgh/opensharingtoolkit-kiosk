@@ -1,6 +1,20 @@
 // chooser.js - Javascript for kiosk chooser view.
 // work in progress...
 
+/* URL parameters - http://stackoverflow.com/questions/901115/how-can-i-get-query-string-values */
+var urlParams;
+(window.onpopstate = function () {
+    var match,
+        pl     = /\+/g,  // Regex for replacing addition symbol with a space
+        search = /([^&=]+)=?([^&]*)/g,
+        decode = function (s) { return decodeURIComponent(s.replace(pl, " ")); },
+        query  = window.location.search.substring(1);
+
+    urlParams = {};
+    while (match = search.exec(query))
+       urlParams[decode(match[1])] = decode(match[2]);
+})();
+
 // standard file types
 // Note: application/x-itunes-app is a made-up mime type for consistency
 var standardFileTypes = [ { mime: "application/pdf", ext: "pdf", icon: "icons/pdf.png", label: "PDF" },
@@ -84,27 +98,14 @@ function getTouchedEntry(ev) {
 	return href;
 }
 */
-function getCachePath(url, prefix, cacheinfo) {
+function getCachePath(entry, url) {
 	if (!url)
 		return null;
-	var gurl = url;
-	var ix = gurl.indexOf(':');
-	if (ix<0) {
-		// make a global URL first
-		// - relative to cacheinfo.baseurl if set, else prefix
-		if (gurl.indexOf('/')==0)
-			gurl = gurl.substring(1);
-		if (cacheinfo && cacheinfo.baseurl)
-			// has /
-			gurl = cacheinfo.baseurl+gurl;
-		else if (prefix)
-			// has /
-			gurl = prefix+gurl;
-	}
+	var gurl = getInternetUrl(entry, url);
 	// in cache??
-	if (cacheinfo && cacheinfo.files)
-   	  	for (var i=0; i<cacheinfo.files.length; i++) {
-   	  		file = cacheinfo.files[i];
+	if (entry.cacheinfo && entry.cacheinfo.files)
+   	  	for (var i=0; i<entry.cacheinfo.files.length; i++) {
+   	  		file = entry.cacheinfo.files[i];
    	  		if (file.url==gurl && file.path) {
    	  			console.log('Cache hit '+url+' -> '+gurl+' = '+file.path);
    	  			return file.path
@@ -134,17 +135,17 @@ function addEntry(atomentry, prefix, cacheinfo) {
 		//iconurl = "icons/_blank.png";
 		console.log('iconurl unknown for '+title);
 	}
-	var iconpath = getCachePath(iconurl, prefix, cacheinfo)
-		
 	var summary = $('content', atomentry).text();		
 	
-	var entry = { title: title, iconurl: iconurl, iconpath: iconpath, summary: summary, index: index, prefix: prefix, cacheinfo: cacheinfo };
+	var entry = { title: title, iconurl: iconurl, summary: summary, index: index, prefix: prefix, cacheinfo: cacheinfo };
+	entry.iconpath = getCachePath(entry, iconurl)
+	
 	entry.enclosures = [];
 	$('link[rel=\'enclosure\']', atomentry).each(function(index, el) {
 		var type = $(el).attr('type');
 		var href = $(el).attr('href');
 		if (href) {
-			var path = getCachePath(href, prefix, cacheinfo);
+			var path = getCachePath(entry, href);
 			entry.enclosures.push({mime: type, url: href, path: path});
 		}
 	});
@@ -186,6 +187,66 @@ function addEntry(atomentry, prefix, cacheinfo) {
 	});
 	console.log('  entry['+index+']: '+title);
 }
+// add an entry for the kiosk view itself
+function addKioskEntry(cacheinfo, atomurl) {
+	if (isKiosk()) {
+		// kiosk.html is this page
+		// relative ref
+		var baseurl = location.href;
+		var ix = baseurl.lastIndexOf('/');
+		if (ix>=0)
+			baseurl = baseurl.substring(0,ix+1);
+
+		index = entries.length;
+		var entry = { title: "Kiosk View", 
+				iconurl: "icons/kiosk.png",
+				iconpath: "icons/kiosk.png",
+				summary: "Browse the same content directly on your device", 
+				index: index, 
+				prefix: baseurl, 
+				// note: using baseurl from given atomfile/global for internet fallback
+				cacheinfo: cacheinfo };
+		// TODO atomfile - is as loaded by kiosk, typically from local file system.
+		// for internet version we know it should be in the same basedir;
+		// but for local it is a file rather than a resource, so we'll need to fix/fiddle this!
+		//var url = "kiosk.html?f="+encodeURIComponent(getExternalUrl(atomurl));
+		var enc = { url: "kiosk.html", mime: "text/html", path: "kiosk.html", atomurl: atomurl };
+		entry.enclosures = [enc];
+		entry.requiresDevice = [];
+		entries[index] = entry;
+		entry.supportsMime = [];	
+	}
+}
+// get absolute/global path
+function getInternetUrl(entry, url) {
+	var ix = url.indexOf(':');
+	if (ix>=0)
+		// global already
+		return url;
+	if (entry.cacheinfo && entry.cacheinfo.baseurl) {
+		if (url.indexOf('/')!=0)
+			// relative
+			return entry.cacheinfo.baseurl+url;
+		// absolute path
+		var ix = entry.cacheinfo.baseurl.indexOf("://");
+		if (ix<0) {
+			console.log('getInternetUrl for local path '+url+' with local baseurl '+entry.cacheinfo.baseurl);
+			// no host??
+			return url;
+		}
+		var pix = entry.cacheinfo.baseurl.indexOf("/",ix+3);
+		if (pix<0)
+			return entry.cacheinfo.baseurl+url;
+		return entry.cacheinfo.baseurl.substring(0,pix)+url;
+	}
+	else {
+		console.log('getInternetUrl for local path '+url+' with no baseurl');
+		if (entry.prefix)
+			// using the prefix might work, sometimes
+			return entry.prefix+url;
+		return url;
+	}
+}
 // get an icon URL that can be used within the browser/kiosk (only).
 // Should be from the cache if present.
 function getIconUrl(entry) {
@@ -194,20 +255,13 @@ function getIconUrl(entry) {
 		// unknown - relative to HTML
 		return "icons/_blank.png";
 	
-	if (!isKiosk()) {
-		// not kiosk - build global address (with prefix), 
-		// but try cache if possible (from cache path and prefix)
-		if (entry.iconpath && entry.prefix) {
-			return entry.prefix+entry.iconpath;
-		}
-		var ix = url.indexOf(':');
-		if (ix>=0)
-			// global already
-			return url;
-		if (url.indexOf('/')==0)
-			url = url.substring(1);
-		return entry.prefix+url;
+	// Used on this device: 
+	// build global address (with prefix), 
+	// but try cache if possible (from cache path and prefix)
+	if (entry.iconpath && entry.prefix) {
+		return entry.prefix+entry.iconpath;
 	}
+	return getInternetUrl(entry, url);
 }
 
 function refreshTray() {
@@ -271,7 +325,7 @@ function addEntries(atomurl) {
 		success: function(data, textStatus, xhr) {
 			console.log('ok, got cache.json '+data);
 			if (cacheinfo==null) {
-				console.log('Initialise get.html baseurl from '+prefix);
+				console.log('Initialise global baseurl from '+prefix);
 				cacheinfo = { baseurl: data.baseurl };
 			}
 			loadAtomFile(atomurl, prefix, data);
@@ -318,6 +372,7 @@ function loadAtomFile(atomurl, prefix, cacheinfo) {
 			$( data ).find('entry').each(function(index, el) {
 				addEntry(el, prefix, cacheinfo);
 			});
+			addKioskEntry(cacheinfo, atomurl);
 			refreshTray();
 		},
 		error: function(xhr, textStatus, errorThrown) {
@@ -374,12 +429,18 @@ function showEntryPopup(entry) {
 	// back is handled in title bar
 	if (entry.enclosures.length>0) {
 		// kiosk...?
-		$('#entrypopup_options').append('<p class="option touchable" id="option_view">View</p>');
+		if (entry.enclosures[0].atomurl===undefined)
+			$('#entrypopup_options').append('<p class="option touchable" id="option_view">Preview</p>');
 		
 		if (isKiosk() || options.kioskMode) {
-			$('#entrypopup_options').append('<p class="option touchable" id="option_send">Get on Phone</p>');
+			$('#entrypopup_options').append('<p class="option touchable" id="option_send_internet">Send over Internet</p>');
 		}
-		if (!isKiosk()) {
+		if (entry.enclosures[0].path && ((isKiosk() && options.localNetworkMode) || (!isKiosk() && options.kioskMode))) {
+			// its in a cache; we are a kiosk offering local access (i.e. our cache),
+			// or we're not a kiosk but presumably are talking to one (its cache)
+			$('#entrypopup_options').append('<p class="option touchable" id="option_send_cache">Send from Kiosk</p>');
+		}
+		if (!isKiosk() && entry.enclosures[0].atomurl===undefined) {
 			$('#entrypopup_options').append('<p class="option touchable" id="option_get">Get on this device</p>');			
 		}
 	}	
@@ -388,41 +449,30 @@ function showEntryPopup(entry) {
 	updateScrollHints();
 }
 
+var asset_prefix = 'file:///android_asset/';
+var localhost_prefix = 'http://localhost';
+var localhost2_prefix = 'http://127.0.0.1';
 // convert possibly internal URL to simple external/global URL
 function getExternalUrl(url) {
 	if (isKiosk()) {
 		// convert to external URL
-		if (url.indexOf(':')<0) {
-			if (location.href.indexOf('file:///android_asset/'==0)) {
-				if (url.indexOf('/')!=0)
-					url = '/'+url;
-				url = 'http://'+kiosk.getHostAddress()+':'+kiosk.getPort()+'/a'+url;
-			}
+		if (url.indexOf(asset_prefix)==0) {
+			url = 'http://'+kiosk.getHostAddress()+':'+kiosk.getPort()+'/a/'+url.substring(asset_prefix.length);
 		}
+		else if (url.indexOf('file:')==0) {
+			file_prefix = kiosk.getLocalFilePrefix();
+			if (url.indexOf(file_prefix)==0) {
+				url = 'http://'+kiosk.getHostAddress()+':'+kiosk.getPort()+'/f/'+url.substring(file_prefix.length);
+			} else 
+				console.log('Warning: file URL which does not match local file prefix: '+url);
+		}
+		else if (url.indexOf(localhost_prefix)==0)
+			url = 'http://'+kiosk.getHostAddress()+url.substring(localhost_prefix.length);
+		else if (url.indexOf(localhost2_prefix)==0)
+			url = 'http://'+kiosk.getHostAddress()+url.substring(localhost2_prefix.length);
 	} 
 	return url;
 }
-// this is only called by kiosk when open content for viewing
-// e.g. a URL for adobe reader to open on the local device
-function getInternalUrl(url) {
-	if (isKiosk()) {
-		// convert to external URL
-		if (url.indexOf(':')<0) {
-			if (location.href.indexOf('file:///android_asset/'==0)) {
-				if (url.indexOf('/')!=0)
-					url = '/'+url;
-				url = 'http://localhost:'+kiosk.getPort()+'/a'+url;
-			}
-			else if (kioskFilePrefix!=null && location.href.indexOf(kioskFilePrefix)==0) {
-				if (url.indexOf('/')!=0)
-					url = '/'+url;
-				url = 'http://localhost:'+kiosk.getPort()+'/f'+url;				
-			}
-		}
-	} 
-	return url;
-}
-
 // 60 minutes
 var REDIRECT_LIFETIME_MS = (60*60*1000);
 	
@@ -461,17 +511,24 @@ function getAppUrls(mime) {
 
 function handleOption(optionid) {
 	if ('option_view'==optionid) {
+		// TODO convert to propert preview.
+		// For now, open the enclosure on the device viewing the 
+		// kiosk. use the cache if possible (get.html not used).
+		// enclosure should not have been an asset
 		var enc = currententry.enclosures[0];
 		var url = enc.url;
-		console.log('view '+currententry.title+' as '+url);
+		if (currententry.prefix && enc.path)
+			// cache
+			url = currententry.prefix + enc.path;
+		else
+			url = getInternetUrl(currententry, url);
+
+		console.log('preview '+currententry.title+' as '+url);
 		var done = false;
 		if (isKiosk()) {
-			url = getInternalUrl(url);
 			// try kiosk open...
 			done = kiosk.openUrl(url, enc.mime, location.href);
 		} 
-		else
-			url = getExternalUrl(url);
 
 		if (!done) {
 			// if we are kiosk this is usually wrong 
@@ -480,12 +537,20 @@ function handleOption(optionid) {
 		showScreen('screen_tray');
 	}
 	else if ('option_get'==optionid) {
-		// non-kiosk only!
+		// non-kiosk only! (but can do this in kiosk mode)
+		// get.html should be available relative to page.
+		// enclosure should use cache if possible.
+		// no shorturl or qrcode needed :-)
 		var enc = currententry.enclosures[0];
 		var url = enc.url;
-		url = getExternalUrl(url);
+		if (currententry.prefix && enc.path)
+			// cache
+			url = currententry.prefix + enc.path;
+		else
+			url = getInternetUrl(currententry, url);
 		console.log('get '+currententry.title+' as '+url);
 
+		// leave app URLs alone for now (assumed internet-only)
 		var as = getAppUrls(enc.mime);
 		
 		// relative URL
@@ -505,70 +570,95 @@ function handleOption(optionid) {
 		window.open(url);
 
 	}
-	else if ('option_send'==optionid) {		
-		
+	else if ('option_send_internet'==optionid || 'option_send_cache'==optionid) {		
+
+		// need device!
+		if (options.device===undefined) {
+			showScreen('screen_options');
+			alert('Please select you phone type first');
+			return;
+		}
+			
+		var use_cache = ('option_send_cache'==optionid);
 		var enc = currententry.enclosures[0];
 		var url = enc.url;
-
-		if (isKiosk() && options.localNetworkMode) {
-			url = getExternalUrl(url);
-		} 
+		
+		if (!use_cache || !enc.path || !currententry.prefix)
+			// can't or shouldn't use cache for enclosure
+			url = getInternetUrl(currententry,url);
 		else {
-			// need device!
-			if (options.device===undefined) {
-				showScreen('screen_options');
-				alert('Please select you phone type first');
-				return;
-			}
-			
-			var url2 = url;
-			// remove prefix?
-			if (currententry.prefix && url2.indexOf(currententry.prefix)==0)
-				url2 = url.substring(currententry.prefix.length);
-			
-			if (url2.indexOf(':')<0 && currententry.cacheinfo && currententry.cacheinfo.baseurl) {
-
-				// not absolute, had cacheinfo with baseurl...
-				if (currententry.cacheinfo.baseurl.lastIndexOf('/')!=currententry.cacheinfo.baseurl.length-1) {
-					url2 = '/'+url2;
-				}
-				url = currententry.cacheinfo.baseurl+url2;
-				console.log('using cache baseurl for '+url);
-			}
+			// should use cache
+			url = currententry.prefix+enc.path;
+			// this might be kiosk-local, which we should fix
 			url = getExternalUrl(url);
+		}
+
+		// special case for kiosk view
+		if (enc.atomurl!==undefined) {
+			furl = enc.atomurl;
+		    if (!use_cache && currententry.cacheinfo && currententry.cacheinfo.baseurl) {
+		    	// global...
+		    	var ix = furl.lastIndexOf('/', furl);
+		    	if (ix>=0)
+		    		furl = furl.substring(ix+1);
+		    	furl = currententry.cacheinfo.baseurl+furl;
+		    }	
+		    else {
+				// should use cache
+				furl = getExternalUrl(furl);
+		    }
+		    url = url + "?f="+encodeURIComponent(furl);		    
 		}
 		
 		console.log('send '+currententry.title+' as '+url);
+
 		// replace options...
 		$('#entrypopup_options').empty();
 
 		var as = getAppUrls(enc.mime);
-
+		// at the moment the url shortener only picks one app...
+		if (isKiosk() && use_cache)
+			; // our shortener is ok
+		else {
+			if (as.length>1) 
+				as = [as[0]];
+		}
+		
 		// url for get helper - needs to be made transferable...
 		var geturl = "get.html";
 
-		var baseurl = location.href;
-		var ix = baseurl.lastIndexOf('/');
-		if (ix>=0)
-			baseurl = baseurl.substring(0,ix+1);
+		// if using cache then we'll assume it can come 
+		// i.e. in the same server directory as the first atom file.
+		// 
+		// otherwise we need a global/internet URL as per the shorturls,
+		// so we'll hope/assume that there is one at the atom file baseurl
+		if (!use_cache) {
+			if (currententry.cacheinfo && currententry.cacheinfo.baseurl) {
+				geturl = currententry.cacheinfo.baseurl+geturl;
+			}
+			else if (cacheinfo && cacheinfo.baseurl) {
+				console.log('having to use global baseurl to guess internet get.html location');
+				geturl = cacheinfo.baseurl+geturl;
+			}
+			else {
+				console.log('Warning: unable to guess internet get.html location');
+				geturl = currententry.prefix+geturl;
+			}
+		}
+		else {
+			// relative ref
+			var baseurl = location.href;
+			var ix = baseurl.lastIndexOf('/');
+			if (ix>=0)
+				baseurl = baseurl.substring(0,ix+1);
+			geturl = baseurl+geturl;			
+		}
+		if (isKiosk())
+			geturl = getExternalUrl(geturl);
 
-		if (isKiosk() && options.localNetworkMode) {
-			geturl = 'http://'+getHostAddress()+':8080/a/get.html';
-		}
-		else if (cacheinfo && cacheinfo.baseurl) {
-			if (cacheinfo.baseurl.lastIndexOf('/')!=cacheinfo.baseurl.length-1)
-				geturl = '/'+geturl
-			geturl = cacheinfo.baseurl+geturl;
-		} else  if (isKiosk() && (baseurl.indexOf('localhost')>=0 || baseurl.indexOf('file:///android_asset/')==0)) {
-			// localhost would be bad!
-			// as would using a file asset url
-			geturl = 'http://'+getHostAddress()+':8080/a/get.html';
-		} else {
-			// work with relative
-			geturl = baseurl+geturl;
-		}
 		console.log('using geturl '+geturl);
 
+		// build and serve...
 		url = geturl+'?'+
 		'u='+encodeURIComponent(url)+
 		'&t='+encodeURIComponent(currententry.title);
@@ -578,9 +668,12 @@ function handleOption(optionid) {
 		console.log('Using helper page url '+url);
 
 		// back is handled in title bar
-		if (isKiosk()) {
+		
+		// generate suitable prompt and adapt url as required...
+		if (use_cache) {
+
+			if (isKiosk()) {
 			
-			if (options.localNetworkMode) {
 				var ssid = kiosk.getWifiSsid();
 				$('#entrypopup_options').append('<p class="option_info">Join Wifi Network <span class="ssid">'+ssid+'</span> and scan/enter...</p>');
 
@@ -589,31 +682,53 @@ function handleOption(optionid) {
 
 				// temporary redirect for short URL
 				var redir = kiosk.registerTempRedirect(url, REDIRECT_LIFETIME_MS);
-				url = "http://"+getHostAddress()+":8080"+redir;
+				url = "http://"+kiosk.getHostAddress()+":"+kiosk.getPort()+redir;
 				console.log('Using temp url '+url);
-			}
-			else {
-				$('#entrypopup_options').append('<p class="option_info">Enable internet access and scan/enter...</p>');
 
-				console.log('Using helper page url '+url);
-				
-				if (shorturls[url]) {
-					url = shorturls[url];
-					console.log('using shorturl '+url);
-				}
+			} else {
+				// this doesn't actually work well at the moment.
+				// In general you can't use (internet) shorturls and you can't
+				// set up a temporary redirect on the kiosk (at the moment)
+				$('#entrypopup_options').append('<p class="option_info">Join the same network and scan/enter...</p>');
+				console.log('note: trying to use cache with non-kiosk');
 			}
 			
-			$('#entrypopup_options').append('<img class="option_qrcode" src="http://localhost:8080/qr?url='+encodeURIComponent(url)+'&size=150" alt="qrcode for item">');
+			
 		} else {
+			// non-cache = Internet = try shorturls
+
 			$('#entrypopup_options').append('<p class="option_info">Enable internet access and scan/enter...</p>');
 
 			if (shorturls[url]) {
 				url = shorturls[url];
 				console.log('using shorturl '+url);
 			}
-			// assume internet?? try google qrcode generator http://chart.apis.google.com/chart?cht=qr&chs=150x150&choe=UTF-8&chl=http%3A%2F%2F1.2.4
-			$('#entrypopup_options').append('<img class="option_qrcode" src="http://chart.apis.google.com/chart?cht=qr&chs=150x150&choe=UTF-8&chl='+encodeURIComponent(url)+'" alt="qrcode for item">');
+			
 		}
+		
+		// QR code
+		if (isKiosk()) {
+			// using kiosk qrcode generator...
+			$('#entrypopup_options').append('<img class="option_qrcode" src="http://localhost:8080/qr?url='+encodeURIComponent(url)+'&size=150" alt="qrcode for item">');
+		}
+		else {
+			var try_kiosk_qr = false;
+			if (use_cache) {
+				// do we really think this came from a kiosk? if so try using its qr code generator 
+				// because it could just be an internet stash of files...
+				if (window.location.pathname=='/a/kiosk.html') {
+					console.log('Guessing this is really from a cache: '+window.location.href);
+					try_kiosk_qr = true;
+				}
+			}
+			if (try_kiosk_qr) {
+				$('#entrypopup_options').append('<img class="option_qrcode" src="http://'+window.location.host+'/qr?url='+encodeURIComponent(url)+'&size=150" alt="qrcode for item">');				
+			}
+			else
+				// assume internet?? try google qrcode generator http://chart.apis.google.com/chart?cht=qr&chs=150x150&choe=UTF-8&chl=http%3A%2F%2F1.2.4
+				$('#entrypopup_options').append('<img class="option_qrcode" src="http://chart.apis.google.com/chart?cht=qr&chs=150x150&choe=UTF-8&chl='+encodeURIComponent(url)+'" alt="qrcode for item">');
+		}
+
 		$('#entrypopup_options').append('<p class="option_url">'+url+'</p>');
 
 		updateScrollHint($('#entrypopup_options').get(0));
@@ -663,6 +778,7 @@ function initFileTypes() {
 
 var options = new Object();
 var hostDevice = 'any';
+var atomfile = null;
 
 // initialise the options screen 
 function initOptions() {
@@ -976,6 +1092,27 @@ $( document ).ready(function() {
 	$('.screen').hide();
 	showScreen('screen_tray');
 	
+	// initial file
+	atomfile = "ost.xml"
+	if (isKiosk()) {
+		kioskFilePrefix = kiosk.getLocalFilePrefix();
+		if (kioskFilePrefix==null) {
+			alert('Could not get local file information: need local storage mounted');
+			atomfile = "ost.xml"
+		}
+		else 
+			atomfile = kioskFilePrefix+"/"+kiosk.getAtomFile();
+			console.log('kiosk atomfile = '+atomfile);
+	} else {
+		if (urlParams['f']) {
+	        atomfile = urlParams['f'];
+		}
+		else if (window.location.hash) 
+			atomfile = decodeURIComponent(window.location.hash.substring(1));
+
+		//alert('non-kiosk, try atomfile '+atomfile);
+	}
+
 	// initialise...
 	initFileTypes();
 	initOptions();
@@ -1068,19 +1205,7 @@ function loadInitialContent() {
 		prefix = url.substring(0, ix+1);
 		console.log('javascript loading prefix='+prefix);
 	}
-	var doLoadEntries = function() {
-		var atomfile = "ost.xml"
-		if (isKiosk()) {
-			kioskFilePrefix = kiosk.getLocalFilePrefix();
-			if (kioskFilePrefix==null) {
-				alert('Could not get local file information: need local storage mounted');
-				atomfile = "ost.xml"
-			}
-			else
-				atomfile = kioskFilePrefix+"/"+kiosk.getAtomFile();
-
-			console.log('kiosk atomfile = '+atomfile);
-		}
+	var doLoadEntries = function() {		
 		addEntries(atomfile);
 	};
 	doLoadEntries();
