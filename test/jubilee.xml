@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">  
+     <author><name>cmg@cs.nott.ac.uk</name><email>cmg@cs.nott.ac.uk</email></author> 
+    <id>tag:cmg@cs.nott.ac.uk,2013-11-11:/website/w1</id>
+    <link rel="self" type="application/atom+xml" href="http://www.cs.nott.ac.uk/~cmg/AppropriateICT/JubileeCampus/jubilee.xml"/>
+    <title>Jubilee Campus</title> 
+    <updated>2013-11-14T09:25:00Z</updated> 
+   <entry>     
+     <id>tag:cmg@cs.nott.ac.uk,2013-11-11:/group/g2/item/i1</id>
+     <content>This article from the ARUP Journal discusses the engineering design of the original Jubilee Campus buildings, with the distinctive response to environmental concerns.</content>
+     <title>ARUP Journal Article</title>
+     <updated>2013-11-14T09:30:00Z</updated>
+     <link rel="enclosure" type="application/pdf" href="http://www.arup.com/_assets/_download/download27.pdf"/>
+   </entry>
+   <entry>  
+     <id>tag:cmg@cs.nott.ac.uk,2013-11-11:/group/g2/item/i2</id>
+     <content>The official University of Nottingham map of the Jubilee Campus.</content>
+     <title>Campus Map</title>
+     <updated>2013-11-14T09:30:00Z</updated>
+     <link rel="enclosure" type="application/pdf" href="http://www.nottingham.ac.uk/sharedresources/documents/mapjubileecampus.pdf"/>
+   </entry>
+   <entry>
+     <id>tag:cmg@cs.nott.ac.uk,2013-11-11:/group/g2/item/i3</id>
+     <content>An article from the University's Exchange newsletter, introducing the Aspire sculpture.</content>
+     <title>Aspire Introduction</title>
+     <updated>2013-11-14T09:30:00Z</updated>
+     <link rel="enclosure" type="application/pdf" href="http://www.nottingham.ac.uk/shared/shared_exchange/pdf/18244_Uni_Exchange_p15.pdf"/>
+   </entry>
+   <entry>
+     <id>tag:cmg@cs.nott.ac.uk,2013-11-11:/group/g2/item/i4</id>
+     <content>The floor plan for the first floor (B floor) of the Computer Science building.</content>
+     <title>CS B-Floor Plan</title>
+     <updated>2013-11-14T09:30:00Z</updated>
+     <link rel="enclosure" type="application/pdf" href="http://www.nottingham.ac.uk/estates/documents/accessplans/7040ba.pdf"/>
+   </entry>
+   <entry>
+     <id>tag:cmg@cs.nott.ac.uk,2013-11-11:/group/g2/item/i5</id>
+     <content>A guide to the Univesity of Nottingham's gardens, including a tree walk on the main University Park campus.</content>
+     <title>Gardens Guide</title>
+     <updated>2013-11-14T09:30:00Z</updated>
+     <link rel="enclosure" type="application/pdf" href="http://www.nottingham.ac.uk/common/phototour/NU_GardensGuide.pdf"/>
+   </entry>
+   <entry>
+     <id>tag:cmg@cs.nott.ac.uk,2013-11-11:/group/g2/item/i6</id>
+     <content>A photograph of the view from "duck island" towards the Exchange building.</content>
+     <title>View from "duck island"</title>
+     <updated>2013-11-14T09:30:00Z</updated>
+     <link rel="enclosure" type="image/jpeg" href="http://www.cs.nott.ac.uk/~cmg/AppropriateICT/JubileeCampus/view_from_duck_island.jpg"/>
+   </entry>
+   <entry>
+     <id>tag:cmg@cs.nott.ac.uk,2013-11-11:/group/g2/item/i7</id>
+     <content>A brief audio introduction to the Jubilee Campus.</content>
+     <title>Audio Guide</title>
+     <updated>2013-11-14T09:30:00Z</updated>
+     <link rel="enclosure" type="audio/mpeg" href="http://www.cs.nott.ac.uk/~cmg/AppropriateICT/JubileeCampus/campus.mp3"/>
+   </entry>
+    <entry>
+     <link rel="alternate" type="image/png" href="http://www.cs.nott.ac.uk/~cmg/AppropriateICT/test/thing1.png"/>
+      <category scheme="visibility" term="hidden"/> 
+      <category scheme="requires-device" term="ios"/> 
+      <category scheme="supports-mime-type" term="application/pdf"/> 
+     <id>tag:cmg@cs.nott.ac.uk,2013-11-12:/group/g1/item/i2</id>
+     <content>One of the most popular PDF file viewers, from Adobe, available on iTunes.</content>
+     <title>Adobe Reader</title>
+     <updated>2013-11-12T09:30:00Z</updated>
+     <link rel="alternate" type="image/png" href="http://www.cs.nott.ac.uk/~cmg/AppropriateICT/test/adobe_reader.png"/>
+     <link rel="enclosure" type="application/x-itunes-app" href="https://itunes.apple.com/gb/app/adobe-reader/id469337564?mt=8&amp;uo=4"/>
+   </entry>
+  <entry>
+      <category scheme="visibility" term="hidden"/> 
+      <category scheme="requires-device" term="android"/> 
+      <category scheme="supports-mime-type" term="application/pdf"/> 
+     <id>tag:cmg@cs.nott.ac.uk,2013-11-12:/group/g1/item/i3</id>
+     <content>One of the most popular PDF file viewers, from Adobe, available on Google Play.</content>
+     <title>Adobe Reader</title>
+     <updated>2013-11-12T09:30:00Z</updated>
+     <link rel="alternate" type="image/png" href="http://www.cs.nott.ac.uk/~cmg/AppropriateICT/test/adobe_reader.png"/>
+     <link rel="enclosure" type="application/vnd.android.package-archive" href="http://play.google.com/store/apps/details?id=com.adobe.reader"/>
+   </entry>  </feed> 
