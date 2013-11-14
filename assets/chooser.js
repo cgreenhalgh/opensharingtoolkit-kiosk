@@ -306,6 +306,34 @@ function refreshTray() {
 }
 
 function addEntries(atomurl) {
+	// abolute URL...
+	var ci = atomurl.indexOf(':');
+	if (ci<0) {
+		console.log('converting local name '+atomurl+' to global...');
+		// relative to location
+		var base = window.location.href;
+		if (atomurl.indexOf('/')==0) {
+			// absolute
+			var si = base.indexOf('//');
+			if (si<0)
+				si = 0;
+			else
+				si = si+2;
+			si = base.indexOf('/', si);
+			if (si<0)
+				atomurl = base+atomurl;
+			else
+				atomurl = base.substring(0,si)+atomurl;
+		}
+		else {
+			// relative
+			si = base.lastIndexOf('/');
+			if (si<0)
+				atomurl = base+"/"+atomurl;
+			else
+				atomurl = base.substring(0,si+1)+atomurl;
+		}
+	}
 	console.log('loading entries from '+atomurl);
 	var tray = $('#tray');
 	var ix = atomurl.lastIndexOf('/');
