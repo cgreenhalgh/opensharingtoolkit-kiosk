@@ -10,6 +10,7 @@
      <content>This article from the ARUP Journal discusses the engineering design of the original Jubilee Campus buildings, with the distinctive response to environmental concerns.</content>
      <title>ARUP Journal Article</title>
      <updated>2013-11-14T09:30:00Z</updated>
+     <link rel="alternate" type="image/png" href="http://www.cs.nott.ac.uk/~cmg/AppropriateICT/JubileeCampus/arup-icon.png"/>
      <link rel="enclosure" type="application/pdf" href="http://www.arup.com/_assets/_download/download27.pdf"/>
    </entry>
    <entry>  
@@ -17,6 +18,7 @@
      <content>The official University of Nottingham map of the Jubilee Campus.</content>
      <title>Campus Map</title>
      <updated>2013-11-14T09:30:00Z</updated>
+     <link rel="alternate" type="image/png" href="http://www.cs.nott.ac.uk/~cmg/AppropriateICT/JubileeCampus/campus%20map.png"/>
      <link rel="enclosure" type="application/pdf" href="http://www.nottingham.ac.uk/sharedresources/documents/mapjubileecampus.pdf"/>
    </entry>
    <entry>
@@ -24,6 +26,7 @@
      <content>An article from the University's Exchange newsletter, introducing the Aspire sculpture.</content>
      <title>Aspire Introduction</title>
      <updated>2013-11-14T09:30:00Z</updated>
+     <link rel="alternate" type="image/png" href="http://www.cs.nott.ac.uk/~cmg/AppropriateICT/JubileeCampus/aspire-icon.png"/>
      <link rel="enclosure" type="application/pdf" href="http://www.nottingham.ac.uk/shared/shared_exchange/pdf/18244_Uni_Exchange_p15.pdf"/>
    </entry>
    <entry>
@@ -31,6 +34,7 @@
      <content>The floor plan for the first floor (B floor) of the Computer Science building.</content>
      <title>CS B-Floor Plan</title>
      <updated>2013-11-14T09:30:00Z</updated>
+     <link rel="alternate" type="image/png" href="http://www.cs.nott.ac.uk/~cmg/AppropriateICT/JubileeCampus/floor-b-icon.png"/>
      <link rel="enclosure" type="application/pdf" href="http://www.nottingham.ac.uk/estates/documents/accessplans/7040ba.pdf"/>
    </entry>
    <entry>
@@ -38,6 +42,7 @@
      <content>A guide to the Univesity of Nottingham's gardens, including a tree walk on the main University Park campus.</content>
      <title>Gardens Guide</title>
      <updated>2013-11-14T09:30:00Z</updated>
+     <link rel="alternate" type="image/png" href="http://www.cs.nott.ac.uk/~cmg/AppropriateICT/JubileeCampus/gardens-icon.png"/>
      <link rel="enclosure" type="application/pdf" href="http://www.nottingham.ac.uk/common/phototour/NU_GardensGuide.pdf"/>
    </entry>
    <entry>
@@ -45,6 +50,7 @@
      <content>A photograph of the view from "duck island" towards the Exchange building.</content>
      <title>View from "duck island"</title>
      <updated>2013-11-14T09:30:00Z</updated>
+     <link rel="alternate" type="image/jpeg" href="http://www.cs.nott.ac.uk/~cmg/AppropriateICT/JubileeCampus/view_from_duck_island-icon.jpg"/>
      <link rel="enclosure" type="image/jpeg" href="http://www.cs.nott.ac.uk/~cmg/AppropriateICT/JubileeCampus/view_from_duck_island.jpg"/>
    </entry>
    <entry>
@@ -52,6 +58,7 @@
      <content>A brief audio introduction to the Jubilee Campus.</content>
      <title>Audio Guide</title>
      <updated>2013-11-14T09:30:00Z</updated>
+     <link rel="alternate" type="image/png" href="http://www.cs.nott.ac.uk/~cmg/AppropriateICT/JubileeCampus/blue_audio.png"/>
      <link rel="enclosure" type="audio/mpeg" href="http://www.cs.nott.ac.uk/~cmg/AppropriateICT/JubileeCampus/campus.mp3"/>
    </entry>
     <entry>
