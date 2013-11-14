@@ -741,7 +741,9 @@ function handleOption(optionid) {
 		}
 		else {
 			var try_kiosk_qr = false;
-			if (use_cache) {
+			// try kiosk for qrcode if there is a cache, not just if we want to use it,
+			// i.e. if we are on kiosk network but sharing over internet
+			if (currententry.cacheinfo) {
 				// do we really think this came from a kiosk? if so try using its qr code generator 
 				// because it could just be an internet stash of files...
 				if (window.location.pathname=='/a/kiosk.html') {
