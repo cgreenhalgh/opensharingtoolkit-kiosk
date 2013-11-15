@@ -95,6 +95,15 @@ public class JavascriptHelper {
 	public int getPort() {
 		return Service.HTTP_PORT;
 	}
+	private Intent makeIntent(String url, String mimeTypeHint) {
+		Intent i = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
+		i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+		// NB i found that if you set mime type for PDF then adobe reader doesn't open the document.
+		// not sure why at the moment...
+		if(mimeTypeHint!=null)
+			i.setType(mimeTypeHint);
+		return i;
+	}
 	/** open/handle entry enclosure
 	 * 
 	 * @return true if handled
@@ -102,24 +111,41 @@ public class JavascriptHelper {
 	@JavascriptInterface
 	public boolean openUrl(String url, String mimeTypeHint, String pageurl) {
 		Log.d(TAG,"openEntry("+url+","+mimeTypeHint+","+pageurl);
-		try {
-			Intent i = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
-			i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-			// NB don't set mime type, at least for PDF, as it doesn't then open the document.
-			//if(mimeTypeHint!=null)
-			//	i.setType(mimeTypeHint);
-			PackageManager packageManager = mContext.getPackageManager();
-			List<ResolveInfo> activities = packageManager.queryIntentActivities(i, 0);
-			if(activities.size() == 0) {
-				Log.w(TAG,"No handler for intent "+url+" as "+mimeTypeHint);
+		if (canOpenUrl(url,mimeTypeHint, pageurl)) {
+			try {
+				Intent i = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
+				i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+				// NB i found that if you set mime type for PDF then adobe reader doesn't open the document.
+				// not sure why at the moment...
+				//if(mimeTypeHint!=null)
+				//	i.setType(mimeTypeHint);
+				mContext.startActivity(i);
+				return true;
+			} catch (Exception e) {
+				Log.w(TAG,"Error opening "+url+" "+mimeTypeHint+" using intent", e);
 				return false;
 			}
-			mContext.startActivity(i);
-			return true;
-		} catch (Exception e) {
-			Log.w(TAG,"Error opening "+url+" "+mimeTypeHint+" using intent", e);
-			return false;
 		}
+		return false;
+	}
+	/** open/handle entry enclosure
+	 * 
+	 * @return true if handled
+	 */
+	@JavascriptInterface
+	public boolean canOpenUrl(String url, String mimeTypeHint, String pageurl) {
+		//Log.d(TAG,"openEntry("+url+","+mimeTypeHint+","+pageurl);
+		Intent i = makeIntent(url, mimeTypeHint);
+		PackageManager packageManager = mContext.getPackageManager();
+		List<ResolveInfo> activities = packageManager.queryIntentActivities(i, 0);
+		if(activities.size() == 0) {
+			Log.w(TAG,"No handler for intent "+url+" as "+mimeTypeHint);
+			return false;
+		} 
+		Log.d(TAG,"- "+activities.size()+" activities match: ");
+		for (int ai=0; ai<activities.size(); ai++)
+			Log.d(TAG,"-- "+activities.get(ai).toString());
+		return true;
 	}
 	
 	/** get SSID of current wifi network.

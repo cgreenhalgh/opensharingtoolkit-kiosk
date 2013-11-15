@@ -553,13 +553,26 @@ function handleOption(optionid) {
 
 		console.log('preview '+currententry.title+' as '+url);
 		var done = false;
-		if (isKiosk()) {
+		// This isn't working in any very useful way at the moment!!
+		// e.g. Image viewers don't show the specific image
+		// No mp3 player registered
+		// Need to do more custom stuff for kiosk preview
+		if (isKiosk() && enc.mime.indexOf('image/')!=0) {
 			// try kiosk open...
-			done = kiosk.openUrl(url, enc.mime, location.href);
+		    done = kiosk.canOpenUrl(url, enc.mime, location.href) ?
+		    		kiosk.openUrl(url, enc.mime, location.href) : false;
+			if (!done) 
+				alert('Sorry - no previewer installed for this file type');
 		} 
-
-		if (!done) {
+		else
+		{
 			// if we are kiosk this is usually wrong 
+			//
+			// OK for kiosk image preview only as long as 
+			// "back" key still enabled:
+			// should just be a custom div in the current app with an
+			// explicit back
+			//
 			window.open(url,'_blank','',false);
 		}
 		showScreen('screen_tray');
