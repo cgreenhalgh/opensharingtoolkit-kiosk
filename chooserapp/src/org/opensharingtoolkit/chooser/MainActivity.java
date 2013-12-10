@@ -1,4 +1,4 @@
-package org.opensharingtoolkit.kiosk;
+package org.opensharingtoolkit.chooser;
 
 import android.annotation.SuppressLint;
 import android.content.Intent;
@@ -22,7 +22,7 @@ public class MainActivity extends BrowserActivity {
 	@Override
 	protected boolean handleBackPressed() {
 		if (!super.handleBackPressed())
-			// always 'handled'
+			// always 'handled'?? leave to kiosk??
 			Log.w(TAG,"ignoring Back");
 		return true;
 	}

@@ -1,14 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <string name="app_name">OpenSharingToolkit Kiosk</string>
+    <string name="app_name">OST Chooser</string>
     <string name="action_settings">Settings</string>
     <string name="default_url">file:///android_asset/kiosk.html</string>
-    <string name="notification_start_message">Starting Kiosk Service</string>
+    <string name="notification_start_message">Starting Sharing Service</string>
     <string name="notification_title">Kiosk</string>
-    <string name="notification_description">Kiosk service is active</string>
-    <string name="pref_atomfile">Kiosk Content File</string>
+    <string name="notification_description">Sharing service is active</string>
+    <string name="pref_atomfile">Chooser Content File</string>
     <string name="pref_atomfile_default">ost.xml</string>
-    <string name="add_settings_name">Kiosk Settings</string>
+    <string name="add_settings_name">Chooser Settings</string>
 
 </resources>

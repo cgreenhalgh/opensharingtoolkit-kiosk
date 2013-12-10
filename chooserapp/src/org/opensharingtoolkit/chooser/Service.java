@@ -1,7 +1,7 @@
 /**
  * 
  */
-package org.opensharingtoolkit.kiosk;
+package org.opensharingtoolkit.chooser;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -12,6 +12,7 @@ import java.util.Locale;
 import org.opensharingtoolkit.httpserver.HttpContinuation;
 import org.opensharingtoolkit.httpserver.HttpError;
 import org.opensharingtoolkit.httpserver.HttpListener;
+import org.opensharingtoolkit.chooser.R;
 
 import android.app.Notification;
 import android.app.PendingIntent;

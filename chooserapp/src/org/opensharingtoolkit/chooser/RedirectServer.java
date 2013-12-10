@@ -1,7 +1,7 @@
 /**
  * 
  */
-package org.opensharingtoolkit.kiosk;
+package org.opensharingtoolkit.chooser;
 
 import java.io.ByteArrayInputStream;
 import java.nio.charset.Charset;

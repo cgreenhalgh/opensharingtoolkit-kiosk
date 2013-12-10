@@ -15,7 +15,7 @@
     <!-- Application theme. -->
     <style name="AppTheme" parent="AppBaseTheme">
         <!-- All customizations that are NOT specific to a particular API-level can go here. -->
-        <!-- Window attributes for kiosk-style full-screen -->
+        <!-- Window attributes for kiosk full-screen -->
         <item name="android:windowFullscreen">true</item>
         <item name="android:windowContentOverlay">@null</item>
         <item name="android:windowActionBar">false</item>

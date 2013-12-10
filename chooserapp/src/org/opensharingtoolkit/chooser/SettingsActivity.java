@@ -1,7 +1,9 @@
 /**
  * 
  */
-package org.opensharingtoolkit.kiosk;
+package org.opensharingtoolkit.chooser;
+
+import org.opensharingtoolkit.chooser.R;
 
 import android.os.Bundle;
 import android.preference.PreferenceActivity;

@@ -17,7 +17,7 @@ import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 
-import org.opensharingtoolkit.kiosk.Service;
+import org.opensharingtoolkit.chooser.Service;
 
 import android.util.Log;
 

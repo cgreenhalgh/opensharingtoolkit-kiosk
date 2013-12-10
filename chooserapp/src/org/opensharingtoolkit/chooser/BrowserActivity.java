@@ -1,7 +1,9 @@
 /**
  * 
  */
-package org.opensharingtoolkit.kiosk;
+package org.opensharingtoolkit.chooser;
+
+import org.opensharingtoolkit.chooser.R;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
@@ -43,7 +45,7 @@ public class BrowserActivity extends Activity {
         webView.getSettings().setAllowFileAccessFromFileURLs(true);
         webView.getSettings().setDatabaseEnabled(true);
         webView.getSettings().setBuiltInZoomControls(false);
-        webView.getSettings().setDatabasePath(getApplicationContext().getFilesDir().getPath()+"/org.opensharingtoolkit.kiosk/databases/");
+        webView.getSettings().setDatabasePath(getApplicationContext().getFilesDir().getPath()+"/org.opensharingtoolkit.chooser/databases/");
         webView.getSettings().setDomStorageEnabled(true);
         webView.setWebChromeClient(new WebChromeClient() {
         	public void onProgressChanged(WebView view, int progress) {

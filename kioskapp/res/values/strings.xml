@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">OST Kiosk</string>
+    <string name="run_package">org.opensharingtoolkit.chooser</string>
+    
+</resources>

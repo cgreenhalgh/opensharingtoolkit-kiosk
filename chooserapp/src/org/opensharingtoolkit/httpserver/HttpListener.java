@@ -10,7 +10,7 @@ import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 
-import org.opensharingtoolkit.kiosk.Service;
+import org.opensharingtoolkit.chooser.Service;
 
 import android.util.Log;
 
