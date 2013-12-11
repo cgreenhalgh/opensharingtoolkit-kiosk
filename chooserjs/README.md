@@ -22,9 +22,13 @@ sudo npm install -g coffee-script
 
 sudo apt-get install ruby1.9.1
 
-sudo npm install -g bower grunt-cli
-sudo gem install foundation
 sudo gem install compass
+```
+
+If you are going to try updating the version of foundation used you might need:
+```
+sudo npm install -g bower 
+sudo gem install foundation
 ```
 
 Get dependencies:
