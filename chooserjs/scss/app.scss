@@ -7,11 +7,21 @@
 }
 .entry_in_list_icon {
   // see http://ansciath.tumblr.com/post/7347495869/css-aspect-ratio
+  display: inline-block;
+  position: relative;
   width: 90%;
   //height: 
   overflow: hidden;
+  .dummy {
+    padding-top: 75%; //4:3 aspect
+  };
   img {
     width: 100%;
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
     height: auto;
   } 
 }

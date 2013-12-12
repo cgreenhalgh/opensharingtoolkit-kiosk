@@ -7732,12 +7732,23 @@ th.hide-for-touch {
 }
 
 /* line 8, ../../scss/app.scss */
-div .entry_in_list_icon {
+.entry_in_list_icon {
+  display: inline-block;
+  position: relative;
   width: 90%;
   overflow: hidden;
 }
-/* line 11, ../../scss/app.scss */
-div .entry_in_list_icon img {
+/* line 15, ../../scss/app.scss */
+.entry_in_list_icon .dummy {
+  padding-top: 75%;
+}
+/* line 18, ../../scss/app.scss */
+.entry_in_list_icon img {
   width: 100%;
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
   height: auto;
 }
