@@ -184,7 +184,8 @@ select {
 }
 /* line 195, ../../foundation_scss/foundation/components/_grid.scss */
 .row.collapse > .column,
-.row.collapse > .columns {
+.row.collapse > .columns,
+.row.collapse > .entryinlist {
   position: relative;
   padding-left: 0;
   padding-right: 0;
@@ -233,7 +234,8 @@ select {
 
 /* line 206, ../../foundation_scss/foundation/components/_grid.scss */
 .column,
-.columns {
+.columns,
+.entryinlist {
   position: relative;
   padding-left: 0.9375rem;
   padding-right: 0.9375rem;
@@ -398,7 +400,8 @@ select {
 
   /* line 157, ../../foundation_scss/foundation/components/_grid.scss */
   .column,
-  .columns {
+  .columns,
+  .entryinlist {
     position: relative;
     padding-left: 0.9375rem;
     padding-right: 0.9375rem;
@@ -436,7 +439,7 @@ select {
   }
 
   /* line 161, ../../foundation_scss/foundation/components/_grid.scss */
-  .small-6 {
+  .small-6, .entryinlist {
     position: relative;
     width: 50%;
   }
@@ -555,7 +558,8 @@ select {
 
   /* line 172, ../../foundation_scss/foundation/components/_grid.scss */
   .column.small-centered,
-  .columns.small-centered {
+  .columns.small-centered,
+  .small-centered.entryinlist {
     position: relative;
     margin-left: auto;
     margin-right: auto;
@@ -564,7 +568,8 @@ select {
 
   /* line 175, ../../foundation_scss/foundation/components/_grid.scss */
   .column.small-uncentered,
-  .columns.small-uncentered {
+  .columns.small-uncentered,
+  .small-uncentered.entryinlist {
     margin-left: 0;
     margin-right: 0;
     float: left !important;
@@ -572,7 +577,8 @@ select {
 
   /* line 182, ../../foundation_scss/foundation/components/_grid.scss */
   .column.small-uncentered.opposite,
-  .columns.small-uncentered.opposite {
+  .columns.small-uncentered.opposite,
+  .small-uncentered.opposite.entryinlist {
     float: right !important;
   }
 }
@@ -733,7 +739,8 @@ select {
 
   /* line 157, ../../foundation_scss/foundation/components/_grid.scss */
   .column,
-  .columns {
+  .columns,
+  .entryinlist {
     position: relative;
     padding-left: 0.9375rem;
     padding-right: 0.9375rem;
@@ -890,7 +897,8 @@ select {
 
   /* line 172, ../../foundation_scss/foundation/components/_grid.scss */
   .column.medium-centered,
-  .columns.medium-centered {
+  .columns.medium-centered,
+  .medium-centered.entryinlist {
     position: relative;
     margin-left: auto;
     margin-right: auto;
@@ -899,7 +907,8 @@ select {
 
   /* line 175, ../../foundation_scss/foundation/components/_grid.scss */
   .column.medium-uncentered,
-  .columns.medium-uncentered {
+  .columns.medium-uncentered,
+  .medium-uncentered.entryinlist {
     margin-left: 0;
     margin-right: 0;
     float: left !important;
@@ -907,7 +916,8 @@ select {
 
   /* line 182, ../../foundation_scss/foundation/components/_grid.scss */
   .column.medium-uncentered.opposite,
-  .columns.medium-uncentered.opposite {
+  .columns.medium-uncentered.opposite,
+  .medium-uncentered.opposite.entryinlist {
     float: right !important;
   }
 
@@ -1222,7 +1232,8 @@ select {
 
   /* line 157, ../../foundation_scss/foundation/components/_grid.scss */
   .column,
-  .columns {
+  .columns,
+  .entryinlist {
     position: relative;
     padding-left: 0.9375rem;
     padding-right: 0.9375rem;
@@ -1248,7 +1259,7 @@ select {
   }
 
   /* line 161, ../../foundation_scss/foundation/components/_grid.scss */
-  .large-4 {
+  .large-4, .entryinlist {
     position: relative;
     width: 33.33333%;
   }
@@ -1379,7 +1390,8 @@ select {
 
   /* line 172, ../../foundation_scss/foundation/components/_grid.scss */
   .column.large-centered,
-  .columns.large-centered {
+  .columns.large-centered,
+  .large-centered.entryinlist {
     position: relative;
     margin-left: auto;
     margin-right: auto;
@@ -1388,7 +1400,8 @@ select {
 
   /* line 175, ../../foundation_scss/foundation/components/_grid.scss */
   .column.large-uncentered,
-  .columns.large-uncentered {
+  .columns.large-uncentered,
+  .large-uncentered.entryinlist {
     margin-left: 0;
     margin-right: 0;
     float: left !important;
@@ -1396,7 +1409,8 @@ select {
 
   /* line 182, ../../foundation_scss/foundation/components/_grid.scss */
   .column.large-uncentered.opposite,
-  .columns.large-uncentered.opposite {
+  .columns.large-uncentered.opposite,
+  .large-uncentered.opposite.entryinlist {
     float: right !important;
   }
 }
@@ -1557,7 +1571,8 @@ select {
 
   /* line 157, ../../foundation_scss/foundation/components/_grid.scss */
   .column,
-  .columns {
+  .columns,
+  .entryinlist {
     position: relative;
     padding-left: 0.9375rem;
     padding-right: 0.9375rem;
@@ -1714,7 +1729,8 @@ select {
 
   /* line 172, ../../foundation_scss/foundation/components/_grid.scss */
   .column.xlarge-centered,
-  .columns.xlarge-centered {
+  .columns.xlarge-centered,
+  .xlarge-centered.entryinlist {
     position: relative;
     margin-left: auto;
     margin-right: auto;
@@ -1723,7 +1739,8 @@ select {
 
   /* line 175, ../../foundation_scss/foundation/components/_grid.scss */
   .column.xlarge-uncentered,
-  .columns.xlarge-uncentered {
+  .columns.xlarge-uncentered,
+  .xlarge-uncentered.entryinlist {
     margin-left: 0;
     margin-right: 0;
     float: left !important;
@@ -1731,7 +1748,8 @@ select {
 
   /* line 182, ../../foundation_scss/foundation/components/_grid.scss */
   .column.xlarge-uncentered.opposite,
-  .columns.xlarge-uncentered.opposite {
+  .columns.xlarge-uncentered.opposite,
+  .xlarge-uncentered.opposite.entryinlist {
     float: right !important;
   }
 }
@@ -1892,7 +1910,8 @@ select {
 
   /* line 157, ../../foundation_scss/foundation/components/_grid.scss */
   .column,
-  .columns {
+  .columns,
+  .entryinlist {
     position: relative;
     padding-left: 0.9375rem;
     padding-right: 0.9375rem;
@@ -2049,7 +2068,8 @@ select {
 
   /* line 172, ../../foundation_scss/foundation/components/_grid.scss */
   .column.xxlarge-centered,
-  .columns.xxlarge-centered {
+  .columns.xxlarge-centered,
+  .xxlarge-centered.entryinlist {
     position: relative;
     margin-left: auto;
     margin-right: auto;
@@ -2058,7 +2078,8 @@ select {
 
   /* line 175, ../../foundation_scss/foundation/components/_grid.scss */
   .column.xxlarge-uncentered,
-  .columns.xxlarge-uncentered {
+  .columns.xxlarge-uncentered,
+  .xxlarge-uncentered.entryinlist {
     margin-left: 0;
     margin-right: 0;
     float: left !important;
@@ -2066,7 +2087,8 @@ select {
 
   /* line 182, ../../foundation_scss/foundation/components/_grid.scss */
   .column.xxlarge-uncentered.opposite,
-  .columns.xxlarge-uncentered.opposite {
+  .columns.xxlarge-uncentered.opposite,
+  .xxlarge-uncentered.opposite.entryinlist {
     float: right !important;
   }
 }
@@ -3684,7 +3706,8 @@ form .row .row {
 }
 /* line 78, ../../foundation_scss/foundation/components/_forms.scss */
 form .row .row .column,
-form .row .row .columns {
+form .row .row .columns,
+form .row .row .entryinlist {
   padding: 0 0.5rem;
 }
 /* line 81, ../../foundation_scss/foundation/components/_forms.scss */
@@ -3693,7 +3716,8 @@ form .row .row.collapse {
 }
 /* line 84, ../../foundation_scss/foundation/components/_forms.scss */
 form .row .row.collapse .column,
-form .row .row.collapse .columns {
+form .row .row.collapse .columns,
+form .row .row.collapse .entryinlist {
   padding: 0;
 }
 /* line 85, ../../foundation_scss/foundation/components/_forms.scss */
@@ -3706,8 +3730,10 @@ form .row .row.collapse input {
 /* line 97, ../../foundation_scss/foundation/components/_forms.scss */
 form .row input.column,
 form .row input.columns,
+form .row input.entryinlist,
 form .row textarea.column,
-form .row textarea.columns {
+form .row textarea.columns,
+form .row textarea.entryinlist {
   padding-left: 0.5rem;
 }
 
@@ -5079,7 +5105,8 @@ ul.pagination li {
 }
 /* line 71, ../../foundation_scss/foundation/components/_reveal.scss */
 .reveal-modal .column,
-.reveal-modal .columns {
+.reveal-modal .columns,
+.reveal-modal .entryinlist {
   min-width: 0;
 }
 /* line 74, ../../foundation_scss/foundation/components/_reveal.scss */
@@ -7702,4 +7729,15 @@ th.hide-for-touch {
 /* line 659, ../../foundation_scss/foundation/components/_visibility.scss */
 .touch th.show-for-touch {
   display: table-cell !important;
+}
+
+/* line 8, ../../scss/app.scss */
+div .entry_in_list_icon {
+  width: 90%;
+  overflow: hidden;
+}
+/* line 11, ../../scss/app.scss */
+div .entry_in_list_icon img {
+  width: 100%;
+  height: auto;
 }

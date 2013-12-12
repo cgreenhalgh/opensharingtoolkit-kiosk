@@ -1,0 +1,2 @@
+<h4><%= @title %><h4>
+<div class="entry_in_list_icon"><img src="<%= @iconurl %>"></div>

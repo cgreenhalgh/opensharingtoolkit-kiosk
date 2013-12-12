@@ -8,6 +8,7 @@ module.exports = class Entry extends Backbone.Model
     enclosures: []
     supportsMime: [] 
     requiresDevice: []
+    hidden: false
     # iconurl
     # prefix
     # cacheinfo

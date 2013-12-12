@@ -1,2 +1,17 @@
 @import "settings";
 @import "foundation";
+.entryinlist {
+  @extend .columns;
+  @extend .large-4;
+  @extend .small-6;
+}
+.entry_in_list_icon {
+  // see http://ansciath.tumblr.com/post/7347495869/css-aspect-ratio
+  width: 90%;
+  //height: 
+  overflow: hidden;
+  img {
+    width: 100%;
+    height: auto;
+  } 
+}

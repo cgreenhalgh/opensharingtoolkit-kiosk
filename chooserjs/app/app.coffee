@@ -6,6 +6,10 @@ Options = require 'models/options'
 Entry = require 'models/entry'
 EntryList = require 'models/entrylist'
 
+EntryListView = require 'views/entrylist'
+
+loader = require 'loader'
+
 class Router extends Backbone.Router
   routes: 
     "entries" : "entries"
@@ -19,6 +23,13 @@ class Router extends Backbone.Router
   entries: ->
     @update_breadcrumbs [ {title: "All", path: "entries"} ]
     # TODO update view...?!
+
+
+testentry1 = new Entry 
+        title: 'Test entry 1'
+        summary: 'test entry 1...'
+        iconurl: 'icons/_blank.png'
+
 
 App =
   init: ->
@@ -80,8 +91,13 @@ App =
     entries = new EntryList()
 
     # top level entries list view
+    entryview = new EntryListView model: entries
+    $('#main_entrylist_holder').append entryview.el
     
     # TODO load entries...
+
+    #entries.add testentry1
+    loader.load entries,'test/jubilee.xml'
 
     router.navigate("entries", {trigger:true})
 
