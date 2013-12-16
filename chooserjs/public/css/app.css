@@ -7736,13 +7736,14 @@ th.hide-for-touch {
   display: inline-block;
   position: relative;
   width: 90%;
+  left: 5%;
   overflow: hidden;
 }
-/* line 15, ../../scss/app.scss */
+/* line 17, ../../scss/app.scss */
 .entry_in_list_icon .dummy {
   padding-top: 75%;
 }
-/* line 18, ../../scss/app.scss */
+/* line 20, ../../scss/app.scss */
 .entry_in_list_icon img {
   width: 100%;
   position: absolute;

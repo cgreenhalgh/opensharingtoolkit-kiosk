@@ -20,4 +20,12 @@ module.exports = class EntryInListView extends Backbone.View
     @$el.html @template @model.attributes
     @
 
-  # events: 
+  view: (ev) =>
+    console.log 'view '+@model.id
+    window.router.navigate 'entry/'+encodeURIComponent(@model.id), trigger:true
+    # done
+    ev.preventDefault()
+    false
+
+  events: 
+    'click': 'view'

@@ -2,6 +2,7 @@
 Entry = require 'models/entry'
 
 addEntry = (entries, atomentry) ->
+  id = $('id', atomentry).text()
   title = $('title', atomentry).text()
   iconurl = $('link[rel=\'alternate\'][type^=\'image\']', atomentry).attr('href')
   if not iconurl?
@@ -9,6 +10,7 @@ addEntry = (entries, atomentry) ->
   summary = $('content', atomentry).text()		
 	
   entry = 
+    id: id
     title: title
     iconurl: iconurl
     summary: summary
@@ -54,6 +56,9 @@ module.exports.load = (entries, atomurl) ->
   if (atomurl.indexOf ':') < 0 
     console.log 'converting local name '+atomurl+' to global...'
     base = window.location.href;
+    hi = base.indexOf '#'
+    if (hi >= 0)
+      base = base.substring 0,hi
     if (atomurl.indexOf '/') == 0 
       # absolute
       si = base.indexOf '//'

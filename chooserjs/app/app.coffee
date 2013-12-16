@@ -7,23 +7,50 @@ Entry = require 'models/entry'
 EntryList = require 'models/entrylist'
 
 EntryListView = require 'views/entrylist'
+EntryInfoView = require 'views/entry_info'
 
 loader = require 'loader'
+
+# view stack?!
+window.views = []
+
+addView = (view,title,path) ->
+  if window.views.length>0 
+    window.views[0].$el.hide()
+  window.views.push view
+  $('#main_entrylist_holder').append view.el
+  bc = $ '.breadcrumbs' 
+  bc.append "<li><a href='##{path}'>#{title}</a></li>"
+
+popView = ->
+  if window.views.length>0
+    view = window.views.pop()
+    view.remove()
+  $('.breadcrumbs li:last-child').remove()
+  if window.views.length>0
+    window.views[0].$el.show()
 
 class Router extends Backbone.Router
   routes: 
     "entries" : "entries"
-
-  update_breadcrumbs: (bcs) ->
-    bc = $ '.breadcrumbs' 
-    bc.empty()
-    for {title,path} in bcs 
-      bc.append "<li><a href='#{path}'>#{title}</a></li>"
+    "entry/:eid" : "entry"
 
   entries: ->
-    @update_breadcrumbs [ {title: "All", path: "entries"} ]
-    # TODO update view...?!
+    while window.views.length>1
+      popView()
 
+  entry: (id) ->
+    # id is already URI-decoded
+    entry = window.entries?.get id
+    if not entry? 
+      #alert "Could not find that entry (#{id})"
+      console.log "Could not find entry #{id}"
+      $('#entryNotFoundModal').foundation 'reveal','open'
+      return false
+    console.log "show entry #{id} #{entry.attributes.title}"
+    # TODO... 
+    view = new EntryInfoView model: entry
+    addView view, entry.attributes.title, "entry/#{encodeURIComponent id}"
 
 testentry1 = new Entry 
         title: 'Test entry 1'
@@ -89,10 +116,12 @@ App =
 
     # entries
     entries = new EntryList()
+    # best way to find model(s)??
+    window.entries = entries
 
     # top level entries list view
     entryview = new EntryListView model: entries
-    $('#main_entrylist_holder').append entryview.el
+    addView entryview,'All','entries'
     
     # TODO load entries...
 

@@ -1,0 +1,13 @@
+<%# Entry information, takes Entry as data (title, iconurl) %>
+<div class="small-12 large-12 columns">
+<h1><%= @title %></h1>
+</div>
+<div class="small-12 large-6 columns">
+<div class="entry_in_list_icon">
+  <div class="dummy"></div><%# required for CSS aspect ratio - see css %>
+  <img src="<%= @iconurl %>">
+</div>
+</div>
+<div class="small-12 large-6 columns">
+<p><%= @summary %></p> 
+
