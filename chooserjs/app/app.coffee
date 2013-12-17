@@ -8,6 +8,9 @@ EntryList = require 'models/entrylist'
 
 EntryListView = require 'views/entrylist'
 EntryInfoView = require 'views/entry_info'
+EntryPreviewView = require 'views/entry_preview'
+EntrySendInternetView = require 'views/entry_send_internet'
+EntrySendCacheView = require 'views/entry_send_cache'
 
 loader = require 'loader'
 
@@ -15,12 +18,25 @@ loader = require 'loader'
 window.views = []
 
 addView = (view,title,path) ->
+  path = '#'+path
+  bc = $ '.breadcrumbs' 
+  # TODO check if view already present, in which case expose
+  #bcpaths = $('a',bc).attr('href') ? []
+  bcas = $('a',bc)
+  for bcpath,bcix in bcas
+    if ($(bcpath).attr 'href') == path
+      while bcix+1<bcas.length
+        popView()
+        bcix++
+      # done
+      console.log "Re-show existing view"
+      return
+
   if window.views.length>0 
-    window.views[0].$el.hide()
+    window.views[window.views.length-1].$el.hide()
   window.views.push view
   $('#main_entrylist_holder').append view.el
-  bc = $ '.breadcrumbs' 
-  bc.append "<li><a href='##{path}'>#{title}</a></li>"
+  bc.append "<li><a href='#{path}'>#{title}</a></li>"
 
 popView = ->
   if window.views.length>0
@@ -28,29 +44,62 @@ popView = ->
     view.remove()
   $('.breadcrumbs li:last-child').remove()
   if window.views.length>0
-    window.views[0].$el.show()
+    window.views[window.views.length-1].$el.show()
 
 class Router extends Backbone.Router
   routes: 
     "entries" : "entries"
     "entry/:eid" : "entry"
+    "preview/:eid" : "preview"
+    "send_internet/:eid" : "send_internet"
+    "send_cache/:eid" : "send_cache"
 
   entries: ->
     while window.views.length>1
       popView()
 
-  entry: (id) ->
+  get_entry: (id) ->
     # id is already URI-decoded
     entry = window.entries?.get id
     if not entry? 
       #alert "Could not find that entry (#{id})"
       console.log "Could not find entry #{id}"
       $('#entryNotFoundModal').foundation 'reveal','open'
+      null
+    else
+      entry
+
+  entry: (id) ->
+    entry = @get_entry id
+    if not entry? 
       return false
     console.log "show entry #{id} #{entry.attributes.title}"
-    # TODO... 
     view = new EntryInfoView model: entry
     addView view, entry.attributes.title, "entry/#{encodeURIComponent id}"
+
+  preview: (id) ->
+    entry = @get_entry id
+    if not entry? 
+      return false
+    console.log "preview entry #{id}"
+    view = new EntryPreviewView model: entry
+    addView view, "Preview", "preview/#{encodeURIComponent id}"
+  
+  send_internet: (id) ->
+    entry = @get_entry id
+    if not entry? 
+      return false
+    console.log "send(internet) entry #{id}"
+    view = new EntrySendInternetView model: entry
+    addView view, "Send over Internet", "send_internet/#{encodeURIComponent id}"
+  
+  send_cache: (id) ->
+    entry = @get_entry id
+    if not entry? 
+      return false
+    console.log "send(cache) entry #{id}"
+    view = new EntrySendCacheView model: entry
+    addView view, "Send locally", "send_cache/#{encodeURIComponent id}"
 
 testentry1 = new Entry 
         title: 'Test entry 1'

@@ -1,0 +1,6 @@
+<%# Entry preview, takes Entry as data %>
+<div class="small-12 large-12 columns">
+  <h1><%= @title %></h1>
+  <p>TODO: Preview should appear here</p>
+</div>
+

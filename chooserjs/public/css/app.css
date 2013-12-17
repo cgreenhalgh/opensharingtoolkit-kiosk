@@ -2816,7 +2816,7 @@ select {
 }
 
 /* line 197, ../../foundation_scss/foundation/components/_buttons.scss */
-button, .button {
+button, .button, .entry_option {
   cursor: pointer;
   font-family: "Helvetica Neue", "Helvetica", Helvetica, Arial, sans-serif;
   font-weight: normal;
@@ -2845,57 +2845,57 @@ button, .button {
   font-weight: normal !important;
 }
 /* line 142, ../../foundation_scss/foundation/components/_buttons.scss */
-button:hover, button:focus, .button:hover, .button:focus {
+button:hover, button:focus, .button:hover, .entry_option:hover, .button:focus, .entry_option:focus {
   background-color: #0079a1;
 }
 /* line 153, ../../foundation_scss/foundation/components/_buttons.scss */
-button:hover, button:focus, .button:hover, .button:focus {
+button:hover, button:focus, .button:hover, .entry_option:hover, .button:focus, .entry_option:focus {
   color: white;
 }
 /* line 205, ../../foundation_scss/foundation/components/_buttons.scss */
-button.secondary, .button.secondary {
+button.secondary, .button.secondary, .secondary.entry_option {
   background-color: #e7e7e7;
   border-color: #dadada;
   color: #333333;
 }
 /* line 142, ../../foundation_scss/foundation/components/_buttons.scss */
-button.secondary:hover, button.secondary:focus, .button.secondary:hover, .button.secondary:focus {
+button.secondary:hover, button.secondary:focus, .button.secondary:hover, .secondary.entry_option:hover, .button.secondary:focus, .secondary.entry_option:focus {
   background-color: #dadada;
 }
 /* line 148, ../../foundation_scss/foundation/components/_buttons.scss */
-button.secondary:hover, button.secondary:focus, .button.secondary:hover, .button.secondary:focus {
+button.secondary:hover, button.secondary:focus, .button.secondary:hover, .secondary.entry_option:hover, .button.secondary:focus, .secondary.entry_option:focus {
   color: #333333;
 }
 /* line 206, ../../foundation_scss/foundation/components/_buttons.scss */
-button.success, .button.success {
+button.success, .button.success, .success.entry_option {
   background-color: #43ac6a;
   border-color: #3c9a5f;
   color: white;
 }
 /* line 142, ../../foundation_scss/foundation/components/_buttons.scss */
-button.success:hover, button.success:focus, .button.success:hover, .button.success:focus {
+button.success:hover, button.success:focus, .button.success:hover, .success.entry_option:hover, .button.success:focus, .success.entry_option:focus {
   background-color: #3c9a5f;
 }
 /* line 153, ../../foundation_scss/foundation/components/_buttons.scss */
-button.success:hover, button.success:focus, .button.success:hover, .button.success:focus {
+button.success:hover, button.success:focus, .button.success:hover, .success.entry_option:hover, .button.success:focus, .success.entry_option:focus {
   color: white;
 }
 /* line 207, ../../foundation_scss/foundation/components/_buttons.scss */
-button.alert, .button.alert {
+button.alert, .button.alert, .alert.entry_option {
   background-color: #f04124;
   border-color: #ea2f10;
   color: white;
 }
 /* line 142, ../../foundation_scss/foundation/components/_buttons.scss */
-button.alert:hover, button.alert:focus, .button.alert:hover, .button.alert:focus {
+button.alert:hover, button.alert:focus, .button.alert:hover, .alert.entry_option:hover, .button.alert:focus, .alert.entry_option:focus {
   background-color: #ea2f10;
 }
 /* line 153, ../../foundation_scss/foundation/components/_buttons.scss */
-button.alert:hover, button.alert:focus, .button.alert:hover, .button.alert:focus {
+button.alert:hover, button.alert:focus, .button.alert:hover, .alert.entry_option:hover, .button.alert:focus, .alert.entry_option:focus {
   color: white;
 }
 /* line 209, ../../foundation_scss/foundation/components/_buttons.scss */
-button.large, .button.large {
+button.large, .button.large, .large.entry_option {
   padding-top: 1.125rem;
   padding-right: 2.25rem;
   padding-bottom: 1.1875rem;
@@ -2904,7 +2904,7 @@ button.large, .button.large {
   /*     @else                            { font-size: $padding - rem-calc(2); } */
 }
 /* line 210, ../../foundation_scss/foundation/components/_buttons.scss */
-button.small, .button.small {
+button.small, .button.small, .small.entry_option {
   padding-top: 0.875rem;
   padding-right: 1.75rem;
   padding-bottom: 0.9375rem;
@@ -2913,7 +2913,7 @@ button.small, .button.small {
   /*     @else                            { font-size: $padding - rem-calc(2); } */
 }
 /* line 211, ../../foundation_scss/foundation/components/_buttons.scss */
-button.tiny, .button.tiny {
+button.tiny, .button.tiny, .tiny.entry_option {
   padding-top: 0.625rem;
   padding-right: 1.25rem;
   padding-bottom: 0.6875rem;
@@ -2922,33 +2922,33 @@ button.tiny, .button.tiny {
   /*     @else                            { font-size: $padding - rem-calc(2); } */
 }
 /* line 212, ../../foundation_scss/foundation/components/_buttons.scss */
-button.expand, .button.expand {
+button.expand, .button.expand, .expand.entry_option {
   padding-right: 0;
   padding-left: 0;
   width: 100%;
 }
 /* line 214, ../../foundation_scss/foundation/components/_buttons.scss */
-button.left-align, .button.left-align {
+button.left-align, .button.left-align, .left-align.entry_option {
   text-align: left;
   text-indent: 0.75rem;
 }
 /* line 215, ../../foundation_scss/foundation/components/_buttons.scss */
-button.right-align, .button.right-align {
+button.right-align, .button.right-align, .right-align.entry_option {
   text-align: right;
   padding-right: 0.75rem;
 }
 /* line 217, ../../foundation_scss/foundation/components/_buttons.scss */
-button.radius, .button.radius {
+button.radius, .button.radius, .radius.entry_option {
   -webkit-border-radius: 3px;
   border-radius: 3px;
 }
 /* line 218, ../../foundation_scss/foundation/components/_buttons.scss */
-button.round, .button.round {
+button.round, .button.round, .round.entry_option {
   -webkit-border-radius: 1000px;
   border-radius: 1000px;
 }
 /* line 220, ../../foundation_scss/foundation/components/_buttons.scss */
-button.disabled, button[disabled], .button.disabled, .button[disabled] {
+button.disabled, button[disabled], .button.disabled, .disabled.entry_option, .button[disabled], [disabled].entry_option {
   background-color: #008cba;
   border-color: #0079a1;
   color: white;
@@ -2958,19 +2958,19 @@ button.disabled, button[disabled], .button.disabled, .button[disabled] {
   box-shadow: none;
 }
 /* line 142, ../../foundation_scss/foundation/components/_buttons.scss */
-button.disabled:hover, button.disabled:focus, button[disabled]:hover, button[disabled]:focus, .button.disabled:hover, .button.disabled:focus, .button[disabled]:hover, .button[disabled]:focus {
+button.disabled:hover, button.disabled:focus, button[disabled]:hover, button[disabled]:focus, .button.disabled:hover, .disabled.entry_option:hover, .button.disabled:focus, .disabled.entry_option:focus, .button[disabled]:hover, [disabled].entry_option:hover, .button[disabled]:focus, [disabled].entry_option:focus {
   background-color: #0079a1;
 }
 /* line 153, ../../foundation_scss/foundation/components/_buttons.scss */
-button.disabled:hover, button.disabled:focus, button[disabled]:hover, button[disabled]:focus, .button.disabled:hover, .button.disabled:focus, .button[disabled]:hover, .button[disabled]:focus {
+button.disabled:hover, button.disabled:focus, button[disabled]:hover, button[disabled]:focus, .button.disabled:hover, .disabled.entry_option:hover, .button.disabled:focus, .disabled.entry_option:focus, .button[disabled]:hover, [disabled].entry_option:hover, .button[disabled]:focus, [disabled].entry_option:focus {
   color: white;
 }
 /* line 166, ../../foundation_scss/foundation/components/_buttons.scss */
-button.disabled:hover, button.disabled:focus, button[disabled]:hover, button[disabled]:focus, .button.disabled:hover, .button.disabled:focus, .button[disabled]:hover, .button[disabled]:focus {
+button.disabled:hover, button.disabled:focus, button[disabled]:hover, button[disabled]:focus, .button.disabled:hover, .disabled.entry_option:hover, .button.disabled:focus, .disabled.entry_option:focus, .button[disabled]:hover, [disabled].entry_option:hover, .button[disabled]:focus, [disabled].entry_option:focus {
   background-color: #008cba;
 }
 /* line 221, ../../foundation_scss/foundation/components/_buttons.scss */
-button.disabled.secondary, button[disabled].secondary, .button.disabled.secondary, .button[disabled].secondary {
+button.disabled.secondary, button[disabled].secondary, .button.disabled.secondary, .disabled.secondary.entry_option, .button[disabled].secondary, [disabled].secondary.entry_option {
   background-color: #e7e7e7;
   border-color: #dadada;
   color: #333333;
@@ -2980,19 +2980,19 @@ button.disabled.secondary, button[disabled].secondary, .button.disabled.secondar
   box-shadow: none;
 }
 /* line 142, ../../foundation_scss/foundation/components/_buttons.scss */
-button.disabled.secondary:hover, button.disabled.secondary:focus, button[disabled].secondary:hover, button[disabled].secondary:focus, .button.disabled.secondary:hover, .button.disabled.secondary:focus, .button[disabled].secondary:hover, .button[disabled].secondary:focus {
+button.disabled.secondary:hover, button.disabled.secondary:focus, button[disabled].secondary:hover, button[disabled].secondary:focus, .button.disabled.secondary:hover, .disabled.secondary.entry_option:hover, .button.disabled.secondary:focus, .disabled.secondary.entry_option:focus, .button[disabled].secondary:hover, [disabled].secondary.entry_option:hover, .button[disabled].secondary:focus, [disabled].secondary.entry_option:focus {
   background-color: #dadada;
 }
 /* line 148, ../../foundation_scss/foundation/components/_buttons.scss */
-button.disabled.secondary:hover, button.disabled.secondary:focus, button[disabled].secondary:hover, button[disabled].secondary:focus, .button.disabled.secondary:hover, .button.disabled.secondary:focus, .button[disabled].secondary:hover, .button[disabled].secondary:focus {
+button.disabled.secondary:hover, button.disabled.secondary:focus, button[disabled].secondary:hover, button[disabled].secondary:focus, .button.disabled.secondary:hover, .disabled.secondary.entry_option:hover, .button.disabled.secondary:focus, .disabled.secondary.entry_option:focus, .button[disabled].secondary:hover, [disabled].secondary.entry_option:hover, .button[disabled].secondary:focus, [disabled].secondary.entry_option:focus {
   color: #333333;
 }
 /* line 166, ../../foundation_scss/foundation/components/_buttons.scss */
-button.disabled.secondary:hover, button.disabled.secondary:focus, button[disabled].secondary:hover, button[disabled].secondary:focus, .button.disabled.secondary:hover, .button.disabled.secondary:focus, .button[disabled].secondary:hover, .button[disabled].secondary:focus {
+button.disabled.secondary:hover, button.disabled.secondary:focus, button[disabled].secondary:hover, button[disabled].secondary:focus, .button.disabled.secondary:hover, .disabled.secondary.entry_option:hover, .button.disabled.secondary:focus, .disabled.secondary.entry_option:focus, .button[disabled].secondary:hover, [disabled].secondary.entry_option:hover, .button[disabled].secondary:focus, [disabled].secondary.entry_option:focus {
   background-color: #e7e7e7;
 }
 /* line 222, ../../foundation_scss/foundation/components/_buttons.scss */
-button.disabled.success, button[disabled].success, .button.disabled.success, .button[disabled].success {
+button.disabled.success, button[disabled].success, .button.disabled.success, .disabled.success.entry_option, .button[disabled].success, [disabled].success.entry_option {
   background-color: #43ac6a;
   border-color: #3c9a5f;
   color: white;
@@ -3002,19 +3002,19 @@ button.disabled.success, button[disabled].success, .button.disabled.success, .bu
   box-shadow: none;
 }
 /* line 142, ../../foundation_scss/foundation/components/_buttons.scss */
-button.disabled.success:hover, button.disabled.success:focus, button[disabled].success:hover, button[disabled].success:focus, .button.disabled.success:hover, .button.disabled.success:focus, .button[disabled].success:hover, .button[disabled].success:focus {
+button.disabled.success:hover, button.disabled.success:focus, button[disabled].success:hover, button[disabled].success:focus, .button.disabled.success:hover, .disabled.success.entry_option:hover, .button.disabled.success:focus, .disabled.success.entry_option:focus, .button[disabled].success:hover, [disabled].success.entry_option:hover, .button[disabled].success:focus, [disabled].success.entry_option:focus {
   background-color: #3c9a5f;
 }
 /* line 153, ../../foundation_scss/foundation/components/_buttons.scss */
-button.disabled.success:hover, button.disabled.success:focus, button[disabled].success:hover, button[disabled].success:focus, .button.disabled.success:hover, .button.disabled.success:focus, .button[disabled].success:hover, .button[disabled].success:focus {
+button.disabled.success:hover, button.disabled.success:focus, button[disabled].success:hover, button[disabled].success:focus, .button.disabled.success:hover, .disabled.success.entry_option:hover, .button.disabled.success:focus, .disabled.success.entry_option:focus, .button[disabled].success:hover, [disabled].success.entry_option:hover, .button[disabled].success:focus, [disabled].success.entry_option:focus {
   color: white;
 }
 /* line 166, ../../foundation_scss/foundation/components/_buttons.scss */
-button.disabled.success:hover, button.disabled.success:focus, button[disabled].success:hover, button[disabled].success:focus, .button.disabled.success:hover, .button.disabled.success:focus, .button[disabled].success:hover, .button[disabled].success:focus {
+button.disabled.success:hover, button.disabled.success:focus, button[disabled].success:hover, button[disabled].success:focus, .button.disabled.success:hover, .disabled.success.entry_option:hover, .button.disabled.success:focus, .disabled.success.entry_option:focus, .button[disabled].success:hover, [disabled].success.entry_option:hover, .button[disabled].success:focus, [disabled].success.entry_option:focus {
   background-color: #43ac6a;
 }
 /* line 223, ../../foundation_scss/foundation/components/_buttons.scss */
-button.disabled.alert, button[disabled].alert, .button.disabled.alert, .button[disabled].alert {
+button.disabled.alert, button[disabled].alert, .button.disabled.alert, .disabled.alert.entry_option, .button[disabled].alert, [disabled].alert.entry_option {
   background-color: #f04124;
   border-color: #ea2f10;
   color: white;
@@ -3024,21 +3024,21 @@ button.disabled.alert, button[disabled].alert, .button.disabled.alert, .button[d
   box-shadow: none;
 }
 /* line 142, ../../foundation_scss/foundation/components/_buttons.scss */
-button.disabled.alert:hover, button.disabled.alert:focus, button[disabled].alert:hover, button[disabled].alert:focus, .button.disabled.alert:hover, .button.disabled.alert:focus, .button[disabled].alert:hover, .button[disabled].alert:focus {
+button.disabled.alert:hover, button.disabled.alert:focus, button[disabled].alert:hover, button[disabled].alert:focus, .button.disabled.alert:hover, .disabled.alert.entry_option:hover, .button.disabled.alert:focus, .disabled.alert.entry_option:focus, .button[disabled].alert:hover, [disabled].alert.entry_option:hover, .button[disabled].alert:focus, [disabled].alert.entry_option:focus {
   background-color: #ea2f10;
 }
 /* line 153, ../../foundation_scss/foundation/components/_buttons.scss */
-button.disabled.alert:hover, button.disabled.alert:focus, button[disabled].alert:hover, button[disabled].alert:focus, .button.disabled.alert:hover, .button.disabled.alert:focus, .button[disabled].alert:hover, .button[disabled].alert:focus {
+button.disabled.alert:hover, button.disabled.alert:focus, button[disabled].alert:hover, button[disabled].alert:focus, .button.disabled.alert:hover, .disabled.alert.entry_option:hover, .button.disabled.alert:focus, .disabled.alert.entry_option:focus, .button[disabled].alert:hover, [disabled].alert.entry_option:hover, .button[disabled].alert:focus, [disabled].alert.entry_option:focus {
   color: white;
 }
 /* line 166, ../../foundation_scss/foundation/components/_buttons.scss */
-button.disabled.alert:hover, button.disabled.alert:focus, button[disabled].alert:hover, button[disabled].alert:focus, .button.disabled.alert:hover, .button.disabled.alert:focus, .button[disabled].alert:hover, .button[disabled].alert:focus {
+button.disabled.alert:hover, button.disabled.alert:focus, button[disabled].alert:hover, button[disabled].alert:focus, .button.disabled.alert:hover, .disabled.alert.entry_option:hover, .button.disabled.alert:focus, .disabled.alert.entry_option:focus, .button[disabled].alert:hover, [disabled].alert.entry_option:hover, .button[disabled].alert:focus, [disabled].alert.entry_option:focus {
   background-color: #f04124;
 }
 
 @media only screen and (min-width: 40.063em) {
   /* line 228, ../../foundation_scss/foundation/components/_buttons.scss */
-  button, .button {
+  button, .button, .entry_option {
     display: inline-block;
   }
 }
@@ -3063,7 +3063,7 @@ button.disabled.alert:hover, button.disabled.alert:focus, button[disabled].alert
   float: left;
 }
 /* line 35, ../../foundation_scss/foundation/components/_button-groups.scss */
-.button-group > * > button, .button-group > * .button {
+.button-group > * > button, .button-group > * .button, .button-group > * .entry_option {
   border-right: 1px solid;
   border-color: rgba(255, 255, 255, 0.5);
 }
@@ -3072,12 +3072,12 @@ button.disabled.alert:hover, button.disabled.alert:focus, button[disabled].alert
   margin-left: 0;
 }
 /* line 35, ../../foundation_scss/foundation/components/_button-groups.scss */
-.button-group.radius > * > button, .button-group.radius > * .button {
+.button-group.radius > * > button, .button-group.radius > * .button, .button-group.radius > * .entry_option {
   border-right: 1px solid;
   border-color: rgba(255, 255, 255, 0.5);
 }
 /* line 63, ../../foundation_scss/foundation/components/_button-groups.scss */
-.button-group.radius > *:first-child, .button-group.radius > *:first-child > a, .button-group.radius > *:first-child > button, .button-group.radius > *:first-child > .button {
+.button-group.radius > *:first-child, .button-group.radius > *:first-child > a, .button-group.radius > *:first-child > button, .button-group.radius > *:first-child > .button, .button-group.radius > *:first-child > .entry_option {
   -moz-border-radius-bottomleft: 3px;
   -moz-border-radius-topleft: 3px;
   -webkit-border-bottom-left-radius: 3px;
@@ -3086,7 +3086,7 @@ button.disabled.alert:hover, button.disabled.alert:focus, button[disabled].alert
   border-top-left-radius: 3px;
 }
 /* line 67, ../../foundation_scss/foundation/components/_button-groups.scss */
-.button-group.radius > *:last-child, .button-group.radius > *:last-child > a, .button-group.radius > *:last-child > button, .button-group.radius > *:last-child > .button {
+.button-group.radius > *:last-child, .button-group.radius > *:last-child > a, .button-group.radius > *:last-child > button, .button-group.radius > *:last-child > .button, .button-group.radius > *:last-child > .entry_option {
   -moz-border-radius-topright: 3px;
   -moz-border-radius-bottomright: 3px;
   -webkit-border-top-right-radius: 3px;
@@ -3095,12 +3095,12 @@ button.disabled.alert:hover, button.disabled.alert:focus, button[disabled].alert
   border-bottom-right-radius: 3px;
 }
 /* line 35, ../../foundation_scss/foundation/components/_button-groups.scss */
-.button-group.round > * > button, .button-group.round > * .button {
+.button-group.round > * > button, .button-group.round > * .button, .button-group.round > * .entry_option {
   border-right: 1px solid;
   border-color: rgba(255, 255, 255, 0.5);
 }
 /* line 63, ../../foundation_scss/foundation/components/_button-groups.scss */
-.button-group.round > *:first-child, .button-group.round > *:first-child > a, .button-group.round > *:first-child > button, .button-group.round > *:first-child > .button {
+.button-group.round > *:first-child, .button-group.round > *:first-child > a, .button-group.round > *:first-child > button, .button-group.round > *:first-child > .button, .button-group.round > *:first-child > .entry_option {
   -moz-border-radius-bottomleft: 1000px;
   -moz-border-radius-topleft: 1000px;
   -webkit-border-bottom-left-radius: 1000px;
@@ -3109,7 +3109,7 @@ button.disabled.alert:hover, button.disabled.alert:focus, button[disabled].alert
   border-top-left-radius: 1000px;
 }
 /* line 67, ../../foundation_scss/foundation/components/_button-groups.scss */
-.button-group.round > *:last-child, .button-group.round > *:last-child > a, .button-group.round > *:last-child > button, .button-group.round > *:last-child > .button {
+.button-group.round > *:last-child, .button-group.round > *:last-child > a, .button-group.round > *:last-child > button, .button-group.round > *:last-child > .button, .button-group.round > *:last-child > .entry_option {
   -moz-border-radius-topright: 1000px;
   -moz-border-radius-bottomright: 1000px;
   -webkit-border-top-right-radius: 1000px;
@@ -3122,12 +3122,12 @@ button.disabled.alert:hover, button.disabled.alert:focus, button[disabled].alert
   width: 50%;
 }
 /* line 35, ../../foundation_scss/foundation/components/_button-groups.scss */
-.button-group.even-2 li > button, .button-group.even-2 li .button {
+.button-group.even-2 li > button, .button-group.even-2 li .button, .button-group.even-2 li .entry_option {
   border-right: 1px solid;
   border-color: rgba(255, 255, 255, 0.5);
 }
 /* line 73, ../../foundation_scss/foundation/components/_button-groups.scss */
-.button-group.even-2 li button, .button-group.even-2 li .button {
+.button-group.even-2 li button, .button-group.even-2 li .button, .button-group.even-2 li .entry_option {
   width: 100%;
 }
 /* line 88, ../../foundation_scss/foundation/components/_button-groups.scss */
@@ -3135,12 +3135,12 @@ button.disabled.alert:hover, button.disabled.alert:focus, button[disabled].alert
   width: 33.33333%;
 }
 /* line 35, ../../foundation_scss/foundation/components/_button-groups.scss */
-.button-group.even-3 li > button, .button-group.even-3 li .button {
+.button-group.even-3 li > button, .button-group.even-3 li .button, .button-group.even-3 li .entry_option {
   border-right: 1px solid;
   border-color: rgba(255, 255, 255, 0.5);
 }
 /* line 73, ../../foundation_scss/foundation/components/_button-groups.scss */
-.button-group.even-3 li button, .button-group.even-3 li .button {
+.button-group.even-3 li button, .button-group.even-3 li .button, .button-group.even-3 li .entry_option {
   width: 100%;
 }
 /* line 88, ../../foundation_scss/foundation/components/_button-groups.scss */
@@ -3148,12 +3148,12 @@ button.disabled.alert:hover, button.disabled.alert:focus, button[disabled].alert
   width: 25%;
 }
 /* line 35, ../../foundation_scss/foundation/components/_button-groups.scss */
-.button-group.even-4 li > button, .button-group.even-4 li .button {
+.button-group.even-4 li > button, .button-group.even-4 li .button, .button-group.even-4 li .entry_option {
   border-right: 1px solid;
   border-color: rgba(255, 255, 255, 0.5);
 }
 /* line 73, ../../foundation_scss/foundation/components/_button-groups.scss */
-.button-group.even-4 li button, .button-group.even-4 li .button {
+.button-group.even-4 li button, .button-group.even-4 li .button, .button-group.even-4 li .entry_option {
   width: 100%;
 }
 /* line 88, ../../foundation_scss/foundation/components/_button-groups.scss */
@@ -3161,12 +3161,12 @@ button.disabled.alert:hover, button.disabled.alert:focus, button[disabled].alert
   width: 20%;
 }
 /* line 35, ../../foundation_scss/foundation/components/_button-groups.scss */
-.button-group.even-5 li > button, .button-group.even-5 li .button {
+.button-group.even-5 li > button, .button-group.even-5 li .button, .button-group.even-5 li .entry_option {
   border-right: 1px solid;
   border-color: rgba(255, 255, 255, 0.5);
 }
 /* line 73, ../../foundation_scss/foundation/components/_button-groups.scss */
-.button-group.even-5 li button, .button-group.even-5 li .button {
+.button-group.even-5 li button, .button-group.even-5 li .button, .button-group.even-5 li .entry_option {
   width: 100%;
 }
 /* line 88, ../../foundation_scss/foundation/components/_button-groups.scss */
@@ -3174,12 +3174,12 @@ button.disabled.alert:hover, button.disabled.alert:focus, button[disabled].alert
   width: 16.66667%;
 }
 /* line 35, ../../foundation_scss/foundation/components/_button-groups.scss */
-.button-group.even-6 li > button, .button-group.even-6 li .button {
+.button-group.even-6 li > button, .button-group.even-6 li .button, .button-group.even-6 li .entry_option {
   border-right: 1px solid;
   border-color: rgba(255, 255, 255, 0.5);
 }
 /* line 73, ../../foundation_scss/foundation/components/_button-groups.scss */
-.button-group.even-6 li button, .button-group.even-6 li .button {
+.button-group.even-6 li button, .button-group.even-6 li .button, .button-group.even-6 li .entry_option {
   width: 100%;
 }
 /* line 88, ../../foundation_scss/foundation/components/_button-groups.scss */
@@ -3187,12 +3187,12 @@ button.disabled.alert:hover, button.disabled.alert:focus, button[disabled].alert
   width: 14.28571%;
 }
 /* line 35, ../../foundation_scss/foundation/components/_button-groups.scss */
-.button-group.even-7 li > button, .button-group.even-7 li .button {
+.button-group.even-7 li > button, .button-group.even-7 li .button, .button-group.even-7 li .entry_option {
   border-right: 1px solid;
   border-color: rgba(255, 255, 255, 0.5);
 }
 /* line 73, ../../foundation_scss/foundation/components/_button-groups.scss */
-.button-group.even-7 li button, .button-group.even-7 li .button {
+.button-group.even-7 li button, .button-group.even-7 li .button, .button-group.even-7 li .entry_option {
   width: 100%;
 }
 /* line 88, ../../foundation_scss/foundation/components/_button-groups.scss */
@@ -3200,12 +3200,12 @@ button.disabled.alert:hover, button.disabled.alert:focus, button[disabled].alert
   width: 12.5%;
 }
 /* line 35, ../../foundation_scss/foundation/components/_button-groups.scss */
-.button-group.even-8 li > button, .button-group.even-8 li .button {
+.button-group.even-8 li > button, .button-group.even-8 li .button, .button-group.even-8 li .entry_option {
   border-right: 1px solid;
   border-color: rgba(255, 255, 255, 0.5);
 }
 /* line 73, ../../foundation_scss/foundation/components/_button-groups.scss */
-.button-group.even-8 li button, .button-group.even-8 li .button {
+.button-group.even-8 li button, .button-group.even-8 li .button, .button-group.even-8 li .entry_option {
   width: 100%;
 }
 
@@ -3592,12 +3592,12 @@ button.disabled.alert:hover, button.disabled.alert:focus, button[disabled].alert
 }
 
 /* line 118, ../../foundation_scss/foundation/components/_dropdown-buttons.scss */
-.dropdown.button {
+.dropdown.button, .dropdown.entry_option {
   position: relative;
   padding-right: 3.5625rem;
 }
 /* line 58, ../../foundation_scss/foundation/components/_dropdown-buttons.scss */
-.dropdown.button:before {
+.dropdown.button:before, .dropdown.entry_option:before {
   position: absolute;
   content: "";
   width: 0;
@@ -3608,59 +3608,59 @@ button.disabled.alert:hover, button.disabled.alert:focus, button[disabled].alert
   top: 50%;
 }
 /* line 93, ../../foundation_scss/foundation/components/_dropdown-buttons.scss */
-.dropdown.button:before {
+.dropdown.button:before, .dropdown.entry_option:before {
   border-width: 0.375rem;
   right: 1.40625rem;
   margin-top: -0.15625rem;
 }
 /* line 112, ../../foundation_scss/foundation/components/_dropdown-buttons.scss */
-.dropdown.button:before {
+.dropdown.button:before, .dropdown.entry_option:before {
   border-color: white transparent transparent transparent;
 }
 /* line 119, ../../foundation_scss/foundation/components/_dropdown-buttons.scss */
-.dropdown.button.tiny {
+.dropdown.button.tiny, .dropdown.tiny.entry_option {
   padding-right: 2.625rem;
 }
 /* line 73, ../../foundation_scss/foundation/components/_dropdown-buttons.scss */
-.dropdown.button.tiny:before {
+.dropdown.button.tiny:before, .dropdown.tiny.entry_option:before {
   border-width: 0.375rem;
   right: 1.125rem;
   margin-top: -0.125rem;
 }
 /* line 112, ../../foundation_scss/foundation/components/_dropdown-buttons.scss */
-.dropdown.button.tiny:before {
+.dropdown.button.tiny:before, .dropdown.tiny.entry_option:before {
   border-color: white transparent transparent transparent;
 }
 /* line 120, ../../foundation_scss/foundation/components/_dropdown-buttons.scss */
-.dropdown.button.small {
+.dropdown.button.small, .dropdown.small.entry_option {
   padding-right: 3.0625rem;
 }
 /* line 83, ../../foundation_scss/foundation/components/_dropdown-buttons.scss */
-.dropdown.button.small:before {
+.dropdown.button.small:before, .dropdown.small.entry_option:before {
   border-width: 0.4375rem;
   right: 1.3125rem;
   margin-top: -0.15625rem;
 }
 /* line 112, ../../foundation_scss/foundation/components/_dropdown-buttons.scss */
-.dropdown.button.small:before {
+.dropdown.button.small:before, .dropdown.small.entry_option:before {
   border-color: white transparent transparent transparent;
 }
 /* line 121, ../../foundation_scss/foundation/components/_dropdown-buttons.scss */
-.dropdown.button.large {
+.dropdown.button.large, .dropdown.large.entry_option {
   padding-right: 3.625rem;
 }
 /* line 103, ../../foundation_scss/foundation/components/_dropdown-buttons.scss */
-.dropdown.button.large:before {
+.dropdown.button.large:before, .dropdown.large.entry_option:before {
   border-width: 0.3125rem;
   right: 1.71875rem;
   margin-top: -0.15625rem;
 }
 /* line 112, ../../foundation_scss/foundation/components/_dropdown-buttons.scss */
-.dropdown.button.large:before {
+.dropdown.button.large:before, .dropdown.large.entry_option:before {
   border-color: white transparent transparent transparent;
 }
 /* line 122, ../../foundation_scss/foundation/components/_dropdown-buttons.scss */
-.dropdown.button.secondary:before {
+.dropdown.button.secondary:before, .dropdown.secondary.entry_option:before {
   border-color: #333333 transparent transparent transparent;
 }
 
@@ -3822,7 +3822,7 @@ select:hover {
 
 /* Adjust padding, alignment and radius if pre/post element is a button */
 /* line 346, ../../foundation_scss/foundation/components/_forms.scss */
-.postfix.button {
+.postfix.button, .postfix.entry_option {
   padding-left: 0;
   padding-right: 0;
   padding-top: 0;
@@ -3833,7 +3833,7 @@ select:hover {
 }
 
 /* line 347, ../../foundation_scss/foundation/components/_forms.scss */
-.prefix.button {
+.prefix.button, .prefix.entry_option {
   padding-left: 0;
   padding-right: 0;
   padding-top: 0;
@@ -3844,7 +3844,7 @@ select:hover {
 }
 
 /* line 349, ../../foundation_scss/foundation/components/_forms.scss */
-.prefix.button.radius {
+.prefix.button.radius, .prefix.radius.entry_option {
   -webkit-border-radius: 0;
   border-radius: 0;
   -moz-border-radius-bottomleft: 3px;
@@ -3856,7 +3856,7 @@ select:hover {
 }
 
 /* line 350, ../../foundation_scss/foundation/components/_forms.scss */
-.postfix.button.radius {
+.postfix.button.radius, .postfix.radius.entry_option {
   -webkit-border-radius: 0;
   border-radius: 0;
   -moz-border-radius-topright: 3px;
@@ -3868,7 +3868,7 @@ select:hover {
 }
 
 /* line 351, ../../foundation_scss/foundation/components/_forms.scss */
-.prefix.button.round {
+.prefix.button.round, .prefix.round.entry_option {
   -webkit-border-radius: 0;
   border-radius: 0;
   -moz-border-radius-bottomleft: 1000px;
@@ -3880,7 +3880,7 @@ select:hover {
 }
 
 /* line 352, ../../foundation_scss/foundation/components/_forms.scss */
-.postfix.button.round {
+.postfix.button.round, .postfix.round.entry_option {
   -webkit-border-radius: 0;
   border-radius: 0;
   -moz-border-radius-topright: 1000px;
@@ -4230,7 +4230,7 @@ label.error {
   padding: 1.125rem 1.25rem 1.5rem;
 }
 /* line 71, ../../foundation_scss/foundation/components/_joyride.scss */
-.joyride-content-wrapper .button {
+.joyride-content-wrapper .button, .joyride-content-wrapper .entry_option {
   margin-bottom: 0 !important;
 }
 
@@ -5202,12 +5202,12 @@ ul.pagination li {
 }
 
 /* line 169, ../../foundation_scss/foundation/components/_split-buttons.scss */
-.split.button {
+.split.button, .split.entry_option {
   position: relative;
   padding-right: 5.0625rem;
 }
 /* line 72, ../../foundation_scss/foundation/components/_split-buttons.scss */
-.split.button span {
+.split.button span, .split.entry_option span {
   display: block;
   height: 100%;
   position: absolute;
@@ -5216,7 +5216,7 @@ ul.pagination li {
   border-left: solid 1px;
 }
 /* line 81, ../../foundation_scss/foundation/components/_split-buttons.scss */
-.split.button span:before {
+.split.button span:before, .split.entry_option span:before {
   position: absolute;
   content: "";
   width: 0;
@@ -5227,99 +5227,99 @@ ul.pagination li {
   left: 50%;
 }
 /* line 93, ../../foundation_scss/foundation/components/_split-buttons.scss */
-.split.button span:active {
+.split.button span:active, .split.entry_option span:active {
   background-color: rgba(0, 0, 0, 0.1);
 }
 /* line 99, ../../foundation_scss/foundation/components/_split-buttons.scss */
-.split.button span {
+.split.button span, .split.entry_option span {
   border-left-color: rgba(255, 255, 255, 0.5);
 }
 /* line 136, ../../foundation_scss/foundation/components/_split-buttons.scss */
-.split.button span {
+.split.button span, .split.entry_option span {
   width: 3.09375rem;
 }
 /* line 137, ../../foundation_scss/foundation/components/_split-buttons.scss */
-.split.button span:before {
+.split.button span:before, .split.entry_option span:before {
   border-top-style: solid;
   border-width: 0.375rem;
   top: 48%;
   margin-left: -0.375rem;
 }
 /* line 162, ../../foundation_scss/foundation/components/_split-buttons.scss */
-.split.button span:before {
+.split.button span:before, .split.entry_option span:before {
   border-color: white transparent transparent transparent;
 }
 /* line 99, ../../foundation_scss/foundation/components/_split-buttons.scss */
-.split.button.secondary span {
+.split.button.secondary span, .split.secondary.entry_option span {
   border-left-color: rgba(255, 255, 255, 0.5);
 }
 /* line 162, ../../foundation_scss/foundation/components/_split-buttons.scss */
-.split.button.secondary span:before {
+.split.button.secondary span:before, .split.secondary.entry_option span:before {
   border-color: white transparent transparent transparent;
 }
 /* line 99, ../../foundation_scss/foundation/components/_split-buttons.scss */
-.split.button.alert span {
+.split.button.alert span, .split.alert.entry_option span {
   border-left-color: rgba(255, 255, 255, 0.5);
 }
 /* line 99, ../../foundation_scss/foundation/components/_split-buttons.scss */
-.split.button.success span {
+.split.button.success span, .split.success.entry_option span {
   border-left-color: rgba(255, 255, 255, 0.5);
 }
 /* line 175, ../../foundation_scss/foundation/components/_split-buttons.scss */
-.split.button.tiny {
+.split.button.tiny, .split.tiny.entry_option {
   padding-right: 3.75rem;
 }
 /* line 108, ../../foundation_scss/foundation/components/_split-buttons.scss */
-.split.button.tiny span {
+.split.button.tiny span, .split.tiny.entry_option span {
   width: 2.25rem;
 }
 /* line 109, ../../foundation_scss/foundation/components/_split-buttons.scss */
-.split.button.tiny span:before {
+.split.button.tiny span:before, .split.tiny.entry_option span:before {
   border-top-style: solid;
   border-width: 0.375rem;
   top: 48%;
   margin-left: -0.375rem;
 }
 /* line 176, ../../foundation_scss/foundation/components/_split-buttons.scss */
-.split.button.small {
+.split.button.small, .split.small.entry_option {
   padding-right: 4.375rem;
 }
 /* line 122, ../../foundation_scss/foundation/components/_split-buttons.scss */
-.split.button.small span {
+.split.button.small span, .split.small.entry_option span {
   width: 2.625rem;
 }
 /* line 123, ../../foundation_scss/foundation/components/_split-buttons.scss */
-.split.button.small span:before {
+.split.button.small span:before, .split.small.entry_option span:before {
   border-top-style: solid;
   border-width: 0.4375rem;
   top: 48%;
   margin-left: -0.375rem;
 }
 /* line 177, ../../foundation_scss/foundation/components/_split-buttons.scss */
-.split.button.large {
+.split.button.large, .split.large.entry_option {
   padding-right: 5.5rem;
 }
 /* line 150, ../../foundation_scss/foundation/components/_split-buttons.scss */
-.split.button.large span {
+.split.button.large span, .split.large.entry_option span {
   width: 3.4375rem;
 }
 /* line 151, ../../foundation_scss/foundation/components/_split-buttons.scss */
-.split.button.large span:before {
+.split.button.large span:before, .split.large.entry_option span:before {
   border-top-style: solid;
   border-width: 0.3125rem;
   top: 48%;
   margin-left: -0.375rem;
 }
 /* line 178, ../../foundation_scss/foundation/components/_split-buttons.scss */
-.split.button.expand {
+.split.button.expand, .split.expand.entry_option {
   padding-left: 2rem;
 }
 /* line 162, ../../foundation_scss/foundation/components/_split-buttons.scss */
-.split.button.secondary span:before {
+.split.button.secondary span:before, .split.secondary.entry_option span:before {
   border-color: #333333 transparent transparent transparent;
 }
 /* line 182, ../../foundation_scss/foundation/components/_split-buttons.scss */
-.split.button.radius span {
+.split.button.radius span, .split.radius.entry_option span {
   -moz-border-radius-topright: 3px;
   -moz-border-radius-bottomright: 3px;
   -webkit-border-top-right-radius: 3px;
@@ -5328,7 +5328,7 @@ ul.pagination li {
   border-bottom-right-radius: 3px;
 }
 /* line 183, ../../foundation_scss/foundation/components/_split-buttons.scss */
-.split.button.round span {
+.split.button.round span, .split.round.entry_option span {
   -moz-border-radius-topright: 1000px;
   -moz-border-radius-bottomright: 1000px;
   -webkit-border-top-right-radius: 1000px;
@@ -6444,7 +6444,7 @@ meta.foundation-mq-topbar {
   font-size: 0.75rem;
 }
 /* line 141, ../../foundation_scss/foundation/components/_top-bar.scss */
-.top-bar .button {
+.top-bar .button, .top-bar .entry_option {
   padding-top: .45rem;
   padding-bottom: .35rem;
   margin-bottom: 0;
@@ -6577,38 +6577,38 @@ meta.foundation-mq-topbar {
   background: #333333;
 }
 /* line 293, ../../foundation_scss/foundation/components/_top-bar.scss */
-.top-bar-section ul li > a.button {
+.top-bar-section ul li > a.button, .top-bar-section ul li > a.entry_option {
   background: #008cba;
   font-size: 0.8125rem;
   padding-right: 15px;
   padding-left: 15px;
 }
 /* line 298, ../../foundation_scss/foundation/components/_top-bar.scss */
-.top-bar-section ul li > a.button:hover {
+.top-bar-section ul li > a.button:hover, .top-bar-section ul li > a.entry_option:hover {
   background: #006687;
 }
 /* line 302, ../../foundation_scss/foundation/components/_top-bar.scss */
-.top-bar-section ul li > a.button.secondary {
+.top-bar-section ul li > a.button.secondary, .top-bar-section ul li > a.secondary.entry_option {
   background: #e7e7e7;
 }
 /* line 304, ../../foundation_scss/foundation/components/_top-bar.scss */
-.top-bar-section ul li > a.button.secondary:hover {
+.top-bar-section ul li > a.button.secondary:hover, .top-bar-section ul li > a.secondary.entry_option:hover {
   background: #cecece;
 }
 /* line 308, ../../foundation_scss/foundation/components/_top-bar.scss */
-.top-bar-section ul li > a.button.success {
+.top-bar-section ul li > a.button.success, .top-bar-section ul li > a.success.entry_option {
   background: #43ac6a;
 }
 /* line 310, ../../foundation_scss/foundation/components/_top-bar.scss */
-.top-bar-section ul li > a.button.success:hover {
+.top-bar-section ul li > a.button.success:hover, .top-bar-section ul li > a.success.entry_option:hover {
   background: #358753;
 }
 /* line 314, ../../foundation_scss/foundation/components/_top-bar.scss */
-.top-bar-section ul li > a.button.alert {
+.top-bar-section ul li > a.button.alert, .top-bar-section ul li > a.alert.entry_option {
   background: #f04124;
 }
 /* line 316, ../../foundation_scss/foundation/components/_top-bar.scss */
-.top-bar-section ul li > a.button.alert:hover {
+.top-bar-section ul li > a.button.alert:hover, .top-bar-section ul li > a.alert.entry_option:hover {
   background: #d32a0e;
 }
 /* line 324, ../../foundation_scss/foundation/components/_top-bar.scss */
@@ -6733,7 +6733,8 @@ meta.foundation-mq-topbar {
   }
   /* line 423, ../../foundation_scss/foundation/components/_top-bar.scss */
   .top-bar input,
-  .top-bar .button {
+  .top-bar .button,
+  .top-bar .entry_option {
     font-size: 0.875rem;
     position: relative;
     top: 7px;
@@ -7752,4 +7753,9 @@ th.hide-for-touch {
   left: 0;
   right: 0;
   height: auto;
+}
+
+/* line 30, ../../scss/app.scss */
+.entry_option {
+  width: 90%;
 }

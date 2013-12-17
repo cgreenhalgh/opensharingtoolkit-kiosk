@@ -1,0 +1,6 @@
+<%# Entry send cache, takes Entry as data %>
+<div class="small-12 large-12 columns">
+  <h1><%= @title %></h1>
+  <p>TODO: Send locally should appear here</p>
+</div>
+

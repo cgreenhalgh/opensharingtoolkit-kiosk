@@ -26,4 +26,9 @@
     right: 0;
     height: auto;
   } 
+};
+.entry_option {
+  @extend .button;
+  width: 90%;
 }
+
