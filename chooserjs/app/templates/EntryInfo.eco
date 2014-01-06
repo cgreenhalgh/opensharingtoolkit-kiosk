@@ -6,7 +6,7 @@
   <p><%= @summary %></p> 
   <div class="entry-in-list-icon">
     <div class="dummy"></div><%# required for CSS aspect ratio - see css %>
-    <img src="<%= @iconurl %>">
+    <img src="<%= @iconpath ? @iconurl %>">
   </div>
 </div>
 <div class="small-12 large-6 columns">

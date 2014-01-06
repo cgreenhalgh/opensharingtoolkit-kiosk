@@ -3,6 +3,6 @@
 <h4><%= @title %></h4>
 <div class="entry-in-list-icon">
   <div class="dummy"></div><%# required for CSS aspect ratio - see css %>
-  <img src="<%= @iconurl %>">
+  <img src="<%= @iconpath ? @iconurl %>">
 </div>
 </a>

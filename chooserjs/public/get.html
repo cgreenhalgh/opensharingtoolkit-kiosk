@@ -1,0 +1,52 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<meta name="viewport" content="width=device-width, user-scalable=false;">
+<title>Kiosk phone helper</title>
+<script type="text/javascript">
+/* URL parameters - http://stackoverflow.com/questions/901115/how-can-i-get-query-string-values */
+var urlParams;
+(window.onpopstate = function () {
+    var match,
+        pl     = /\+/g,  // Regex for replacing addition symbol with a space
+        search = /([^&=]+)=?([^&]*)/g,
+        decode = function (s) { return decodeURIComponent(s.replace(pl, " ")); },
+        query  = window.location.search.substring(1);
+
+    urlParams = {};
+    while (match = search.exec(query))
+       urlParams[decode(match[1])] = decode(match[2]);
+})();
+</script>
+</head>
+<body>
+<p>Great! You're on the <script type="text/javascript">
+var ssid = urlParams.n;
+if (ssid) 
+	document.write('right nextwork ('+ssid+')'); 
+else
+	document.write('Internet');
+</script></p>
+<h1 style="">Get <script type="text/javascript">document.write(urlParams.t);</script></h1>
+<script type="text/javascript">
+var appurl = urlParams.a;
+if (appurl!==undefined) {
+	if (appurl=='') 
+		document.write('<p>Warning: this content may not be supported on your device!</p>');
+	else {
+		document.write('<p>Note: you may need <a href="'+appurl+'">this helper application</a> to view this download.</p>'); 
+		if (ssid) 
+			document.write('<p>You may need to switch back to standard Internet to download the helper application.</p>');
+	}
+}
+</script>
+<p><script type="text/javascript">
+var url = urlParams.u;
+if (url)
+	document.write('<a style="font-size:24pt;" href="'+url+'" style="">Download</a>');
+else
+	document.write('Sorry, something went wrong opening this page - I don\'t know what content you were trying to get; please go back and try again.');	
+</script></p>
+</body>
+</html>

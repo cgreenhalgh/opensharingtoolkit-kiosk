@@ -48,10 +48,20 @@ When loading an atom file, `chooser.js` also attempts first to read `ost/cache.j
 The `cache.json` file, if present, should be a object with a `baseurl` property the value of which is the Internet-accessible URL of the directory holding the original/definitive copy of the atom file and other local assets. E.g.
 
 '''
-{ "baseurl": "http://www.cs.nott.ac.uk/~cmg/AppropriateICT/opensharingtoolkit-kiosk/assets/test" }
+{ "baseurl": "http://www.cs.nott.ac.uk/~cmg/AppropriateICT/opensharingtoolkit-kiosk/assets/test/" }
 '''
 
-This is used by the kiosk in Internet mode to generate Internet-accessible URLs for Phones to download files from (rather than the on-kiosk cache files).
+This is used by the kiosk in Internet mode to generate Internet-accessible URLs for Phones to download files from (rather than the on-kiosk cache files). However it is probably safer to use the atom file feed self link (which should be present) to determine the original home/reference location of the atom file (the cache builder uses this to determine the value for baseurl).
+
+`cache.json` if built by the ost-kiosk-manager cache_builder application will include a `"files"` property the value of which is an array of file info records. Each has the following properties:
+
+- `url`: the URL of an enclosure or icon in the atom file
+- `needed`: (boolean) whether this file is actually used by the most recently processed atom file
+- `path`: relative path of a copy of the file in the local cache (if cached)
+- `lastmod`: last modified time of the file as returned by the origin server when last downloaded/cached
+- `length`: size of the cached file (bytes)
+
+In general files from the cache should be used when possible. 
 
 The `shorturls.json` file, if present, should be an array of objects, each with a `url` property which is an Internet-accessible URL and a `shorturl` property which is an Internet-accessible (e.g. goo.gl) short URL which redirects to that url. Typically the URLs should be for the get.html helper application with parameter values for helping to download a particular file. E.g.
 
@@ -80,7 +90,7 @@ The atom file is (currently) assumed to be a feed, i.e. have a `feed` (namespace
 </feed>
 '''
 
-Each content item is specified by a single Atom `entry`. Currently of the mandatory entry elements only `title` is used (`id` and `updated` are not; `author` is also mandatory if not provided by feed, but unused at present). 
+Each content item is specified by a single Atom `entry`. Currently of the mandatory entry elements only `title` is used (`id` and `updated` are not; `author` is also mandatory if not provided by feed, but unused at present). The self link is used to determine the baseurl when using a cache (e.g. by the cache builder).
 
 Entry elements that are used are as follows:
 

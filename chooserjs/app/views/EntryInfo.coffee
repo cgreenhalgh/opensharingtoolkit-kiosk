@@ -33,7 +33,32 @@ module.exports = class EntryInfoView extends Backbone.View
 
   optionGet: =>
     console.log "option:get entry #{ @model.id }"
-    # TODO
+    # non-kiosk only! (but can do this in kiosk mode)
+    # get.html should be available relative to page.
+    # enclosure should use cache if possible.
+    # no shorturl or qrcode needed :-)
+    enc = @model.attributes.enclosures[0]
+    # use cache copy if available
+    url = enc.path ? enc.url;
+    console.log('get '+@model.attributes.title+' as '+url)
+
+    # leave app URLs alone for now (assumed internet-only)
+    as = window.options.attributes.devicetype?.getAppUrls enc.mime
+
+    # relative URL
+    baseurl = window.location.href
+    hix = baseurl.indexOf '#'
+    baseurl = if (hix>=0) then baseurl.substring(0,hix) else baseurl
+    ix = baseurl.lastIndexOf '/'
+    baseurl = if (ix>=0) then baseurl.substring(0,ix+1) else ''
+    url = baseurl+'get.html?'+
+      'u='+encodeURIComponent(url)+
+      '&t='+encodeURIComponent(@model.attributes.title)
+    for ai in as ? []
+      url = url+'&a='+encodeURIComponent(as[ai])
+
+    console.log "Using helper page url #{url}"	
+    window.open(url)
 
   optionSendInternet: =>
     if not window.options.attributes.devicetype?

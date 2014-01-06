@@ -24,3 +24,14 @@ module.exports = class Devicetype extends Backbone.Model
       else false
     return helper?
 
+  getAppUrls: (mimetype) ->
+    appEntries = window.entries.filter (entry) ->
+      if entry.attributes.requiresDevice?.indexOf(self.attributes.term) >= 0
+        supportedMime = _.find mimetypes, (mt)->entry.attributes.supportsMime.indexOf(mt)>=0
+        supportedMime?
+      else false
+    appUrls = for entry in appEntries
+      # no cacheing of apps (for now)
+      entry.attributes.enclosures[0].url
+    return appUrls
+
