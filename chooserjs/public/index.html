@@ -41,6 +41,7 @@
       <!-- Left Nav Section -->
       <ul class="right">
         <!-- <li class=""><a href="login">Logout</a></li> -->
+        <li class="" id="chooseDevicetype"><a href="-chooseDevicetype" >Unspecified Device (Change)</a></li>
       </ul>
     </section>
   </nav>
@@ -50,12 +51,18 @@
   </ul>
 
   <!-- overall page structure -->
-  <div id="main_entrylist_holder" class="row">
+  <div id="mainEntrylistHolder" class="row">
   </div>
 
   <!-- entry not found modal -->
   <div id="entryNotFoundModal" class="reveal-modal" data-reveal>
     <h2>Sorry, couldn't find the requested entry</h2>
+    <a class="close-reveal-modal">&#215;</a>
+  </div>
+
+  <!-- choose device modal -->
+  <div id="chooseDeviceModal" class="reveal-modal" data-reveal>
+    <h2>What kind of phone or tablet are you using?</h2>
     <a class="close-reveal-modal">&#215;</a>
   </div>
 

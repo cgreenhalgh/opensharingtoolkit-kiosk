@@ -1,5 +1,5 @@
 # Atom file loader
-Entry = require 'models/entry'
+Entry = require 'models/Entry'
 
 addEntry = (entries, atomentry) ->
   id = $('id', atomentry).text()

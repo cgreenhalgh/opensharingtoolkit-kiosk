@@ -1,0 +1,5 @@
+<%# Devicetype in Devicetype Choice (List), takes Devicetype and selected as data (devicetype.label, selected) %>
+<div class="<%= if @selected then 'devicetype-selected' else 'devicetype-unselected' %> devicetype" id="<%= 'devicetype-'+@devicetype.term %>">
+<div class="option-value-icon"><img class="" src="icons/<%= if @selected then 'cross.png' else 'emptybox.png' %>"></div>
+<%= @devicetype.label %>
+</div>

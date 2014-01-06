@@ -1,11 +1,11 @@
 @import "settings";
 @import "foundation";
-.entryinlist {
+.entry-in-list {
   @extend .columns;
   @extend .large-4;
   @extend .small-6;
 }
-.entry_in_list_icon {
+.entry-in-list-icon {
   // see http://ansciath.tumblr.com/post/7347495869/css-aspect-ratio
   display: inline-block;
   position: relative;
@@ -27,8 +27,31 @@
     height: auto;
   } 
 };
-.entry_option {
+.entry-option {
   @extend .button;
   width: 90%;
 }
+// device type choice in list
+.devicetype {
+  width: 100%;
+  margin-top: 6px;
+  cursor: pointer;
+  overflow: auto;
+  // text
+  font-size: $h3-font-size;
+  vertical-align: middle;
+};
+.devicetype-selected {
+};
+.devicetype-unselected {
+};
+.option-value-icon {
+  display: inline-block;
+  border: 4px solid;
+  border-radius: 6px;
+  cursor: pointer;
+  padding: 4px;
+  width: 48px;
+  height: 48px;
+};
 

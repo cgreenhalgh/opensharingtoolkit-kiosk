@@ -1,5 +1,5 @@
 # list of Mimetype  
-Mimetype = require('models/mimetype')
+Mimetype = require('models/Mimetype')
 
 module.exports = class MimetypeList extends Backbone.Collection
 

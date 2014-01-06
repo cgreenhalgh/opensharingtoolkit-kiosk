@@ -1,10 +1,10 @@
 # EntryList View
-templateEntryInList = require 'templates/entry_in_list'
+templateEntryInList = require 'templates/EntryInList'
 
 module.exports = class EntryInListView extends Backbone.View
 
   tagName: 'div'
-  className: 'entryinlist'
+  className: 'entry-in-list'
 
   initialize: ->
     @model.bind 'change', @render

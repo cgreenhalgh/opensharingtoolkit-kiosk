@@ -1,10 +1,10 @@
 # Entry Send Internet View
-templateEntrySendInternet = require 'templates/entry_send_internet'
+templateEntrySendInternet = require 'templates/EntrySendInternet'
 
 module.exports = class EntrySendInternetView extends Backbone.View
 
   tagName: 'div'
-  className: 'entry_send_internet row'
+  className: 'entry-send-internet row'
 
   initialize: ->
     @model.bind 'change', @render

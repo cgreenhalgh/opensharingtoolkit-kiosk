@@ -4,15 +4,15 @@
 </div>
 <div class="small-12 large-6 columns">
   <p><%= @summary %></p> 
-  <div class="entry_in_list_icon">
+  <div class="entry-in-list-icon">
     <div class="dummy"></div><%# required for CSS aspect ratio - see css %>
     <img src="<%= @iconurl %>">
   </div>
 </div>
 <div class="small-12 large-6 columns">
-  <div class="entry_option option_view">Preview</div>
-  <div class="entry_option option_send_internet">Send over Internet</div>
-  <div class="entry_option option_send_cache">Send locally</div>
-  <div class="entry_option option_get">Get on this device</div>
+  <div class="entry-option option-view">Preview</div>
+  <div class="entry-option option-send-internet">Send over Internet</div>
+  <div class="entry-option option-send-cache">Send locally</div>
+  <div class="entry-option option-get">Get on this device</div>
 </div>
 

@@ -1,22 +1,26 @@
-Mimetype = require 'models/mimetype'
-MimetypeList = require 'models/mimetypelist' 
-Devicetype = require 'models/devicetype'
-DevicetypeList = require 'models/devicetypelist'
-Options = require 'models/options'
-Entry = require 'models/entry'
-EntryList = require 'models/entrylist'
+Mimetype = require 'models/Mimetype'
+MimetypeList = require 'models/MimetypeList' 
+Devicetype = require 'models/Devicetype'
+DevicetypeList = require 'models/DevicetypeList'
+Options = require 'models/Options'
+Entry = require 'models/Entry'
+EntryList = require 'models/EntryList'
 
-EntryListView = require 'views/entrylist'
-EntryInfoView = require 'views/entry_info'
-EntryPreviewView = require 'views/entry_preview'
-EntrySendInternetView = require 'views/entry_send_internet'
-EntrySendCacheView = require 'views/entry_send_cache'
+EntryListView = require 'views/EntryList'
+EntryInfoView = require 'views/EntryInfo'
+EntryPreviewView = require 'views/EntryPreview'
+EntrySendInternetView = require 'views/EntrySendInternet'
+EntrySendCacheView = require 'views/EntrySendCache'
+DevicetypeChoiceView = require 'views/DevicetypeChoice'
+OptionsDevicetypeLabelView = require 'views/OptionsDevicetypeLabel'
 
+# atom/entry file loader
 loader = require 'loader'
 
 # view stack?!
 window.views = []
 
+# addView to stack utility
 addView = (view,title,path) ->
   path = '#'+path
   bc = $ '.breadcrumbs' 
@@ -35,7 +39,7 @@ addView = (view,title,path) ->
   if window.views.length>0 
     window.views[window.views.length-1].$el.hide()
   window.views.push view
-  $('#main_entrylist_holder').append view.el
+  $('#mainEntrylistHolder').append view.el
   bc.append "<li><a href='#{path}'>#{title}</a></li>"
 
 popView = ->
@@ -46,19 +50,22 @@ popView = ->
   if window.views.length>0
     window.views[window.views.length-1].$el.show()
 
+# main internal url router
 class Router extends Backbone.Router
   routes: 
+    "home" : "entries"
     "entries" : "entries"
     "entry/:eid" : "entry"
     "preview/:eid" : "preview"
-    "send_internet/:eid" : "send_internet"
-    "send_cache/:eid" : "send_cache"
+    "sendInternet/:eid" : "sendInternet"
+    "sendCache/:eid" : "sendCache"
 
   entries: ->
+    # all entries - top-level view
     while window.views.length>1
       popView()
 
-  get_entry: (id) ->
+  getEntry: (id) ->
     # id is already URI-decoded
     entry = window.entries?.get id
     if not entry? 
@@ -70,7 +77,7 @@ class Router extends Backbone.Router
       entry
 
   entry: (id) ->
-    entry = @get_entry id
+    entry = @getEntry id
     if not entry? 
       return false
     console.log "show entry #{id} #{entry.attributes.title}"
@@ -78,33 +85,39 @@ class Router extends Backbone.Router
     addView view, entry.attributes.title, "entry/#{encodeURIComponent id}"
 
   preview: (id) ->
-    entry = @get_entry id
+    entry = @getEntry id
     if not entry? 
       return false
     console.log "preview entry #{id}"
     view = new EntryPreviewView model: entry
     addView view, "Preview", "preview/#{encodeURIComponent id}"
   
-  send_internet: (id) ->
-    entry = @get_entry id
+  sendInternet: (id) ->
+    entry = @getEntry id
     if not entry? 
       return false
     console.log "send(internet) entry #{id}"
     view = new EntrySendInternetView model: entry
     addView view, "Send over Internet", "send_internet/#{encodeURIComponent id}"
   
-  send_cache: (id) ->
-    entry = @get_entry id
+  sendCache: (id) ->
+    entry = @getEntry id
     if not entry? 
       return false
     console.log "send(cache) entry #{id}"
     view = new EntrySendCacheView model: entry
     addView view, "Send locally", "send_cache/#{encodeURIComponent id}"
 
+
 testentry1 = new Entry 
         title: 'Test entry 1'
         summary: 'test entry 1...'
         iconurl: 'icons/_blank.png'
+
+chooseDevicetype = ->
+  console.log "chooseDevicetype"
+  $('#chooseDeviceModal').foundation 'reveal','open'
+  return false
 
 
 App =
@@ -145,6 +158,7 @@ App =
 
     # default device types
     devicetypes = new DevicetypeList()
+
     devicetypes.add new Devicetype
       term: "android"
       label: "Android"
@@ -156,12 +170,23 @@ App =
       userAgentPattern: '(iPhone)|(iPod)|(iPad)'
       supportsMime: [ "text/html", "application/x-itunes-app" ]
     devicetypes.add new Devicetype
+      term: "windowsmobile"
+      label: "Windows Mobile"
+      supportsMime: [ "text/html" ]
+    devicetypes.add new Devicetype
       term: "other"
-      label: "Other Devices"
+      label: "Other Device"
       supportsMime: [ "text/html" ]
 
     # general options
-    options = new Options()
+    options = new Options devicetypes: devicetypes
+    devicetypeChooser = new DevicetypeChoiceView model: options
+    $('#chooseDeviceModal').append devicetypeChooser.$el
+
+    devicetypeLabelView = new OptionsDevicetypeLabelView model: options
+    devicetypeLabelView.setElement $('#chooseDevicetype a')
+
+    # TODO check user agent (if not kiosk)
 
     # entries
     entries = new EntryList()
@@ -183,9 +208,17 @@ App =
     # anchors
     $(document).on 'click','a', (ev) ->
       #alert "click"
+      ev.preventDefault()
       href = $(@).attr 'href'
       console.log "click #{href}"
-      router.navigate(href,{trigger:true})
-      ev.preventDefault()
+      if href.substring(0,1)=='-'
+        # special case
+        if href=='-chooseDevicetype'
+          chooseDevicetype()
+        else
+          console.log "ignore click #{href}"
+      else
+        router.navigate(href,{trigger:true})
+      return false
 
 module.exports = App

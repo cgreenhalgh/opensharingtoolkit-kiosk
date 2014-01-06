@@ -1,10 +1,10 @@
 # Entry Info View
-templateEntryInfo = require 'templates/entry_info'
+templateEntryInfo = require 'templates/EntryInfo'
 
 module.exports = class EntryInfoView extends Backbone.View
 
   tagName: 'div'
-  className: 'entryinfo row'
+  className: 'entry-info row'
 
   initialize: ->
     @model.bind 'change', @render
@@ -22,24 +22,24 @@ module.exports = class EntryInfoView extends Backbone.View
     @
 
   events: 
-    'click .option_view': 'option_view'
-    'click .option_get': 'option_get'
-    'click .option_send_internet': 'option_send_internet'
-    'click .option_send_cache': 'option_send_cache' 
+    'click .option-view': 'optionView'
+    'click .option-get': 'optionGet'
+    'click .option-send-internet': 'optionSendInternet'
+    'click .option-send-cache': 'optionSendCache' 
 
-  option_view: =>
+  optionView: =>
     console.log "option:view entry #{ @model.id }"
     window.router.navigate "preview/#{ encodeURIComponent @model.id }", trigger:true
 
-  option_get: =>
+  optionGet: =>
     console.log "option:get entry #{ @model.id }"
     # TODO
 
-  option_send_internet: =>
+  optionSendInternet: =>
     console.log "option:send(internet) entry #{ @model.id }"
-    window.router.navigate "send_internet/#{ encodeURIComponent @model.id }", trigger:true
+    window.router.navigate "sendInternet/#{ encodeURIComponent @model.id }", trigger:true
 
-  option_send_cache: =>
+  optionSendCache: =>
     console.log "option:send(cache) entry #{ @model.id }"
-    window.router.navigate "send_cache/#{ encodeURIComponent @model.id }", trigger:true
+    window.router.navigate "sendCache/#{ encodeURIComponent @model.id }", trigger:true
 

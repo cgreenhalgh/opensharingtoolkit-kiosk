@@ -1,10 +1,10 @@
 # Entry Send Cache View
-templateEntrySendCache = require 'templates/entry_send_cache'
+templateEntrySendCache = require 'templates/EntrySendCache'
 
 module.exports = class EntrySendCacheView extends Backbone.View
 
   tagName: 'div'
-  className: 'entry_send_cache row'
+  className: 'entry-send-cache row'
 
   initialize: ->
     @model.bind 'change', @render

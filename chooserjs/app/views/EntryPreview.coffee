@@ -1,10 +1,10 @@
 # Entry Preview View
-templateEntryPreview = require 'templates/entry_preview'
+templateEntryPreview = require 'templates/EntryPreview'
 
 module.exports = class EntryPreviewView extends Backbone.View
 
   tagName: 'div'
-  className: 'entrypreview row'
+  className: 'entry-preview row'
 
   initialize: ->
     @model.bind 'change', @render
