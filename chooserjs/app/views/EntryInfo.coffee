@@ -36,10 +36,16 @@ module.exports = class EntryInfoView extends Backbone.View
     # TODO
 
   optionSendInternet: =>
-    console.log "option:send(internet) entry #{ @model.id }"
-    window.router.navigate "sendInternet/#{ encodeURIComponent @model.id }", trigger:true
+    if not window.options.attributes.devicetype?
+      $('#chooseDeviceModal').foundation 'reveal','open'
+    else
+      console.log "option:send(internet) entry #{ @model.id }"
+      window.router.navigate "sendInternet/#{ encodeURIComponent @model.id }", trigger:true
 
   optionSendCache: =>
-    console.log "option:send(cache) entry #{ @model.id }"
-    window.router.navigate "sendCache/#{ encodeURIComponent @model.id }", trigger:true
+    if not window.options.attributes.devicetype?
+      $('#chooseDeviceModal').foundation 'reveal','open'
+    else
+      console.log "option:send(cache) entry #{ @model.id }"
+      window.router.navigate "sendCache/#{ encodeURIComponent @model.id }", trigger:true
 

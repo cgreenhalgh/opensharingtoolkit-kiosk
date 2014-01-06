@@ -42,5 +42,5 @@ module.exports = class DevicetypeChoiceView extends Backbone.View
       console.log "select unknown device #{term}"
     
     # only if you are sure this is where we are...
-    $('#entryNotFoundModal').foundation 'reveal','close'
+    $('#chooseDeviceModal').foundation 'reveal','close'
 

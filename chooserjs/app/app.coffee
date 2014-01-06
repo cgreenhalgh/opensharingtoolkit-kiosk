@@ -170,8 +170,8 @@ App =
       userAgentPattern: '(iPhone)|(iPod)|(iPad)'
       supportsMime: [ "text/html", "application/x-itunes-app" ]
     devicetypes.add new Devicetype
-      term: "windowsmobile"
-      label: "Windows Mobile"
+      term: "windowsphone"
+      label: "Windows Phone"
       supportsMime: [ "text/html" ]
     devicetypes.add new Devicetype
       term: "other"
@@ -180,6 +180,10 @@ App =
 
     # general options
     options = new Options devicetypes: devicetypes
+    # best way to find options?? (NB needed before Entry view(s))
+    window.options = options
+
+    # device options view/change
     devicetypeChooser = new DevicetypeChoiceView model: options
     $('#chooseDeviceModal').append devicetypeChooser.$el
 
