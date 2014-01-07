@@ -552,9 +552,9 @@
 // $orbit-caption-height: auto;
 
 // We use these to control the left/right nav styles
-// $orbit-nav-bg: none;
-// $orbit-nav-bg-hover: rgba(0,0,0,0.3);
-// $orbit-nav-arrow-color: #fff;
+$orbit-nav-bg: rgba(0,0,0,0.2);
+$orbit-nav-bg-hover: rgba(0,0,0,0.4);
+$orbit-nav-arrow-color: #ccc;
 // $orbit-nav-arrow-color-hover: #fff;
 
 // We use these to control the timer styles

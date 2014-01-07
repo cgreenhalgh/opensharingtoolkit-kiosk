@@ -4707,7 +4707,7 @@ kbd {
 /* line 250, ../../foundation_scss/foundation/components/_orbit.scss */
 .orbit-container .orbit-prev:hover,
 .orbit-container .orbit-next:hover {
-  background-color: rgba(0, 0, 0, 0.3);
+  background-color: rgba(0, 0, 0, 0.4);
 }
 /* line 254, ../../foundation_scss/foundation/components/_orbit.scss */
 .orbit-container .orbit-prev > span,
@@ -4728,7 +4728,7 @@ kbd {
 .orbit-container .orbit-prev > span {
   border-right-style: solid;
   border-color: transparent;
-  border-right-color: white;
+  border-right-color: #cccccc;
 }
 /* line 270, ../../foundation_scss/foundation/components/_orbit.scss */
 .orbit-container .orbit-prev:hover > span {
@@ -4742,7 +4742,7 @@ kbd {
 .orbit-container .orbit-next > span {
   border-color: transparent;
   border-left-style: solid;
-  border-left-color: white;
+  border-left-color: #cccccc;
   left: 50%;
   margin-left: -4px;
 }
@@ -7732,7 +7732,7 @@ th.hide-for-touch {
   display: table-cell !important;
 }
 
-/* line 8, ../../scss/app.scss */
+/* line 10, ../../scss/app.scss */
 .entry-in-list-icon {
   display: inline-block;
   position: relative;
@@ -7740,11 +7740,11 @@ th.hide-for-touch {
   left: 5%;
   overflow: hidden;
 }
-/* line 17, ../../scss/app.scss */
+/* line 19, ../../scss/app.scss */
 .entry-in-list-icon .dummy {
   padding-top: 75%;
 }
-/* line 20, ../../scss/app.scss */
+/* line 22, ../../scss/app.scss */
 .entry-in-list-icon img {
   width: 100%;
   position: absolute;
@@ -7755,12 +7755,12 @@ th.hide-for-touch {
   height: auto;
 }
 
-/* line 30, ../../scss/app.scss */
+/* line 32, ../../scss/app.scss */
 .entry-option {
   width: 90%;
 }
 
-/* line 35, ../../scss/app.scss */
+/* line 37, ../../scss/app.scss */
 .devicetype {
   width: 100%;
   margin-top: 6px;
@@ -7770,7 +7770,7 @@ th.hide-for-touch {
   vertical-align: middle;
 }
 
-/* line 48, ../../scss/app.scss */
+/* line 50, ../../scss/app.scss */
 .option-value-icon {
   display: inline-block;
   border: 4px solid;
@@ -7779,9 +7779,4 @@ th.hide-for-touch {
   padding: 4px;
   width: 48px;
   height: 48px;
-}
-
-/* line 57, ../../scss/app.scss */
-.option-value-label {
-  vertical-align: middle;
 }
