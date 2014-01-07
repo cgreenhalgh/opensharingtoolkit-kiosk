@@ -26,6 +26,7 @@ addEntry = (entries, atomentry, atomurl, prefix, baseurl, cacheFiles) ->
     iconurl: iconurl
     iconpath: iconpath
     summary: summary
+    baseurl: baseurl
     #index, prefix, cacheinfo
 
   entry.enclosures = []
@@ -109,6 +110,17 @@ loadShorturls = (entries, atomurl, prefix, baseurl, cacheFiles) ->
       console.log 'error getting shorturls.json: '+textStatus+': '+errorThrown
       loadEntries entries, atomurl, prefix, baseurl, cacheFiles
 
+get_baseurl = (data) ->
+  feedurl = $('link[rel=\'self\']', data).attr('href')
+  if not feedurl?
+    return null
+  else
+    ix = feedurl.lastIndexOf '/'
+    baseurl = feedurl.slice 0,ix+1
+    console.log 'Base URL = '+baseurl
+    return baseurl
+
+
 loadEntries = (entries,atomurl,prefix,baseurl,cacheFiles) ->  
   console.log('loading entries from '+atomurl);
   # shorturls.json ?
@@ -119,6 +131,9 @@ loadEntries = (entries,atomurl,prefix,baseurl,cacheFiles) ->
     timeout: 10000
     success: (data, textStatus, xhr) -> 
       console.log 'ok, got '+data
+      # link self -> baseurl
+      feedbaseurl = get_baseurl data
+      baseurl = feedbaseurl ? baseurl
       $( data ).find('entry').each (index, el) ->
         addEntry entries, el, atomurl, prefix, baseurl, cacheFiles
     error: (xhr, textStatus, errorThrown) ->

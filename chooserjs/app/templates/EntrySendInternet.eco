@@ -1,6 +1,8 @@
-<%# Entry send internet, takes Entry as data %>
+<%# Entry send internet, takes { entry: Entry, geturl: ..., qrurl: ... } as data %>
 <div class="small-12 large-12 columns">
-  <h1><%= @title %></h1>
-  <p>TODO: Send over internet should appear here</p>
+  <h1><%= @entry.title %></h1>
+  <p class="option-info">Enable internet access and scan/enter...</p>
+  <img class="option-qrcode" src="<%= @qrurl %>" alt="qrcode for item">
+  <p class="option-url"><%= @geturl %></p>
 </div>
 

@@ -1,6 +1,8 @@
 # Entry Info View
 templateEntryInfo = require 'templates/EntryInfo'
 
+getter = require 'getter'
+
 module.exports = class EntryInfoView extends Backbone.View
 
   tagName: 'div'
@@ -38,36 +40,13 @@ module.exports = class EntryInfoView extends Backbone.View
     # enclosure should use cache if possible.
     # no shorturl or qrcode needed :-)
     #
-
-    enc = @model.attributes.enclosures[0]
-    # use cache copy if available
-    url = enc.path ? enc.url;
-    console.log "get #{@model.attributes.title} as #{url}"
-
     # use selected device type?? if force use from browser?!
     devicetype = window.options.getBrowserDevicetype()
     if window.options.attributes.devicetype? and window.options.attributes.devicetype != devicetype
       console.log "Warning: browser device type is not selected device type (#{devicetype?.attributes.term} vs #{window.options.devicetype?.attributes.term}"
-    # leave app URLs alone for now (assumed internet-only)
-    apps = devicetype?.getAppUrls enc.mime
-    # special case for 'other' / unknown: app = '' -> warning
-    apps ?= []
-    if not devicetype? or devicetype?.attributes.term == 'other'
-      apps.push ''
 
-    # relative URL
-    baseurl = window.location.href
-    hix = baseurl.indexOf '#'
-    baseurl = if (hix>=0) then baseurl.substring(0,hix) else baseurl
-    ix = baseurl.lastIndexOf '/'
-    baseurl = if (ix>=0) then baseurl.substring(0,ix+1) else ''
-    url = baseurl+'get.html?'+
-      'u='+encodeURIComponent(url)+
-      '&t='+encodeURIComponent(@model.attributes.title)
-    for app in apps
-      url = url+'&a='+encodeURIComponent(app)
+    url = getter.getGetUrl @model, devicetype
 
-    console.log "Using helper page url #{url}"	
     window.open(url)
 
   optionSendInternet: =>

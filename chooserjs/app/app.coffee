@@ -173,6 +173,7 @@ App =
       term: "windowsphone"
       label: "Windows Phone"
       supportsMime: [ "text/html" ]
+    # there MUST be a devicetype 'other' to use as default
     devicetypes.add new Devicetype
       term: "other"
       label: "Other Device"
