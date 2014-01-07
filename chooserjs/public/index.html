@@ -10,19 +10,10 @@
   <!-- Foundation layout -->
   <!-- <link rel="stylesheet" href="css/foundation.css"> -->
   <link rel="stylesheet" href="css/app.css">
-  <script src="js/vendor/custom.modernizr.js"></script>
+  <script src="js/modernizr.js"></script>
 
   <!-- Require the main Stitch file -->
   <script src="application.js" type="text/javascript" charset="utf-8"></script>
-  <script type="text/javascript" charset="utf-8">
-    document.addEventListener("DOMContentLoaded", function(){
-      console.log("Running app...");
-      var App = require("app");
-      // initialise foundation - for accordion etc
-      $(document).foundation();
-      App.init();
-    }, false);
-  </script>
 </head>
 <body>
 
@@ -67,19 +58,24 @@
   </div>
 
   <!-- Foundation JS bootstrap -->
-  <script>
-  document.write('<script src=' +
-  ('__proto__' in {} ? 'js/vendor/zepto' : 'js/vendor/jquery') +
-  '.js><\/script>')
-  </script>
-  
+  <script src="js/jquery.js"></script>
   <script src="js/foundation.min.js"></script>
-  <script src="js/foundation/foundation.section.js"></script>
+  <!-- <script src="js/foundation/foundation.section.js"></script>
   <script src="js/foundation/foundation.topbar.js"></script>
+  <script src="js/foundation/foundation.orbit.js"></script>
+  <script src="js/foundation/foundation.clearing.js"></script> -->
 
   <!-- backbone and underscore -->
   <script src="js/vendor/underscore-min.js"></script>
   <script src="js/vendor/backbone-min.js"></script>
+
+  <script type="text/javascript" charset="utf-8">
+      $(document).foundation();
+      console.log("Running app...");
+      var App = require("app");
+      // initialise foundation - for accordion etc
+      App.init();
+  </script>
 
 </body>
 </html>

@@ -17,10 +17,15 @@ module.exports = class EntryInfoView extends Backbone.View
     templateEntryInfo d
 
   render: =>
-    data = _.clone @model.attributes
-    # TODO visible options filter
     console.log "render EntryInfo #{ @model.id } #{ @model.attributes.title }"
-    @$el.html @template data
+    # TODO visible options filter
+    data =
+      entry: @model.attributes
+      optionGet: true
+      optionSendInternet: true
+      optionSendCache: true
+      optionPreview: @model.attributes.thumbnails.length > 0      
+    @$el.html @template data 
     @
 
   events: 

@@ -216,14 +216,15 @@ App =
       ev.preventDefault()
       href = $(@).attr 'href'
       console.log "click #{href}"
-      if href.substring(0,1)=='-'
-        # special case
-        if href=='-chooseDevicetype'
-          chooseDevicetype()
+      if href?
+        if href.substring(0,1)=='-'
+          # special case
+          if href=='-chooseDevicetype'
+            chooseDevicetype()
+          else
+            console.log "ignore click #{href}"
         else
-          console.log "ignore click #{href}"
-      else
-        router.navigate(href,{trigger:true})
+          router.navigate(href,{trigger:true})
       return false
 
 module.exports = App

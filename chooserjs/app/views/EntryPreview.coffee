@@ -17,6 +17,9 @@ module.exports = class EntryPreviewView extends Backbone.View
   render: =>
     console.log "render EntryPreview #{ @model.id } #{ @model.attributes.title }"
     @$el.html @template @model.attributes
+    #old @$el.foundation('orbit', 'init');
+    @$el.foundation orbit: { variable_height: false }
+    #old @$el.foundation('clearing', 'init');
     @
 
   #events: 

@@ -1,18 +1,19 @@
-<%# Entry information, takes Entry as data (title, iconurl) %>
+<%# Entry information, takes { entry: { title:, iconurl:}, optionPreview: , ... } as data %>
 <div class="small-12 large-12 columns">
-  <h1><%= @title %></h1>
+  <h1><%= @entry.title %></h1>
 </div>
 <div class="small-12 large-6 columns">
-  <p><%= @summary %></p> 
+  <p><%= @entry.summary %></p> 
   <div class="entry-in-list-icon">
     <div class="dummy"></div><%# required for CSS aspect ratio - see css %>
-    <img src="<%= @iconpath ? @iconurl %>">
+    <img src="<%= @entry.iconpath ? @entry.iconurl %>">
   </div>
 </div>
 <div class="small-12 large-6 columns">
-  <div class="entry-option option-view">Preview</div>
-  <div class="entry-option option-send-internet">Send over Internet</div>
-  <div class="entry-option option-send-cache">Send locally</div>
-  <div class="entry-option option-get">Get on this device</div>
+<% if @optionPreview: %><div class="entry-option option-view">Preview</div>
+<% else: %><div class="entry-option disabled">Sorry, cannot preview this</div><% end %>
+<% if @optionSendInternet: %><div class="entry-option option-send-internet">Send over Internet</div><% end %>
+<% if @optionSendCache: %><div class="entry-option option-send-cache">Send locally</div><% end %>
+<% if @optionGet: %><div class="entry-option option-get">Get on this device</div><% end %>
 </div>
 

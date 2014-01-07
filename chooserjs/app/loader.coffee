@@ -48,7 +48,15 @@ addEntry = (entries, atomentry, atomurl, prefix, baseurl, cacheFiles) ->
     if mime?
       entry.supportsMime.push mime
       # TODO mime types?!
-	
+
+  entry.thumbnails = []
+  # namespace media: explicitly by media|thumbnail, or explicit wildcard by *|thumbnail
+  $('thumbnail', atomentry).each (index, el) ->
+    url = $(el).attr 'url'
+    if url?
+      path = getCachePath url, cacheFiles, prefix
+      entry.thumbnails.push { url: url, path: path }
+
   $('category[scheme=\'visibility\']', atomentry).each (index, el) ->
     visibility = $(el).attr 'term'
     if visibility=='hidden'

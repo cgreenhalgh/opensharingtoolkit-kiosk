@@ -1,6 +1,25 @@
 <%# Entry preview, takes Entry as data %>
 <div class="small-12 large-12 columns">
-  <h1><%= @title %></h1>
-  <p>TODO: Preview should appear here</p>
+  <h1>Preview: <%= @title %></h1>
+</div>
+<div class="small-12 large-6 columns">
+  <!-- clearing --> 
+  <ul class="preview-thumbnails" data-clearing>
+    <% for thumbnail in @thumbnails: %>
+    <li>
+      <a href="<%= thumbnail.path ? thumbnail.url %>">
+        <img src="<%= thumbnail.path ? thumbnail.url %>" alt="thumbnail">
+      </a>
+    </li>
+    <% end %>
+  </ul> 
+  <!-- orbit -->
+  <ul class="preview-thumbnails" height="600px" data-orbit data-options="next_on_click:true">
+    <% for thumbnail in @thumbnails: %>
+    <li>
+      <img src="<%= thumbnail.path ? thumbnail.url %>" width="400px" height="600px" alt="thumbnail">
+    </li>
+    <% end %>
+  </ul> 
 </div>
 

@@ -96,11 +96,13 @@ Entry elements that are used are as follows:
 
 - `title`: the displayed title of the content item.
 - `content`: (was summary) textual (HTML) description of item, shown on detail page.
-- `link` with attributes `rel`=`alternate` and `type`=`image/`*: icon for the item (attribute `href` is URL). (possibly RSS media:icon should be used instead)
-- `link` with attribute `rel`=`enclosure`: content file for the item, attribute `href` is URL and attribute `type` is MIME type.
+- `link` with attributes `rel`=`alternate` and `type`=`image/`*: icon for the item (attribute `href` is URL). (possibly Media-RSS media:thumbnail should be used instead, in which case the first thumbnail would be used, but this might conflict with use for preview noted below)
+- `link` with attribute `rel`=`enclosure`: content file for the item, attribute `href` is URL and attribute `type` is MIME type. (possibly Media-RSS media:content optionally in media:group should be used instead, e.g. to provide `expression`=`sample` versions of audio/video)
 - `category` with attribute `scheme`=`requires-device`: device with which content is compatible (attribute `term` is device type ID, currently one of `android`, `ios` or `other`)
 - `category` with attribute `scheme`=`supports-mime-type`: item is an application which provides support for the MIME type specified by attribute `term` (readable name of MIME type given by attribute `label`)
 - `category` with attribute `scheme`=`visibility`: specifies whether item is visible to user in browser interface (hidden if attribute `term`=`hidden`) - used to hide helper applications
+
+In addition media-rss media:thumbnail elements with attribute `url` should be used to provide 'preview' images (in order). This might be for documents and/or videos. Note: most recent [media-rss specification](http://www.rssboard.org/media-rss) and current namespace `media`=`http://search.yahoo.com/mrss/`. It would probably be safest if all thumbnails for a single entry were the same size (e.g. I may use the zurb orbit image viewer).
 
 For example, a PDF document `thing1.pdf` (MIME type `application/pdf`) with icon `thing1.png` entitled `First thing`:
 
