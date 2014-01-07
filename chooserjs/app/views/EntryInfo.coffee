@@ -37,13 +37,23 @@ module.exports = class EntryInfoView extends Backbone.View
     # get.html should be available relative to page.
     # enclosure should use cache if possible.
     # no shorturl or qrcode needed :-)
+    #
+
     enc = @model.attributes.enclosures[0]
     # use cache copy if available
     url = enc.path ? enc.url;
-    console.log('get '+@model.attributes.title+' as '+url)
+    console.log "get #{@model.attributes.title} as #{url}"
 
+    # use selected device type?? if force use from browser?!
+    devicetype = window.options.getBrowserDevicetype()
+    if window.options.attributes.devicetype? and window.options.attributes.devicetype != devicetype
+      console.log "Warning: browser device type is not selected device type (#{devicetype?.attributes.term} vs #{window.options.devicetype?.attributes.term}"
     # leave app URLs alone for now (assumed internet-only)
-    as = window.options.attributes.devicetype?.getAppUrls enc.mime
+    apps = devicetype?.getAppUrls enc.mime
+    # special case for 'other' / unknown: app = '' -> warning
+    apps ?= []
+    if not devicetype? or devicetype?.attributes.term == 'other'
+      apps.push ''
 
     # relative URL
     baseurl = window.location.href
@@ -54,8 +64,8 @@ module.exports = class EntryInfoView extends Backbone.View
     url = baseurl+'get.html?'+
       'u='+encodeURIComponent(url)+
       '&t='+encodeURIComponent(@model.attributes.title)
-    for ai in as ? []
-      url = url+'&a='+encodeURIComponent(as[ai])
+    for app in apps
+      url = url+'&a='+encodeURIComponent(app)
 
     console.log "Using helper page url #{url}"	
     window.open(url)
