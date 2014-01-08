@@ -1,6 +1,8 @@
-<%# Entry send cache, takes Entry as data %>
+<%# Entry send cache, takes { entry: Entry, geturl: ..., qrurl: ..., ssid: ... } as data %>
 <div class="small-12 large-12 columns">
-  <h1><%= @title %></h1>
-  <p>TODO: Send locally should appear here</p>
+  <h1><%= @entry.title %></h1>
+  <p class="option-info">Join Wifi Network <span class="ssid"><%= @ssid %></span> and scan/enter...</p>
+  <img class="option-qrcode" src="<%= @qrurl %>" alt="qrcode for item">
+  <p class="option-url"><%= @geturl %></p>
 </div>
 

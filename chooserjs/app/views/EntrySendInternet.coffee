@@ -2,6 +2,7 @@
 templateEntrySendInternet = require 'templates/EntrySendInternet'
 
 getter = require 'getter'
+kiosk = require 'kiosk'
 
 module.exports = class EntrySendInternetView extends Backbone.View
 
@@ -27,8 +28,7 @@ module.exports = class EntrySendInternetView extends Backbone.View
     geturl = window.entries.shorturls[fullurl] ? fullurl 
 
     # determine QRCode URL
-    # try google qrcode generator http://chart.apis.google.com/chart?cht=qr&chs=150x150&choe=UTF-8&chl=http%3A%2F%2F1.2.4
-    qrurl = 'http://chart.apis.google.com/chart?cht=qr&chs=150x150&choe=UTF-8&chl='+encodeURIComponent(geturl)
+    qrurl = kiosk.getQrCode geturl
     data = 
       entry: @model.attributes
       geturl: geturl

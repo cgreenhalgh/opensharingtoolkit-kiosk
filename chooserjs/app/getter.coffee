@@ -1,9 +1,12 @@
 # utilities methods for 'getting'/sending content
+kiosk = require 'kiosk'
+
 module.exports.getGetUrl = (entry, devicetype, nocache) ->
   nocache ?= false
   enc = entry.attributes.enclosures[0]
   # use cache copy if available
   url = if nocache then enc.url else (enc.path ? enc.url)
+  url = kiosk.getPortableUrl url
   console.log "get #{entry.attributes.title} as #{url}"
 
   # leave app URLs alone for now (assumed internet-only)
@@ -19,11 +22,16 @@ module.exports.getGetUrl = (entry, devicetype, nocache) ->
   baseurl = if (hix>=0) then baseurl.substring(0,hix) else baseurl
   ix = baseurl.lastIndexOf '/'
   baseurl = if (ix>=0) then baseurl.substring(0,ix+1) else ''
-  url = baseurl+'get.html?'+
+  url = kiosk.getPortableUrl(baseurl+'get.html')+'?'+
     'u='+encodeURIComponent(url)+
     '&t='+encodeURIComponent(entry.attributes.title)
   for app in apps
-    url = url+'&a='+encodeURIComponent(app)
+    url = url+'&a='+encodeURIComponent(kiosk.getPortableUrl(app))
+
+  # kiosk cache wireless
+  if kiosk.isKiosk() and not nocache
+    ssid = kiosk.getWifiSsid()
+    url = url+'&n='+encodeURIComponent(ssid);
 
   console.log "Using helper page url #{url}"	
   url
