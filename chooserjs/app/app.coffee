@@ -205,6 +205,8 @@ App =
     
     # TODO load entries...
 
+    kiosk.addKioskEntry()
+
     #entries.add testentry1
     atomfile = kiosk.getAtomFile()
     loader.load entries, atomfile

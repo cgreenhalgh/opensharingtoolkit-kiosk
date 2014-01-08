@@ -292,6 +292,7 @@
         model: entries
       });
       addView(entryview, 'All', 'entries');
+      kiosk.addKioskEntry();
       atomfile = kiosk.getAtomFile();
       loader.load(entries, atomfile);
       router.navigate("entries", {
@@ -360,7 +361,9 @@
 
 }).call(this);
 }, "kiosk": function(exports, require, module) {(function() {
-  var REDIRECT_LIFETIME_MS, asset_prefix, getParameter, localhost2_prefix, localhost_prefix, urlParams;
+  var Entry, REDIRECT_LIFETIME_MS, asset_prefix, getParameter, localhost2_prefix, localhost_prefix, urlParams;
+
+  Entry = require('models/Entry');
 
   module.exports.isKiosk = function() {
     return window.kiosk != null;
@@ -475,6 +478,36 @@
   module.exports.getQrCode = function(url) {
     var qrurl;
     return qrurl = window.kiosk != null ? 'http://localhost:8080/qr?url=' + encodeURIComponent(url) + '&size=150' : window.location.pathname === '/a/index.html' ? 'http://' + window.location.host + '/qr?url=' + encodeURIComponent(url) + '&size=150' : 'http://chart.apis.google.com/chart?cht=qr&chs=150x150&choe=UTF-8&chl=' + encodeURIComponent(url);
+  };
+
+  module.exports.addKioskEntry = function() {
+    var baseurl, e, enc, entry, ix, url;
+    if (window.kiosk != null) {
+      baseurl = window.location.href;
+      ix = baseurl.lastIndexOf('/');
+      if (ix >= 0) baseurl = baseurl.substring(0, ix + 1);
+      entry = {
+        id: "tag:cmg@cs.nott.ac.uk,20140108:/ost/kiosk/self",
+        title: "Kiosk View",
+        iconurl: baseurl + "icons/kiosk.png",
+        iconpath: baseurl + "icons/kiosk.png",
+        summary: "Browse the same content directly on your device",
+        baseurl: baseurl,
+        thumbnails: [],
+        requiresDevice: [],
+        supportsMime: []
+      };
+      url = baseurl + "index.html?f=" + encodeURIComponent(window.kiosk.getAtomFile());
+      enc = {
+        url: url,
+        mime: "text/html",
+        path: url
+      };
+      entry.enclosures = [enc];
+      e = new Entry(entry);
+      window.entries.add(e);
+      return e;
+    }
   };
 
 }).call(this);
