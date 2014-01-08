@@ -3,7 +3,7 @@
   <h1>Preview: <%= @title %></h1>
 </div>
 <!-- clearing  
-<div class="small-12 large-6 columns">
+<div class="small-12 medium-6 large-6 columns">
   <ul class="preview-thumbnails" data-clearing>
     <% for thumbnail in @thumbnails: %>
     <li>
@@ -14,7 +14,7 @@
     <% end %>
   </ul> 
 </div> -->
-<div class="small-12 large-6 columns">
+<div class="small-12 medium-6 large-6 columns">
   <!-- orbit -->
   <ul class="preview-thumbnails" style="height:600px" data-orbit 
       data-options="animation:slide;animation_speed:1000;pause_on_hover:true;navigation_arrows:true;bullets:true;">
@@ -25,6 +25,6 @@
     <% end %>
   </ul> 
 </div>
-<div class="small-12 large-6 columns">
+<div class="small-12 medium-6 large-6 columns">
   <!-- placeholder --> 
 </div>

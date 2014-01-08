@@ -146,6 +146,7 @@ loadEntries = (entries,atomurl,prefix,baseurl,cacheFiles) ->
         addEntry entries, el, atomurl, prefix, baseurl, cacheFiles
     error: (xhr, textStatus, errorThrown) ->
       console.log 'error, '+textStatus+': '+errorThrown	
+      $('#atomfileErrorModal').foundation 'reveal','open'
 
 module.exports.load = (entries, atomurl) ->
   # abolute URL...

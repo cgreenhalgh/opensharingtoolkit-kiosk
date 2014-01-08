@@ -41,7 +41,7 @@ meta.foundation-mq-xxlarge {
 /* line 322, ../../foundation_scss/foundation/components/_global.scss */
 html,
 body {
-  font-size: 100%;
+  font-size: 160%;
 }
 
 /* line 325, ../../foundation_scss/foundation/components/_global.scss */
@@ -766,7 +766,7 @@ select {
   }
 
   /* line 161, ../../foundation_scss/foundation/components/_grid.scss */
-  .medium-4 {
+  .medium-4, .entry-in-list {
     position: relative;
     width: 33.33333%;
   }
@@ -6010,22 +6010,22 @@ h1 small, h2 small, h3 small, h4 small, h5 small, h6 small {
 
 /* line 199, ../../foundation_scss/foundation/components/_type.scss */
 h1 {
-  font-size: 2.125rem;
+  font-size: 1.25rem;
 }
 
 /* line 200, ../../foundation_scss/foundation/components/_type.scss */
 h2 {
-  font-size: 1.6875rem;
+  font-size: 1rem;
 }
 
 /* line 201, ../../foundation_scss/foundation/components/_type.scss */
 h3 {
-  font-size: 1.375rem;
+  font-size: 1.125rem;
 }
 
 /* line 202, ../../foundation_scss/foundation/components/_type.scss */
 h4 {
-  font-size: 1.125rem;
+  font-size: 0.9375rem;
 }
 
 /* line 203, ../../foundation_scss/foundation/components/_type.scss */
@@ -6245,22 +6245,22 @@ blockquote p {
 
   /* line 380, ../../foundation_scss/foundation/components/_type.scss */
   h1 {
-    font-size: 2.75rem;
+    font-size: 1.875rem;
   }
 
   /* line 381, ../../foundation_scss/foundation/components/_type.scss */
   h2 {
-    font-size: 2.3125rem;
+    font-size: 1.625rem;
   }
 
   /* line 382, ../../foundation_scss/foundation/components/_type.scss */
   h3 {
-    font-size: 1.6875rem;
+    font-size: 1.4375rem;
   }
 
   /* line 383, ../../foundation_scss/foundation/components/_type.scss */
   h4 {
-    font-size: 1.4375rem;
+    font-size: 1.25rem;
   }
 }
 /*
@@ -7732,7 +7732,7 @@ th.hide-for-touch {
   display: table-cell !important;
 }
 
-/* line 10, ../../scss/app.scss */
+/* line 11, ../../scss/app.scss */
 .entry-in-list-icon {
   display: inline-block;
   position: relative;
@@ -7740,11 +7740,11 @@ th.hide-for-touch {
   left: 5%;
   overflow: hidden;
 }
-/* line 19, ../../scss/app.scss */
+/* line 20, ../../scss/app.scss */
 .entry-in-list-icon .dummy {
   padding-top: 75%;
 }
-/* line 22, ../../scss/app.scss */
+/* line 23, ../../scss/app.scss */
 .entry-in-list-icon img {
   width: 100%;
   position: absolute;
@@ -7755,22 +7755,22 @@ th.hide-for-touch {
   height: auto;
 }
 
-/* line 32, ../../scss/app.scss */
+/* line 33, ../../scss/app.scss */
 .entry-option {
   width: 90%;
 }
 
-/* line 37, ../../scss/app.scss */
+/* line 38, ../../scss/app.scss */
 .devicetype {
   width: 100%;
   margin-top: 6px;
   cursor: pointer;
   overflow: auto;
-  font-size: 1.6875rem;
+  font-size: 1.4375rem;
   vertical-align: middle;
 }
 
-/* line 50, ../../scss/app.scss */
+/* line 51, ../../scss/app.scss */
 .option-value-icon {
   display: inline-block;
   border: 4px solid;

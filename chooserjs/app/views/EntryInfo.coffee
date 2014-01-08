@@ -2,6 +2,7 @@
 templateEntryInfo = require 'templates/EntryInfo'
 
 getter = require 'getter'
+kiosk = require 'kiosk'
 
 module.exports = class EntryInfoView extends Backbone.View
 
@@ -18,12 +19,12 @@ module.exports = class EntryInfoView extends Backbone.View
 
   render: =>
     console.log "render EntryInfo #{ @model.id } #{ @model.attributes.title }"
-    # TODO visible options filter
+    # TODO show send cache if we are not kiosk but are being served directly by cache
     data =
       entry: @model.attributes
-      optionGet: true
+      optionGet: not kiosk.isKiosk()
       optionSendInternet: true
-      optionSendCache: true
+      optionSendCache: kiosk.isKiosk()
       optionPreview: @model.attributes.thumbnails.length > 0      
     @$el.html @template data 
     @

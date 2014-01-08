@@ -16,6 +16,7 @@ OptionsDevicetypeLabelView = require 'views/OptionsDevicetypeLabel'
 
 # atom/entry file loader
 loader = require 'loader'
+kiosk = require 'kiosk'
 
 # view stack?!
 window.views = []
@@ -39,7 +40,7 @@ addView = (view,title,path) ->
   if window.views.length>0 
     window.views[window.views.length-1].$el.hide()
   window.views.push view
-  $('#mainEntrylistHolder').append view.el
+  $('#mainEntrylistHolder').after view.el
   bc.append "<li><a href='#{path}'>#{title}</a></li>"
 
 popView = ->
@@ -205,7 +206,8 @@ App =
     # TODO load entries...
 
     #entries.add testentry1
-    loader.load entries,'test/jubilee.xml'
+    atomfile = kiosk.getAtomFile()
+    loader.load entries, atomfile
 
     router.navigate("entries", {trigger:true})
 
