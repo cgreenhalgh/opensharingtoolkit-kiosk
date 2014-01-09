@@ -57,6 +57,7 @@ module.exports = class EntryInfoView extends Backbone.View
 
   optionSendInternet: =>
     if not window.options.attributes.devicetype?
+      window.delayedNavigate = "sendInternet/#{ encodeURIComponent @model.id }"
       $('#chooseDeviceModal').foundation 'reveal','open'
     else
       console.log "option:send(internet) entry #{ @model.id }"
@@ -64,6 +65,7 @@ module.exports = class EntryInfoView extends Backbone.View
 
   optionSendCache: =>
     if not window.options.attributes.devicetype?
+      window.delayedNavigate = "sendCache/#{ encodeURIComponent @model.id }"
       $('#chooseDeviceModal').foundation 'reveal','open'
     else
       console.log "option:send(cache) entry #{ @model.id }"

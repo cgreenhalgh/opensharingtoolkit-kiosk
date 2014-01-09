@@ -102,7 +102,11 @@
         return;
       }
     }
-    if (window.views.length > 0) window.views[window.views.length - 1].$el.hide();
+    if (window.views.length > 0) {
+      window.views[window.views.length - 1].$el.hide();
+      $('#topbar-menu').addClass('hide');
+      $('#topbar-back').removeClass('hide');
+    }
     window.views.push(view);
     $('#mainEntrylistHolder').after(view.el);
     return bc.append("<li><a href='" + path + "'>" + title + "</a></li>");
@@ -115,8 +119,10 @@
       view.remove();
     }
     $('.breadcrumbs li:last-child').remove();
-    if (window.views.length > 0) {
-      return window.views[window.views.length - 1].$el.show();
+    if (window.views.length > 0) window.views[window.views.length - 1].$el.show();
+    if (window.views.length <= 1) {
+      $('#topbar-menu').removeClass('hide');
+      return $('#topbar-back').addClass('hide');
     }
   };
 
@@ -129,7 +135,6 @@
     }
 
     Router.prototype.routes = {
-      "home": "entries",
       "entries": "entries",
       "entry/:eid": "entry",
       "preview/:eid": "preview",
@@ -298,8 +303,8 @@
       router.navigate("entries", {
         trigger: true
       });
-      return $(document).on('click', 'a', function(ev) {
-        var href;
+      $(document).on('click', 'a', function(ev) {
+        var bcas, href;
         ev.preventDefault();
         href = $(this).attr('href');
         console.log("click " + href);
@@ -307,6 +312,17 @@
           if (href.substring(0, 1) === '-') {
             if (href === '-chooseDevicetype') {
               chooseDevicetype();
+            } else if (href === '-back') {
+              bcas = $('.breadcrumbs a');
+              if (bcas.length >= 2) {
+                href = $(bcas[bcas.length - 2]).attr('href');
+                console.log("back to " + href);
+                router.navigate(href, {
+                  trigger: true
+                });
+              } else {
+                console.log("back with nothing to go back to");
+              }
             } else {
               console.log("ignore click " + href);
             }
@@ -317,6 +333,42 @@
           }
         }
         return false;
+      });
+      $('.title-area .name').on('mousedown touchstart', function() {
+        var arm, armed, reload, start, timer;
+        start = new Date().getTime();
+        armed = [false];
+        reload = function() {
+          return location.reload();
+        };
+        arm = function() {
+          $('#reloadModal').foundation('reveal', 'open');
+          armed[0] = true;
+          return setInterval(reload, 5000);
+        };
+        timer = setInterval(arm, 5000);
+        return $(document).one('mouseup touchend', function() {
+          clearInterval(timer);
+          if (armed[0]) return reload();
+        });
+      });
+      window.delayedNavigate = null;
+      return $(document).on('closed', '[data-reveal]', function() {
+        var modal, url;
+        modal = $(this).attr('id');
+        console.log("closed " + modal);
+        if (modal === 'chooseDeviceModal' && (window.delayedNavigate != null)) {
+          url = window.delayedNavigate;
+          window.delayedNavigate = null;
+          if (window.options.attributes.devicetype != null) {
+            console.log("delayed navigate to " + url);
+            return router.navigate(url, {
+              trigger: true
+            });
+          } else {
+            return console.log("chooseDeviceModal closed cancels delayed navigate to " + url);
+          }
+        }
       });
     }
   };
@@ -1572,6 +1624,7 @@
 
     EntryInfoView.prototype.optionSendInternet = function() {
       if (!(window.options.attributes.devicetype != null)) {
+        window.delayedNavigate = "sendInternet/" + (encodeURIComponent(this.model.id));
         return $('#chooseDeviceModal').foundation('reveal', 'open');
       } else {
         console.log("option:send(internet) entry " + this.model.id);
@@ -1583,6 +1636,7 @@
 
     EntryInfoView.prototype.optionSendCache = function() {
       if (!(window.options.attributes.devicetype != null)) {
+        window.delayedNavigate = "sendCache/" + (encodeURIComponent(this.model.id));
         return $('#chooseDeviceModal').foundation('reveal', 'open');
       } else {
         console.log("option:send(cache) entry " + this.model.id);

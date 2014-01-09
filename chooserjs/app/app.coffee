@@ -39,6 +39,9 @@ addView = (view,title,path) ->
 
   if window.views.length>0 
     window.views[window.views.length-1].$el.hide()
+    $('#topbar-menu').addClass 'hide'
+    $('#topbar-back').removeClass 'hide'
+    
   window.views.push view
   $('#mainEntrylistHolder').after view.el
   bc.append "<li><a href='#{path}'>#{title}</a></li>"
@@ -50,11 +53,15 @@ popView = ->
   $('.breadcrumbs li:last-child').remove()
   if window.views.length>0
     window.views[window.views.length-1].$el.show()
+  if window.views.length<=1
+    $('#topbar-menu').removeClass 'hide'
+    $('#topbar-back').addClass 'hide'
+
 
 # main internal url router
 class Router extends Backbone.Router
   routes: 
-    "home" : "entries"
+    #"home" : "entries"
     "entries" : "entries"
     "entry/:eid" : "entry"
     "preview/:eid" : "preview"
@@ -225,10 +232,48 @@ App =
           # special case
           if href=='-chooseDevicetype'
             chooseDevicetype()
+          else if href=='-back'
+            bcas = $('.breadcrumbs a')
+            if bcas.length >= 2
+              href = $(bcas[bcas.length-2]).attr 'href'
+              console.log "back to #{href}"
+              router.navigate(href,{trigger:true})
+            else
+              console.log "back with nothing to go back to"
           else
             console.log "ignore click #{href}"
         else
           router.navigate(href,{trigger:true})
       return false
+
+    # reset/reload
+    $('.title-area .name').on 'mousedown touchstart', ()->
+      start = new Date().getTime()
+      armed = [false]
+      reload = () -> location.reload()
+      arm = () ->
+        $('#reloadModal').foundation 'reveal','open'
+        armed[0] = true
+        setInterval reload,5000
+
+      timer = setInterval arm,5000
+      $(document).one 'mouseup touchend',() ->
+        clearInterval timer
+        if armed[0]
+          reload()
+
+    # navigation delayed by device choice
+    window.delayedNavigate = null
+    $(document).on 'closed', '[data-reveal]', ()->
+      modal = $(@).attr 'id'
+      console.log "closed #{modal}"
+      if modal == 'chooseDeviceModal' and window.delayedNavigate?
+        url = window.delayedNavigate
+        window.delayedNavigate = null
+        if window.options.attributes.devicetype?
+          console.log "delayed navigate to #{url}"
+          router.navigate(url,{trigger:true})
+        else
+          console.log "chooseDeviceModal closed cancels delayed navigate to #{url}"
 
 module.exports = App

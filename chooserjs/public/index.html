@@ -22,10 +22,12 @@
     <ul class="title-area">
       <!-- Title Area -->
       <li class="name">
-        <h1><a href="home">OST Kiosk</a></h1>
+        <h1><a href="-back"><img src="icons/topbar-menu.png" class="topbar-menu" id="topbar-menu">
+           <img src="icons/topbar-back.png" class="topbar-back hide" id="topbar-back">
+           <img src="icons/topbar-icon.png" class="topbar-icon">OST Kiosk</a></h1>
       </li>
       <!-- Remove the class "menu-icon" to get rid of menu icon. Take out "Menu" to just have icon alone -->
-      <li class="toggle-topbar menu-icon"><a href=""><span>Menu</span></a></li>
+      <!-- <li class="toggle-topbar menu-icon"><a href=""><span>Menu</span></a></li> -->
     </ul>
 
     <section class="top-bar-section">
@@ -61,6 +63,12 @@
   <div id="chooseDeviceModal" class="reveal-modal" data-reveal>
     <h2>What kind of phone or tablet are you using?</h2>
     <a class="close-reveal-modal">&#215;</a>
+  </div>
+
+  <!-- reload modal -->
+  <div id="reloadModal" class="reveal-modal" data-reveal>
+    <h2>The page will now reload</h2>
+    <!-- <a class="close-reveal-modal">&#215;</a> -->
   </div>
 
   <!-- Foundation JS bootstrap -->

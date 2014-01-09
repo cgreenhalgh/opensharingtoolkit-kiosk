@@ -2,12 +2,25 @@
 @import "settings";
 @import "_settings";
 @import "foundation";
+// topbar icon(s)
+.topbar-icon {
+  height: $topbar-height*0.7;
+  width: auto;
+};
+.topbar-menu {
+  height: $topbar-height*0.7;
+  width: auto;
+};
+.topbar-back {
+  height: $topbar-height*0.7;
+  width: auto;
+};
 .entry-in-list {
   @extend .columns;
   @extend .large-4;
   @extend .medium-4;
   @extend .small-6;
-}
+};
 .entry-in-list-icon {
   // see http://ansciath.tumblr.com/post/7347495869/css-aspect-ratio
   display: inline-block;
