@@ -7,7 +7,7 @@ module.exports.getGetUrl = (entry, devicetype, nocache) ->
   # use cache copy if available
   url = if nocache then enc.url else (enc.path ? enc.url)
   url = kiosk.getPortableUrl url
-  console.log "get #{entry.attributes.title} as #{url}"
+  console.log "get #{entry.attributes.title} as #{url}, enc #{enc.path}  / #{enc.url}"
 
   # leave app URLs alone for now (assumed internet-only)
   apps = devicetype?.getAppUrls enc.mime

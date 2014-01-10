@@ -20,11 +20,13 @@ module.exports = class EntryInfoView extends Backbone.View
   render: =>
     console.log "render EntryInfo #{ @model.id } #{ @model.attributes.title }"
     # TODO show send cache if we are not kiosk but are being served directly by cache
+    url = _.find @model.attributes.enclosures, (enc)->enc.url?
+    path = _.find @model.attributes.enclosures, (enc)->enc.path?
     data =
       entry: @model.attributes
       optionGet: not kiosk.isKiosk()
-      optionSendInternet: true
-      optionSendCache: kiosk.isKiosk()
+      optionSendInternet: url?
+      optionSendCache: path? and kiosk.isKiosk()
       optionPreview: @model.attributes.thumbnails.length > 0      
     @$el.html @template data 
     @

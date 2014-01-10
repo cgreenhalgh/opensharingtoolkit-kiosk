@@ -1,6 +1,8 @@
 # kiosk-specific utilities, e.g. depending on kiosk javascript API
 Entry = require 'models/Entry'
 
+kiosk = module.exports
+
 module.exports.isKiosk = () ->
   window.kiosk?
 
@@ -99,8 +101,9 @@ module.exports.getQrCode = (url) ->
         # try google qrcode generator http://chart.apis.google.com/chart?cht=qr&chs=150x150&choe=UTF-8&chl=http%3A%2F%2F1.2.4
         'http://chart.apis.google.com/chart?cht=qr&chs=150x150&choe=UTF-8&chl='+encodeURIComponent(url)
 
-module.exports.addKioskEntry = () ->
-  if window.kiosk?
+module.exports.addKioskEntry = (entries,atomurl,ineturl) ->
+    console.log "add kiosk entry #{atomurl} / #{ineturl}"
+    #if window.kiosk?
     # index.html is this page; relative ref
     baseurl = window.location.href
     ix = baseurl.lastIndexOf('/')
@@ -117,16 +120,24 @@ module.exports.addKioskEntry = () ->
       requiresDevice: []
       supportsMime: []
     # index: index
-    # TODO atomfile - is as loaded by kiosk, typically from local file system.
-    # for internet version we know it should be in the same basedir;
-    # but for local it is a file rather than a resource, so we'll need to fix/fiddle this!
-    url = baseurl+"index.html?f="+encodeURIComponent(window.kiosk.getAtomFile())
+    # internet
+    url = null
+    if ineturl?
+      ix = ineturl.lastIndexOf '/'
+      inetbaseurl = ineturl.slice 0,ix+1
+      #console.log 'Base URL = '+inetbaseurl
+      url = inetbaseurl+"index.html?f="+encodeURIComponent(ineturl)
+    # local
+    path = baseurl+"index.html?f="+encodeURIComponent(kiosk.getPortableUrl(atomurl))
+    console.log "add kiosk entry #{url} / #{path}"
     enc = 
       url: url
       mime: "text/html"
-      path: url
-    entry.enclosures = [enc]
+      path: path
+    entry.enclosures = []
+    entry.enclosures.push enc
     e = new Entry entry
     window.entries.add e
+    console.log "added kiosk entry #{e.attributes.enclosures[0].url} / #{e.attributes.enclosures[0].path}"
     e
 

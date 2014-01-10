@@ -1,6 +1,8 @@
 # Atom file loader
 Entry = require 'models/Entry'
 
+kiosk = require 'kiosk'
+
 getCachePath = (url,cacheFiles,prefix) ->
   if url?
     file = cacheFiles[url]
@@ -142,6 +144,8 @@ loadEntries = (entries,atomurl,prefix,baseurl,cacheFiles) ->
       # link self -> baseurl
       feedbaseurl = get_baseurl data
       baseurl = feedbaseurl ? baseurl
+      feedurl = $('link[rel=\'self\']', data).attr('href')
+      kiosk.addKioskEntry entries,atomurl,feedurl
       $( data ).find('entry').each (index, el) ->
         addEntry entries, el, atomurl, prefix, baseurl, cacheFiles
     error: (xhr, textStatus, errorThrown) ->

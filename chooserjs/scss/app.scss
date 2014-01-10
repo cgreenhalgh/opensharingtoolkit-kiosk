@@ -27,7 +27,8 @@
 .entry-in-list-title {
   position: relative;
   background-color: rgba(255,255,255,0.5);
-  z-index: 1000;
+  // Note: modal dialogs at 99
+  z-index: 95;
 };
 .entry-in-list-icon {
   // see http://ansciath.tumblr.com/post/7347495869/css-aspect-ratio
