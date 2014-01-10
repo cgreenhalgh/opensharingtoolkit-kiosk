@@ -1,6 +1,6 @@
 <%# Entry in Entry List, takes Entry as data (title, iconurl) %>
 <a href="#" class="open">
-<h4><%= @title %></h4>
+<div class="entry-in-list-title-holder"><h4 class="entry-in-list-title"><%= @title %></h4></div>
 <div class="entry-in-list-icon">
   <div class="dummy"></div><%# required for CSS aspect ratio - see css %>
   <img src="<%= @iconpath ? @iconurl %>">

@@ -87,7 +87,7 @@
   window.views = [];
 
   addView = function(view, title, path) {
-    var bc, bcas, bcix, bcpath, _len;
+    var bc, bcas, bcix, bcpath, v, _len;
     path = '#' + path;
     bc = $('.breadcrumbs');
     bcas = $('a', bc);
@@ -103,23 +103,35 @@
       }
     }
     if (window.views.length > 0) {
-      window.views[window.views.length - 1].$el.hide();
+      v = window.views[window.views.length - 1];
+      v.scrollTop = $(window).scrollTop();
+      v.$el.hide();
       $('#topbar-menu').addClass('hide');
       $('#topbar-back').removeClass('hide');
     }
     window.views.push(view);
     $('#mainEntrylistHolder').after(view.el);
-    return bc.append("<li><a href='" + path + "'>" + title + "</a></li>");
+    bc.append("<li><a href='" + path + "'>" + title + "</a></li>");
+    return window.scrollTo(0, 0);
   };
 
   popView = function() {
-    var view;
+    var v, view;
     if (window.views.length > 0) {
       view = window.views.pop();
       view.remove();
     }
     $('.breadcrumbs li:last-child').remove();
-    if (window.views.length > 0) window.views[window.views.length - 1].$el.show();
+    if (window.views.length > 0) {
+      v = window.views[window.views.length - 1];
+      v.$el.show();
+      if (v.scrollTop != null) {
+        console.log("scroll to " + v.scrollTop);
+        window.scrollTo(0, v.scrollTop);
+      }
+    } else {
+      console.log("no scrollTop found");
+    }
     if (window.views.length <= 1) {
       $('#topbar-menu').removeClass('hide');
       return $('#topbar-back').addClass('hide');
@@ -1126,11 +1138,11 @@
     (function() {
       var _ref;
     
-      __out.push('\n<a href="#" class="open">\n<h4>');
+      __out.push('\n<a href="#" class="open">\n<div class="entry-in-list-title-holder"><h4 class="entry-in-list-title">');
     
       __out.push(__sanitize(this.title));
     
-      __out.push('</h4>\n<div class="entry-in-list-icon">\n  <div class="dummy"></div>');
+      __out.push('</h4></div>\n<div class="entry-in-list-icon">\n  <div class="dummy"></div>');
     
       __out.push('\n  <img src="');
     

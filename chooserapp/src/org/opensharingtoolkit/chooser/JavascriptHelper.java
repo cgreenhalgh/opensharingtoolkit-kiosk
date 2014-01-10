@@ -221,6 +221,8 @@ public class JavascriptHelper {
 			return null;
 		}
 		String url = dir.toURI().toString();
+		if (url.endsWith("/"))
+			url = url.substring(0, url.length()-1);
 		if (url.startsWith("file:/") && !url.startsWith("file:///"))
 			// extra //
 			url = "file:///"+url.substring("file:/".length());

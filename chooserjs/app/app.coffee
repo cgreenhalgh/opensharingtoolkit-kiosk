@@ -38,21 +38,32 @@ addView = (view,title,path) ->
       return
 
   if window.views.length>0 
-    window.views[window.views.length-1].$el.hide()
+    # preserve old scroll 
+    v =window.views[window.views.length-1]
+    v.scrollTop = $(window).scrollTop()
+    v.$el.hide()
     $('#topbar-menu').addClass 'hide'
     $('#topbar-back').removeClass 'hide'
     
   window.views.push view
   $('#mainEntrylistHolder').after view.el
   bc.append "<li><a href='#{path}'>#{title}</a></li>"
+  window.scrollTo 0,0
 
 popView = ->
   if window.views.length>0
     view = window.views.pop()
     view.remove()
+    # TODO restore old scroll, at least on entries
   $('.breadcrumbs li:last-child').remove()
   if window.views.length>0
-    window.views[window.views.length-1].$el.show()
+    v = window.views[window.views.length-1]
+    v.$el.show()
+    if v.scrollTop?
+      console.log "scroll to #{v.scrollTop}"
+      window.scrollTo 0,v.scrollTop
+  else
+    console.log "no scrollTop found"
   if window.views.length<=1
     $('#topbar-menu').removeClass 'hide'
     $('#topbar-back').addClass 'hide'

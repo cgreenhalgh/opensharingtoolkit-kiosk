@@ -7751,6 +7751,18 @@ th.hide-for-touch {
 }
 
 /* line 24, ../../scss/app.scss */
+.entry-in-list-title-holder {
+  height: 1.1em;
+}
+
+/* line 27, ../../scss/app.scss */
+.entry-in-list-title {
+  position: relative;
+  background-color: rgba(255, 255, 255, 0.5);
+  z-index: 1000;
+}
+
+/* line 32, ../../scss/app.scss */
 .entry-in-list-icon {
   display: inline-block;
   position: relative;
@@ -7758,11 +7770,11 @@ th.hide-for-touch {
   left: 5%;
   overflow: hidden;
 }
-/* line 33, ../../scss/app.scss */
+/* line 41, ../../scss/app.scss */
 .entry-in-list-icon .dummy {
   padding-top: 75%;
 }
-/* line 36, ../../scss/app.scss */
+/* line 44, ../../scss/app.scss */
 .entry-in-list-icon img {
   width: 100%;
   position: absolute;
@@ -7773,12 +7785,12 @@ th.hide-for-touch {
   height: auto;
 }
 
-/* line 46, ../../scss/app.scss */
+/* line 54, ../../scss/app.scss */
 .entry-option {
   width: 90%;
 }
 
-/* line 51, ../../scss/app.scss */
+/* line 59, ../../scss/app.scss */
 .devicetype {
   width: 100%;
   margin-top: 6px;
@@ -7788,7 +7800,7 @@ th.hide-for-touch {
   vertical-align: middle;
 }
 
-/* line 64, ../../scss/app.scss */
+/* line 72, ../../scss/app.scss */
 .option-value-icon {
   display: inline-block;
   border: 4px solid;
@@ -7799,7 +7811,7 @@ th.hide-for-touch {
   height: 48px;
 }
 
-/* line 76, ../../scss/app.scss */
+/* line 84, ../../scss/app.scss */
 span.ssid {
   font-family: monospace;
   font-weight: bold;
