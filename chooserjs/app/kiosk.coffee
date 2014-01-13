@@ -125,11 +125,12 @@ module.exports.addKioskEntry = (entries,atomurl,ineturl) ->
     if ineturl?
       ix = ineturl.lastIndexOf '/'
       inetbaseurl = ineturl.slice 0,ix+1
+      entry.baseurl = inetbaseurl
       #console.log 'Base URL = '+inetbaseurl
       url = inetbaseurl+"index.html?f="+encodeURIComponent(ineturl)
     # local
     path = baseurl+"index.html?f="+encodeURIComponent(kiosk.getPortableUrl(atomurl))
-    console.log "add kiosk entry #{url} / #{path}"
+    console.log "- kiosk entry expanded to #{url} / #{path}"
     enc = 
       url: url
       mime: "text/html"

@@ -145,6 +145,7 @@ loadEntries = (entries,atomurl,prefix,baseurl,cacheFiles) ->
       feedbaseurl = get_baseurl data
       baseurl = feedbaseurl ? baseurl
       feedurl = $('link[rel=\'self\']', data).attr('href')
+      console.log "loadEntries #{atomurl} self #{feedurl}"
       kiosk.addKioskEntry entries,atomurl,feedurl
       $( data ).find('entry').each (index, el) ->
         addEntry entries, el, atomurl, prefix, baseurl, cacheFiles

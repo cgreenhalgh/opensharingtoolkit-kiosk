@@ -309,7 +309,6 @@
         model: entries
       });
       addView(entryview, 'All', 'entries');
-      kiosk.addKioskEntry();
       atomfile = kiosk.getAtomFile();
       loader.load(entries, atomfile);
       router.navigate("entries", {
@@ -399,7 +398,7 @@
     enc = entry.attributes.enclosures[0];
     url = nocache ? enc.url : (_ref = enc.path) != null ? _ref : enc.url;
     url = kiosk.getPortableUrl(url);
-    console.log("get " + entry.attributes.title + " as " + url);
+    console.log("get " + entry.attributes.title + " as " + url + ", enc " + enc.path + "  / " + enc.url);
     apps = devicetype != null ? devicetype.getAppUrls(enc.mime) : void 0;
     if (apps == null) apps = [];
     if (!(devicetype != null) || (devicetype != null ? devicetype.attributes.term : void 0) === 'other') {
@@ -425,9 +424,11 @@
 
 }).call(this);
 }, "kiosk": function(exports, require, module) {(function() {
-  var Entry, REDIRECT_LIFETIME_MS, asset_prefix, getParameter, localhost2_prefix, localhost_prefix, urlParams;
+  var Entry, REDIRECT_LIFETIME_MS, asset_prefix, getParameter, kiosk, localhost2_prefix, localhost_prefix, urlParams;
 
   Entry = require('models/Entry');
+
+  kiosk = module.exports;
 
   module.exports.isKiosk = function() {
     return window.kiosk != null;
@@ -496,7 +497,7 @@
   localhost2_prefix = 'http://127.0.0.1';
 
   module.exports.getPortableUrl = function(url) {
-    var file_prefix, kiosk;
+    var file_prefix;
     if (window.kiosk != null) {
       kiosk = window.kiosk;
       if (url.indexOf(asset_prefix) === 0) {
@@ -528,7 +529,7 @@
   REDIRECT_LIFETIME_MS = 60 * 60 * 1000;
 
   module.exports.getTempRedirect = function(url) {
-    var kiosk, redir;
+    var redir;
     if (window.kiosk != null) {
       kiosk = window.kiosk;
       redir = kiosk.registerTempRedirect(url, REDIRECT_LIFETIME_MS);
@@ -544,41 +545,52 @@
     return qrurl = window.kiosk != null ? 'http://localhost:8080/qr?url=' + encodeURIComponent(url) + '&size=150' : window.location.pathname === '/a/index.html' ? 'http://' + window.location.host + '/qr?url=' + encodeURIComponent(url) + '&size=150' : 'http://chart.apis.google.com/chart?cht=qr&chs=150x150&choe=UTF-8&chl=' + encodeURIComponent(url);
   };
 
-  module.exports.addKioskEntry = function() {
-    var baseurl, e, enc, entry, ix, url;
-    if (window.kiosk != null) {
-      baseurl = window.location.href;
-      ix = baseurl.lastIndexOf('/');
-      if (ix >= 0) baseurl = baseurl.substring(0, ix + 1);
-      entry = {
-        id: "tag:cmg@cs.nott.ac.uk,20140108:/ost/kiosk/self",
-        title: "Kiosk View",
-        iconurl: baseurl + "icons/kiosk.png",
-        iconpath: baseurl + "icons/kiosk.png",
-        summary: "Browse the same content directly on your device",
-        baseurl: baseurl,
-        thumbnails: [],
-        requiresDevice: [],
-        supportsMime: []
-      };
-      url = baseurl + "index.html?f=" + encodeURIComponent(window.kiosk.getAtomFile());
-      enc = {
-        url: url,
-        mime: "text/html",
-        path: url
-      };
-      entry.enclosures = [enc];
-      e = new Entry(entry);
-      window.entries.add(e);
-      return e;
+  module.exports.addKioskEntry = function(entries, atomurl, ineturl) {
+    var baseurl, e, enc, entry, inetbaseurl, ix, path, url;
+    console.log("add kiosk entry " + atomurl + " / " + ineturl);
+    baseurl = window.location.href;
+    ix = baseurl.lastIndexOf('/');
+    if (ix >= 0) baseurl = baseurl.substring(0, ix + 1);
+    entry = {
+      id: "tag:cmg@cs.nott.ac.uk,20140108:/ost/kiosk/self",
+      title: "Kiosk View",
+      iconurl: baseurl + "icons/kiosk.png",
+      iconpath: baseurl + "icons/kiosk.png",
+      summary: "Browse the same content directly on your device",
+      baseurl: baseurl,
+      thumbnails: [],
+      requiresDevice: [],
+      supportsMime: []
+    };
+    url = null;
+    if (ineturl != null) {
+      ix = ineturl.lastIndexOf('/');
+      inetbaseurl = ineturl.slice(0, ix + 1);
+      entry.baseurl = inetbaseurl;
+      url = inetbaseurl + "index.html?f=" + encodeURIComponent(ineturl);
     }
+    path = baseurl + "index.html?f=" + encodeURIComponent(kiosk.getPortableUrl(atomurl));
+    console.log("- kiosk entry expanded to " + url + " / " + path);
+    enc = {
+      url: url,
+      mime: "text/html",
+      path: path
+    };
+    entry.enclosures = [];
+    entry.enclosures.push(enc);
+    e = new Entry(entry);
+    window.entries.add(e);
+    console.log("added kiosk entry " + e.attributes.enclosures[0].url + " / " + e.attributes.enclosures[0].path);
+    return e;
   };
 
 }).call(this);
 }, "loader": function(exports, require, module) {(function() {
-  var Entry, addEntry, addShorturls, getCacheFileMap, getCachePath, get_baseurl, loadCache, loadEntries, loadShorturls;
+  var Entry, addEntry, addShorturls, getCacheFileMap, getCachePath, get_baseurl, kiosk, loadCache, loadEntries, loadShorturls;
 
   Entry = require('models/Entry');
+
+  kiosk = require('kiosk');
 
   getCachePath = function(url, cacheFiles, prefix) {
     var file;
@@ -756,10 +768,13 @@
       dataType: 'xml',
       timeout: 10000,
       success: function(data, textStatus, xhr) {
-        var feedbaseurl;
+        var feedbaseurl, feedurl;
         console.log('ok, got ' + data);
         feedbaseurl = get_baseurl(data);
         baseurl = feedbaseurl != null ? feedbaseurl : baseurl;
+        feedurl = $('link[rel=\'self\']', data).attr('href');
+        console.log("loadEntries " + atomurl + " self " + feedurl);
+        kiosk.addKioskEntry(entries, atomurl, feedurl);
         return $(data).find('entry').each(function(index, el) {
           return addEntry(entries, el, atomurl, prefix, baseurl, cacheFiles);
         });
@@ -1596,13 +1611,19 @@
     };
 
     EntryInfoView.prototype.render = function() {
-      var data;
+      var data, path, url;
       console.log("render EntryInfo " + this.model.id + " " + this.model.attributes.title);
+      url = _.find(this.model.attributes.enclosures, function(enc) {
+        return enc.url != null;
+      });
+      path = _.find(this.model.attributes.enclosures, function(enc) {
+        return enc.path != null;
+      });
       data = {
         entry: this.model.attributes,
         optionGet: !kiosk.isKiosk(),
-        optionSendInternet: true,
-        optionSendCache: kiosk.isKiosk(),
+        optionSendInternet: url != null,
+        optionSendCache: (path != null) && kiosk.isKiosk(),
         optionPreview: this.model.attributes.thumbnails.length > 0
       };
       this.$el.html(this.template(data));

@@ -221,10 +221,7 @@ App =
     entryview = new EntryListView model: entries
     addView entryview,'All','entries'
     
-    # TODO load entries...
-
-    kiosk.addKioskEntry()
-
+    # load entries...
     #entries.add testentry1
     atomfile = kiosk.getAtomFile()
     loader.load entries, atomfile
