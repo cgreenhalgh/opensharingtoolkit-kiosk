@@ -10,11 +10,14 @@ module.exports = class EntryListView extends Backbone.View
     @model.bind 'change', @render
     @model.bind 'add', @add
     window.options.on 'change:devicetype',@render
+    @$el.append '<div class="floating-help-button"><img src="icons/help.png"></div>'
 
   render: =>
     # TODO
     console.log "EntryListView render (devicetype #{window.options.attributes.devicetype?.attributes.term})"
     @$el.empty()
+    @$el.append '<div class="floating-help-button"><img src="icons/help.png"></div>'
+
     views = []
     @model.forEach @add
     @
@@ -29,4 +32,10 @@ module.exports = class EntryListView extends Backbone.View
       @$el.append view.$el
       @views.push view
 
-  # events: 
+  events: 
+    'click .floating-help-button': 'showHelp'
+
+  showHelp: =>
+    console.log "EntryList help..."
+    window.scrollTo 0,0
+    

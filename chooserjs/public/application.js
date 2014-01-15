@@ -1695,6 +1695,7 @@
     __extends(EntryListView, Backbone.View);
 
     function EntryListView() {
+      this.showHelp = __bind(this.showHelp, this);
       this.add = __bind(this.add, this);
       this.render = __bind(this.render, this);
       EntryListView.__super__.constructor.apply(this, arguments);
@@ -1707,13 +1708,15 @@
     EntryListView.prototype.initialize = function() {
       this.model.bind('change', this.render);
       this.model.bind('add', this.add);
-      return window.options.on('change:devicetype', this.render);
+      window.options.on('change:devicetype', this.render);
+      return this.$el.append('<div class="floating-help-button"><img src="icons/help.png"></div>');
     };
 
     EntryListView.prototype.render = function() {
       var views, _ref;
       console.log("EntryListView render (devicetype " + ((_ref = window.options.attributes.devicetype) != null ? _ref.attributes.term : void 0) + ")");
       this.$el.empty();
+      this.$el.append('<div class="floating-help-button"><img src="icons/help.png"></div>');
       views = [];
       this.model.forEach(this.add);
       return this;
@@ -1733,6 +1736,15 @@
         this.$el.append(view.$el);
         return this.views.push(view);
       }
+    };
+
+    EntryListView.prototype.events = {
+      'click .floating-help-button': 'showHelp'
+    };
+
+    EntryListView.prototype.showHelp = function() {
+      console.log("EntryList help...");
+      return window.scrollTo(0, 0);
     };
 
     return EntryListView;

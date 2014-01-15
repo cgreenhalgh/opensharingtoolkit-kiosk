@@ -7759,7 +7759,7 @@ th.hide-for-touch {
 .entry-in-list-title {
   position: relative;
   background-color: rgba(255, 255, 255, 0.5);
-  z-index: 95;
+  z-index: 5;
 }
 
 /* line 33, ../../scss/app.scss */
@@ -7815,4 +7815,43 @@ th.hide-for-touch {
 span.ssid {
   font-family: monospace;
   font-weight: bold;
+}
+
+/* line 90, ../../scss/app.scss */
+.floating-help-button {
+  z-index: 20;
+  position: fixed;
+  width: 2em;
+  height: 2em;
+  right: 0.2em;
+  bottom: 0.2em;
+}
+/* line 97, ../../scss/app.scss */
+.floating-help-button img {
+  width: 100%;
+  height: 100%;
+  cursor: pointer;
+}
+
+/* line 104, ../../scss/app.scss */
+.help-relative {
+  position: relative;
+}
+
+/* line 107, ../../scss/app.scss */
+.help-below-left-align {
+  position: absolute;
+  top: 1.5em;
+  left: 0.2em;
+  z-index: 40;
+  background-color: rgba(255, 255, 255, 0.6);
+}
+
+/* line 114, ../../scss/app.scss */
+.help-below-right-align {
+  position: absolute;
+  top: 1.5em;
+  right: 0.2em;
+  z-index: 40;
+  background-color: rgba(255, 255, 255, 0.6);
 }
