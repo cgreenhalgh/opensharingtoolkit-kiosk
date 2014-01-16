@@ -141,7 +141,7 @@ class Router extends Backbone.Router
       return false
     console.log "send(internet) entry #{id}"
     view = new EntrySendInternetView model: entry
-    addView view, "Send over Internet", "send_internet/#{encodeURIComponent id}"
+    addView view, "Send over Internet", "sendInternet/#{encodeURIComponent id}"
   
   sendCache: (id) ->
     entry = @getEntry id
@@ -149,7 +149,7 @@ class Router extends Backbone.Router
       return false
     console.log "send(cache) entry #{id}"
     view = new EntrySendCacheView model: entry
-    addView view, "Send locally", "send_cache/#{encodeURIComponent id}"
+    addView view, "Send locally", "sendCache/#{encodeURIComponent id}"
 
 
 testentry1 = new Entry 

@@ -35,7 +35,7 @@
   display: inline-block;
   position: relative;
   width: 90%;
-  // centre?
+  // center?
   left: 5%;
   //height: 
   overflow: hidden;
@@ -83,6 +83,24 @@
   width: 48px;
   height: 48px;
 };
+.option-url {
+  font-family: Monospace;
+  font-size: 80%;
+  text-align: center;
+};
+.option-qrcode {
+  width: 80%;
+  text-align: center;
+  height: auto;
+};
+.option-step {
+  border:2px solid #a1a1a1;
+  padding:10px 10px; 
+  background:#dddddd;
+  #width:300px;
+  border-radius:10px;
+};
+
 // orbit slides
 .preview-thumbnails {
 };
@@ -123,6 +141,13 @@ span.ssid {
   //height: 10%;
   padding: 0.2em;
   cursor: pointer;
+};
+.entry-option-step-help-button {
+  width: 1.5em;
+  height: 1.5em;
+  overflow: visible;
+  cursor: pointer;
+  float: right;
 };
 .devicetype-help-button {
   width: 1.5em;
@@ -208,5 +233,7 @@ span.ssid {
     cursor: pointer;
   };
 };
-
+.entry-option-step-panel p {
+  font-size: 50%;
+};
 

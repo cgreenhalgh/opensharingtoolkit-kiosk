@@ -36,5 +36,22 @@ module.exports = class EntrySendInternetView extends Backbone.View
     @$el.html @template data
     @
 
-  #events: 
+  events: 
+    'click .entry-option-step-show': 'help'
+    'click .entry-option-step-hide': 'helpHide'
+
+  helpHide: =>
+    $( '.entry-option-step-panel', @$el ).addClass 'hide'
+    $( '.entry-option-step-show', @$el ).removeClass 'hide'
+    $( '.entry-option-step-hide', @$el ).addClass 'hide'
+    false
+
+  help: (ev) =>
+    offset = $( ev.target ).offset()
+    @helpHide()
+    dtel = $( ev.target ).parents('.row').first()
+    $( '.entry-option-step-help-button', dtel ).toggleClass 'hide'
+    $( '.entry-option-step-panel', dtel ).removeClass 'hide'
+    window.scrollTo 0,offset.top
+    false
 

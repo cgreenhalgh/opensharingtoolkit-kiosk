@@ -1,8 +1,64 @@
 <%# Entry send internet, takes { entry: Entry, geturl: ..., qrurl: ... } as data %>
 <div class="small-12 large-12 columns">
   <h1><%= @entry.title %></h1>
-  <p class="option-info">Enable internet access and scan/enter...</p>
-  <img class="option-qrcode" src="<%= @qrurl %>" alt="qrcode for item">
-  <p class="option-url"><%= @geturl %></p>
+  <div class="row">
+    <div class="small-12 medium-6 large-6 columns">
+      <p class="option-info"><span class="option-step">1</span>
+        <img src="icons/help.png" class="entry-option-step-help-button entry-option-step-show">
+        <img src="icons/help-right.png" class="entry-option-step-help-button entry-option-step-hide hide">
+        Enable internet access
+        <div class="clear-both"></div>
+      </p>
+    </div>
+    <div class="small-12 medium-6 large-6 columns">
+      <div class="panel hide entry-option-step-panel">
+        <p>If you can access the internet on your phone or tablet at the moment then move to the next step.</p>
+        <p>If your phone or tablet has WiFi and you know and trust a network here then connect to that now.</p>
+        <p>If you have a data contract that you are happy to use (and a SIM, if you are using a tablet) then check that the signal strength is OK. If you cannot get a signal here then you may not be able to use the Internet - try WiFi instead.</p>
+      </div>
+    </div>
+  </div>    
+
+  <div class="row">
+    <div class="small-12 medium-6 large-6 columns">
+      <p class="option-info"><span class="option-step">2</span>
+        <img src="icons/help.png" class="entry-option-step-help-button entry-option-step-show">
+        <img src="icons/help-right.png" class="entry-option-step-help-button entry-option-step-hide hide">
+        Either (a) scan this QR-code:
+        <div class="clear-both"></div>
+      </p>
+      <p class="option-url"><img class="option-qrcode" src="<%= @qrurl %>" alt="qrcode for item"></p>
+    </div>
+    <div class="small-12 medium-6 large-6 columns">
+      <div class="panel hide entry-option-step-panel">
+        <p>Help for scan QRCode...</p>
+      </div>
+    </div>
+  </div>    
+
+  <div class="row">
+    <div class="small-12 medium-6 large-6 columns">
+      <p class="option-info">
+        <img src="icons/help.png" class="entry-option-step-help-button entry-option-step-show">
+        <img src="icons/help-right.png" class="entry-option-step-help-button entry-option-step-hide hide">
+        Or (b) enter this URL in your web browser:
+        <div class="clear-both"></div>
+      </p>
+      <p class="option-url"><%= @geturl %></p>
+    </div>
+    <div class="small-12 medium-6 large-6 columns">
+      <div class="panel hide entry-option-step-panel">
+        <p>Help for enter URL...</p>
+      </div>
+    </div>
+  </div>    
+
+  <div class="row">
+    <div class="small-12 medium-6 large-6 columns">
+      <p class="option-info"><span class="option-step">3</span>
+        In a few seconds you should see a simple web page with a link to this content.
+      </p>
+    </div>
+  </div>
 </div>
 
