@@ -37,5 +37,5 @@ module.exports = class EntryListView extends Backbone.View
 
   showHelp: =>
     console.log "EntryList help..."
-    window.scrollTo 0,0
+    window.router.navigate 'entries/help', trigger:true
     

@@ -1,0 +1,14 @@
+<%# Entry List Help; no particular data?! %>
+<div class="entry-list-help-top"></div>
+<div class="row">
+  <div class="small-6 large-6 columns">
+    <p class="text-centre"><img class="help-scroll-vertical" src="icons/scroll-vertical-hint.png">Drag to scroll up and down</p>
+  </div>
+  <div class="small-6 large-6 columns">
+    <p class="text-centre">Touch an item to find out more</p>
+  </div>
+</div>
+<div class="entry-list-help-ok">
+  <a href="-back" class="button">OK</a>
+</div>
+

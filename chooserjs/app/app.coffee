@@ -13,6 +13,7 @@ EntrySendInternetView = require 'views/EntrySendInternet'
 EntrySendCacheView = require 'views/EntrySendCache'
 DevicetypeChoiceView = require 'views/DevicetypeChoice'
 OptionsDevicetypeLabelView = require 'views/OptionsDevicetypeLabel'
+EntryListHelpView = require 'views/EntryListHelp'
 
 # atom/entry file loader
 loader = require 'loader'
@@ -74,6 +75,7 @@ class Router extends Backbone.Router
   routes: 
     #"home" : "entries"
     "entries" : "entries"
+    "entries/help" : "helpEntries"
     "entry/:eid" : "entry"
     "preview/:eid" : "preview"
     "sendInternet/:eid" : "sendInternet"
@@ -83,6 +85,20 @@ class Router extends Backbone.Router
     # all entries - top-level view
     while window.views.length>1
       popView()
+
+  helpEntries: ->
+    @entries()
+    if window.views.length==0
+      console.log "cannot show help - no initial view"
+    else
+      view = new EntryListHelpView()
+      addView view, "Help", "entries/help"
+      # special case - overlay show entries
+      if window.views.length==2
+        v = window.views[0]
+        v.scrollTop = 0
+        v.$el.show()
+
 
   getEntry: (id) ->
     # id is already URI-decoded
