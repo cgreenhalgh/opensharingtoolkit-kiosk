@@ -4,6 +4,7 @@ module.exports = class Devicetype extends Backbone.Model
   defaults:
     label: 'Default device type' 
     supportsMime: []
+    # helpHtml: 
     # term: 
     # userAgentPattern:
 

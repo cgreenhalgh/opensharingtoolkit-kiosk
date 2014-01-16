@@ -28,6 +28,21 @@ module.exports = class DevicetypeChoiceView extends Backbone.View
 
   events: 
     'click .devicetype': 'selectDevice'
+    'click .devicetype-help-show': 'help'
+    'click .devicetype-help-hide': 'helpHide'
+
+  helpHide: =>
+    $( '.devicetype-help-panel', @$el ).addClass 'hide'
+    $( '.devicetype-help-show', @$el ).removeClass 'hide'
+    $( '.devicetype-help-hide', @$el ).addClass 'hide'
+    false
+
+  help: (ev) =>
+    @helpHide()
+    dtel = $( ev.target ).parents '.devicetype'
+    $( '.devicetype-help-button', dtel ).toggleClass 'hide'
+    dtel.next('.panel').removeClass 'hide'
+    false
 
   selectDevice: (ev) =>
     term = ev.currentTarget.id

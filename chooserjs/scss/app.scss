@@ -67,6 +67,8 @@
   // text
   font-size: $h3-font-size;
   vertical-align: middle;
+  // for help button
+  position: relative;
 };
 .devicetype-selected {
 };
@@ -122,6 +124,23 @@ span.ssid {
   padding: 0.2em;
   cursor: pointer;
 };
+.devicetype-help-button {
+  width: 1.5em;
+  height: 1.5em;
+  overflow: visible;
+  //padding: 0.2em;
+  cursor: pointer;
+};
+.devicetype-help-image {
+  height: 6em;
+  width: auto;
+  margin-left: 1em;
+  float: right;
+};
+.clear-both {
+  clear: both;
+};
+
 // help overlay helper
 .help-relative {
   position: relative;
