@@ -31,7 +31,7 @@
     </div>
     <div class="small-12 medium-6 large-6 columns">
       <div class="panel hide entry-option-step-panel">
-        <p>Help for scan QRCode...</p>
+        <%- @templateQRCodeHelp(@) %>
       </div>
     </div>
   </div>    
@@ -48,7 +48,8 @@
     </div>
     <div class="small-12 medium-6 large-6 columns">
       <div class="panel hide entry-option-step-panel">
-        <p>Help for enter URL...</p>
+        <p>Typing this URL into your phone's web browser is just the same as scanning the QR code.</p>
+        <p>Note: type it all together on one line, even it is appears split here. There are no spaces in it.</p>
       </div>
     </div>
   </div>    

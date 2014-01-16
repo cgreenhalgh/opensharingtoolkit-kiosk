@@ -49,7 +49,7 @@
   }
   return this.require.define;
 }).call(this)({"app": function(exports, require, module) {(function() {
-  var App, Devicetype, DevicetypeChoiceView, DevicetypeList, Entry, EntryInfoView, EntryList, EntryListView, EntryPreviewView, EntrySendCacheView, EntrySendInternetView, Mimetype, MimetypeList, Options, OptionsDevicetypeLabelView, Router, addView, chooseDevicetype, kiosk, loader, popView, testentry1;
+  var App, Devicetype, DevicetypeChoiceView, DevicetypeList, Entry, EntryInfoView, EntryList, EntryListHelpView, EntryListView, EntryPreviewView, EntrySendCacheView, EntrySendInternetView, Mimetype, MimetypeList, Options, OptionsDevicetypeLabelView, Router, addView, chooseDevicetype, kiosk, loader, popView, testentry1;
   var __hasProp = Object.prototype.hasOwnProperty, __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor; child.__super__ = parent.prototype; return child; };
 
   Mimetype = require('models/Mimetype');
@@ -79,6 +79,8 @@
   DevicetypeChoiceView = require('views/DevicetypeChoice');
 
   OptionsDevicetypeLabelView = require('views/OptionsDevicetypeLabel');
+
+  EntryListHelpView = require('views/EntryListHelp');
 
   loader = require('loader');
 
@@ -148,10 +150,25 @@
 
     Router.prototype.routes = {
       "entries": "entries",
+      "help": "help",
       "entry/:eid": "entry",
       "preview/:eid": "preview",
       "sendInternet/:eid": "sendInternet",
       "sendCache/:eid": "sendCache"
+    };
+
+    Router.prototype.back = function() {
+      var bcas, href;
+      bcas = $('.breadcrumbs a');
+      if (bcas.length >= 2) {
+        href = $(bcas[bcas.length - 2]).attr('href');
+        console.log("back to " + href);
+        return router.navigate(href, {
+          trigger: true
+        });
+      } else {
+        return console.log("back with nothing to go back to");
+      }
     };
 
     Router.prototype.entries = function() {
@@ -161,6 +178,19 @@
         _results.push(popView());
       }
       return _results;
+    };
+
+    Router.prototype.help = function() {
+      var v, view;
+      if (window.views.length === 0) {
+        return console.log("cannot show help - no initial view");
+      } else {
+        v = window.views[window.views.length - 1];
+        view = new EntryListHelpView();
+        addView(view, "Help", "entries/help");
+        v.scrollTop = 0;
+        return v.$el.show();
+      }
     };
 
     Router.prototype.getEntry = function(id) {
@@ -205,7 +235,7 @@
       view = new EntrySendInternetView({
         model: entry
       });
-      return addView(view, "Send over Internet", "send_internet/" + (encodeURIComponent(id)));
+      return addView(view, "Send over Internet", "sendInternet/" + (encodeURIComponent(id)));
     };
 
     Router.prototype.sendCache = function(id) {
@@ -216,7 +246,7 @@
       view = new EntrySendCacheView({
         model: entry
       });
-      return addView(view, "Send locally", "send_cache/" + (encodeURIComponent(id)));
+      return addView(view, "Send locally", "sendCache/" + (encodeURIComponent(id)));
     };
 
     return Router;
@@ -270,26 +300,30 @@
       }));
       devicetypes = new DevicetypeList();
       devicetypes.add(new Devicetype({
-        term: "android",
-        label: "Android",
-        userAgentPattern: 'Android',
-        supportsMime: ["text/html", "application/vnd.android.package-archive"]
-      }));
-      devicetypes.add(new Devicetype({
         term: "ios",
         label: "iPhone",
         userAgentPattern: '(iPhone)|(iPod)|(iPad)',
-        supportsMime: ["text/html", "application/x-itunes-app"]
+        supportsMime: ["text/html", "application/x-itunes-app"],
+        helpHtml: '<p><img class="devicetype-help-image" src="icons/example_ios.png">There are several different models of iPhone, all sold by Apple, but they are all broadly compatible. You should also use this option if you have an iPad, iPad mini or iPod Touch.</p>'
       }));
       devicetypes.add(new Devicetype({
         term: "windowsphone",
         label: "Windows Phone",
-        supportsMime: ["text/html"]
+        supportsMime: ["text/html"],
+        helpHtml: '<p><img class="devicetype-help-image" src="icons/example_windowsphone.png">Windows phones include newer Nokia smart phones, and also specific phones made by HTC, Samsung and others. Windows Phones have a distinctive square tile-based interface.</p>'
+      }));
+      devicetypes.add(new Devicetype({
+        term: "android",
+        label: "Android",
+        userAgentPattern: 'Android',
+        supportsMime: ["text/html", "application/vnd.android.package-archive"],
+        helpHtml: '<p><img class="devicetype-help-image" src="icons/example_android.png">There are many different Android phones and tablets, including devices made by Google, Samsung, Motorola, HTC, Sony Ericsson and Asus (some Nexus).</p>'
       }));
       devicetypes.add(new Devicetype({
         term: "other",
         label: "Other Device",
-        supportsMime: ["text/html"]
+        supportsMime: ["text/html"],
+        helpHtml: '<p>If you have another sort of smart phone or tablet to the ones listed then some of the content here may work, but unfortunately we can\'t make any guarantees. If you just aren\'t sure what sort of phone it is then make guess!</p>'
       }));
       options = new Options({
         devicetypes: devicetypes
@@ -315,7 +349,7 @@
         trigger: true
       });
       $(document).on('click', 'a', function(ev) {
-        var bcas, href;
+        var href;
         ev.preventDefault();
         href = $(this).attr('href');
         console.log("click " + href);
@@ -324,16 +358,7 @@
             if (href === '-chooseDevicetype') {
               chooseDevicetype();
             } else if (href === '-back') {
-              bcas = $('.breadcrumbs a');
-              if (bcas.length >= 2) {
-                href = $(bcas[bcas.length - 2]).attr('href');
-                console.log("back to " + href);
-                router.navigate(href, {
-                  trigger: true
-                });
-              } else {
-                console.log("back with nothing to go back to");
-              }
+              router.back();
             } else {
               console.log("ignore click " + href);
             }
@@ -1099,15 +1124,19 @@
     
       __out.push(__sanitize('devicetype-' + this.devicetype.term));
     
-      __out.push('">\n<div class="option-value-icon"><img class="" src="icons/');
+      __out.push('">\n  <div class="option-value-icon"><img class="" src="icons/');
     
       __out.push(__sanitize(this.selected ? 'cross.png' : 'emptybox.png'));
     
-      __out.push('"></div>\n');
+      __out.push('"></div>\n  ');
     
       __out.push(__sanitize(this.devicetype.label));
     
-      __out.push('\n</div>\n');
+      __out.push('\n  <img src="icons/help.png" class="devicetype-help-button devicetype-help-show" >\n  <img src="icons/help-down.png" class="devicetype-help-button devicetype-help-hide hide" >\n</div>\n<div class="panel hide devicetype-help-panel" >');
+    
+      __out.push(this.devicetype.helpHtml);
+    
+      __out.push('<div class="clear-both"></div></div>\n\n');
     
   }).call(__obj);
   __obj.safe = __objSafe, __obj.escape = __escape;
@@ -1228,32 +1257,76 @@
       __out.push('">\n  </div>\n</div>\n<div class="small-12 medium-6 large-6 columns">\n');
     
       if (this.optionPreview) {
-        __out.push('<div class="entry-option option-view">Preview</div>\n');
+        __out.push('\n  <div class="entry-option option-view">Preview\n    <img src="icons/help.png" class="entry-option-help-button help-option-view">\n    <img src="icons/help-down.png" class="entry-option-help-button help-option-view hide">\n  </div>\n  <div class="panel help-option-view hide">\n    <p>Have a look before you download anything.<p>\n  </div>\n');
       } else {
-        __out.push('<div class="entry-option disabled">Sorry, cannot preview this</div>');
+        __out.push('\n  <div class="entry-option disabled">Sorry, cannot preview this\n  </div>\n');
       }
     
       __out.push('\n');
     
       if (this.optionSendInternet) {
-        __out.push('<div class="entry-option option-send-internet">Send over Internet</div>');
+        __out.push('\n  <div class="entry-option option-send-internet">Send over Internet\n    <img src="icons/help.png" class="entry-option-help-button help-option-send-internet">\n    <img src="icons/help-down.png" class="entry-option-help-button help-option-send-internet hide">\n  </div>\n  <div class="panel help-option-send-internet hide">\n    <p>Download this content onto your phone using your own mobile data connection.<p>\n    <!--<p class="text-right">Find out more...<img src="icons/help.png" class="entry-option-more-help-button more-help-option-send-internet"></p>-->\n  </div>\n');
       }
     
       __out.push('\n');
     
       if (this.optionSendCache) {
-        __out.push('<div class="entry-option option-send-cache">Send locally</div>');
+        __out.push('\n  <div class="entry-option option-send-cache">Send locally\n    <img src="icons/help.png" class="entry-option-help-button help-option-send-cache">\n    <img src="icons/help-down.png" class="entry-option-help-button help-option-send-cache hide">\n  </div>\n  <div class="panel help-option-send-cache hide">\n    <p>Download this content onto your phone using a direct WiFi connection.<p>\n    <!--<p class="text-right">Find out more...<img src="icons/help.png" class="entry-option-more-help-button more-help-option-send-cache"></p>-->\n  </div>\n');
       }
     
       __out.push('\n');
     
       if (this.optionGet) {
-        __out.push('<div class="entry-option option-get">Get on this device</div>');
+        __out.push('\n  <div class="entry-option option-get">Get on this device\n    <img src="icons/help.png" class="entry-option-help-button help-option-get">\n    <img src="icons/help-down.png" class="entry-option-help-button help-option-get hide">\n  </div>\n  <div class="panel help-option-get hide">\n    <p>Download this content on this device.<p>\n  </div>\n');
       }
     
       __out.push('\n</div>\n\n');
     
     }).call(this);
+    
+  }).call(__obj);
+  __obj.safe = __objSafe, __obj.escape = __escape;
+  return __out.join('');
+}}, "templates/EntryListHelp": function(exports, require, module) {module.exports = function(__obj) {
+  if (!__obj) __obj = {};
+  var __out = [], __capture = function(callback) {
+    var out = __out, result;
+    __out = [];
+    callback.call(this);
+    result = __out.join('');
+    __out = out;
+    return __safe(result);
+  }, __sanitize = function(value) {
+    if (value && value.ecoSafe) {
+      return value;
+    } else if (typeof value !== 'undefined' && value != null) {
+      return __escape(value);
+    } else {
+      return '';
+    }
+  }, __safe, __objSafe = __obj.safe, __escape = __obj.escape;
+  __safe = __obj.safe = function(value) {
+    if (value && value.ecoSafe) {
+      return value;
+    } else {
+      if (!(typeof value !== 'undefined' && value != null)) value = '';
+      var result = new String(value);
+      result.ecoSafe = true;
+      return result;
+    }
+  };
+  if (!__escape) {
+    __escape = __obj.escape = function(value) {
+      return ('' + value)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;');
+    };
+  }
+  (function() {
+    
+      __out.push('\n<div class="entry-list-help-top"></div>\n<div class="row">\n  <div class="small-6 large-6 columns">\n    <p class="text-centre"><img class="help-scroll-vertical" src="icons/scroll-vertical-hint.png">Drag to scroll up and down</p>\n  </div>\n  <div class="small-6 large-6 columns">\n    <p class="text-centre">Touch an item to find out more</p>\n  </div>\n</div>\n<div class="entry-list-help-ok">\n  <a href="-back" class="button">OK</a>\n</div>\n\n');
     
   }).call(__obj);
   __obj.safe = __objSafe, __obj.escape = __escape;
@@ -1371,23 +1444,31 @@
   }
   (function() {
     
-      __out.push('\n<div class="small-12 large-12 columns">\n  <h1>');
+      __out.push('<div class="small-12 large-12 columns">\n  <h1>');
     
       __out.push(__sanitize(this.entry.title));
     
-      __out.push('</h1>\n  <p class="option-info">Join Wifi Network <span class="ssid">');
+      __out.push('</h1>\n  <div class="row">\n    <div class="small-12 medium-6 large-6 columns">\n      <p class="option-info"><span class="option-step">1</span>\n        <img src="icons/help.png" class="entry-option-step-help-button entry-option-step-show">\n        <img src="icons/help-right.png" class="entry-option-step-help-button entry-option-step-hide hide">\n        Join Wifi Network <span class="ssid">');
     
       __out.push(__sanitize(this.ssid));
     
-      __out.push('</span> and scan/enter...</p>\n  <img class="option-qrcode" src="');
+      __out.push('</span>\n        <div class="clear-both"></div>\n      </p>\n    </div>\n    <div class="small-12 medium-6 large-6 columns">\n      <div class="panel hide entry-option-step-panel">\n        <p>You can get this content directly from this device using its own WiFi network.</p>\n        <p>Note: if you want to install a QR code reader from the Internet then do that first (see the next step).<p>\n        <p>Use the settings on your phone or tablet to search for WiFi networks; find the one called <span class="ssid">');
+    
+      __out.push(__sanitize(this.ssid));
+    
+      __out.push('</span> and join it. Within about 10 seconds you should have joined the network.</p>\n        <p>If you are unable to find or join this WiFi network then you will have to try downloading over the Internet - go back and choose that option.</p>\n      </div>\n    </div>\n  </div>    \n\n  <div class="row">\n    <div class="small-12 medium-6 large-6 columns">\n      <p class="option-info"><span class="option-step">2</span>\n        <img src="icons/help.png" class="entry-option-step-help-button entry-option-step-show">\n        <img src="icons/help-right.png" class="entry-option-step-help-button entry-option-step-hide hide">\n        Either (a) scan this QR-code:\n        <div class="clear-both"></div>\n      </p>\n      <p class="option-url"><img class="option-qrcode" src="');
     
       __out.push(__sanitize(this.qrurl));
     
-      __out.push('" alt="qrcode for item">\n  <p class="option-url">');
+      __out.push('" alt="qrcode for item"></p>\n    </div>\n    <div class="small-12 medium-6 large-6 columns">\n      <div class="panel hide entry-option-step-panel">\n        ');
+    
+      __out.push(this.templateQRCodeHelp(this));
+    
+      __out.push('\n        <p>Note that you CANNOT access the app store or download new apps while you are connected to this device\'s WiFi network. You will have to disconnect from it and connect to the Internet.\n      </div>\n    </div>\n  </div>    \n\n  <div class="row">\n    <div class="small-12 medium-6 large-6 columns">\n      <p class="option-info">\n        <img src="icons/help.png" class="entry-option-step-help-button entry-option-step-show">\n        <img src="icons/help-right.png" class="entry-option-step-help-button entry-option-step-hide hide">\n        Or (b) enter this URL in your web browser:\n        <div class="clear-both"></div>\n      </p>\n      <p class="option-url">');
     
       __out.push(__sanitize(this.geturl));
     
-      __out.push('</p>\n</div>\n\n');
+      __out.push('</p>\n    </div>\n    <div class="small-12 medium-6 large-6 columns">\n      <div class="panel hide entry-option-step-panel">\n        <p>Typing this URL into your phone\'s web browser is just the same as scanning the QR code.</p>\n        <p>Note: type it all together on one line, even it is appears split here. There are no spaces in it.</p>\n      </div>\n    </div>\n  </div>    \n\n  <div class="row">\n    <div class="small-12 medium-6 large-6 columns">\n      <p class="option-info"><span class="option-step">3</span>\n        In a few seconds you should see a simple web page with a link to this content.\n      </p>\n    </div>\n  </div>\n\n  <div class="row">\n    <div class="small-12 medium-6 large-6 columns">\n      <p class="option-info">\n        <img src="icons/help.png" class="entry-option-step-help-button entry-option-step-show">\n        <img src="icons/help-right.png" class="entry-option-step-help-button entry-option-step-hide hide">\n        <span class="option-step">4</span>\n        Disconnect from this device\'s WiFi network when you have the content you want.\n      </p>\n    </div>\n    <div class="small-12 medium-6 large-6 columns">\n      <div class="panel hide entry-option-step-panel">\n        <p>This may be called "forgetting" or deleting this network on your phone\'s WiFi settings.</p>\n        <p>If you don\'t do this then your phone may keep connecting to this WiFi network and you will not able to access the Internet while you are near this device.</p>\n      </div>\n    </div>\n  </div>\n</div>\n\n');
     
   }).call(__obj);
   __obj.safe = __objSafe, __obj.escape = __escape;
@@ -1435,15 +1516,75 @@
     
       __out.push(__sanitize(this.entry.title));
     
-      __out.push('</h1>\n  <p class="option-info">Enable internet access and scan/enter...</p>\n  <img class="option-qrcode" src="');
+      __out.push('</h1>\n  <div class="row">\n    <div class="small-12 medium-6 large-6 columns">\n      <p class="option-info"><span class="option-step">1</span>\n        <img src="icons/help.png" class="entry-option-step-help-button entry-option-step-show">\n        <img src="icons/help-right.png" class="entry-option-step-help-button entry-option-step-hide hide">\n        Enable internet access\n        <div class="clear-both"></div>\n      </p>\n    </div>\n    <div class="small-12 medium-6 large-6 columns">\n      <div class="panel hide entry-option-step-panel">\n        <p>If you can access the internet on your phone or tablet at the moment then move to the next step.</p>\n        <p>If your phone or tablet has WiFi and you know and trust a network here then connect to that now.</p>\n        <p>If you have a data contract that you are happy to use (and a SIM, if you are using a tablet) then check that the signal strength is OK. If you cannot get a signal here then you may not be able to use the Internet - try WiFi instead.</p>\n      </div>\n    </div>\n  </div>    \n\n  <div class="row">\n    <div class="small-12 medium-6 large-6 columns">\n      <p class="option-info"><span class="option-step">2</span>\n        <img src="icons/help.png" class="entry-option-step-help-button entry-option-step-show">\n        <img src="icons/help-right.png" class="entry-option-step-help-button entry-option-step-hide hide">\n        Either (a) scan this QR-code:\n        <div class="clear-both"></div>\n      </p>\n      <p class="option-url"><img class="option-qrcode" src="');
     
       __out.push(__sanitize(this.qrurl));
     
-      __out.push('" alt="qrcode for item">\n  <p class="option-url">');
+      __out.push('" alt="qrcode for item"></p>\n    </div>\n    <div class="small-12 medium-6 large-6 columns">\n      <div class="panel hide entry-option-step-panel">\n        ');
+    
+      __out.push(this.templateQRCodeHelp(this));
+    
+      __out.push('\n      </div>\n    </div>\n  </div>    \n\n  <div class="row">\n    <div class="small-12 medium-6 large-6 columns">\n      <p class="option-info">\n        <img src="icons/help.png" class="entry-option-step-help-button entry-option-step-show">\n        <img src="icons/help-right.png" class="entry-option-step-help-button entry-option-step-hide hide">\n        Or (b) enter this URL in your web browser:\n        <div class="clear-both"></div>\n      </p>\n      <p class="option-url">');
     
       __out.push(__sanitize(this.geturl));
     
-      __out.push('</p>\n</div>\n\n');
+      __out.push('</p>\n    </div>\n    <div class="small-12 medium-6 large-6 columns">\n      <div class="panel hide entry-option-step-panel">\n        <p>Typing this URL into your phone\'s web browser is just the same as scanning the QR code.</p>\n        <p>Note: type it all together on one line, even it is appears split here. There are no spaces in it.</p>\n      </div>\n    </div>\n  </div>    \n\n  <div class="row">\n    <div class="small-12 medium-6 large-6 columns">\n      <p class="option-info"><span class="option-step">3</span>\n        In a few seconds you should see a simple web page with a link to this content.\n      </p>\n    </div>\n  </div>\n</div>\n\n');
+    
+  }).call(__obj);
+  __obj.safe = __objSafe, __obj.escape = __escape;
+  return __out.join('');
+}}, "templates/QRCodeHelp": function(exports, require, module) {module.exports = function(__obj) {
+  if (!__obj) __obj = {};
+  var __out = [], __capture = function(callback) {
+    var out = __out, result;
+    __out = [];
+    callback.call(this);
+    result = __out.join('');
+    __out = out;
+    return __safe(result);
+  }, __sanitize = function(value) {
+    if (value && value.ecoSafe) {
+      return value;
+    } else if (typeof value !== 'undefined' && value != null) {
+      return __escape(value);
+    } else {
+      return '';
+    }
+  }, __safe, __objSafe = __obj.safe, __escape = __obj.escape;
+  __safe = __obj.safe = function(value) {
+    if (value && value.ecoSafe) {
+      return value;
+    } else {
+      if (!(typeof value !== 'undefined' && value != null)) value = '';
+      var result = new String(value);
+      result.ecoSafe = true;
+      return result;
+    }
+  };
+  if (!__escape) {
+    __escape = __obj.escape = function(value) {
+      return ('' + value)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;');
+    };
+  }
+  (function() {
+    
+      __out.push('        <p>You need a scanning app on your phone or tablet to scan this "QR Code" - it is just the same as the web link below.</p>\n');
+    
+      if (this.devicetype.attributes.term === 'ios') {
+        __out.push('\n        <p>If you don\'t have a scanner already try searching in the app store for "QR Reader" - at least some apps are free. Note that you will need Internet access to download a new app.</p>\n');
+      } else if (this.devicetype.attributes.term === 'android') {
+        __out.push('\n        <p>If you don\'t have a scanner already try searching in google play for "ZXing" - their app is good and free. Note that you will need Internet access to download a new app.</p>\n');
+      } else if (this.devicetype.attributes.term === 'windowsphone') {
+        __out.push('\n        <p>If you don\'t have a scanner already try searching in the app store "QR" - at least some apps are free. Note that you will need Internet access to download a new app.</p>\n');
+      } else {
+        __out.push('\n        <p>If you don\'t have a scanner app already try searching in your device\'s app store for "QR"; hopefully there will be a free app! Note that you will need Internet access to download a new app.</p>\n');
+      }
+    
+      __out.push('\n\n');
     
   }).call(__obj);
   __obj.safe = __objSafe, __obj.escape = __escape;
@@ -1460,6 +1601,8 @@
 
     function DevicetypeChoiceView() {
       this.selectDevice = __bind(this.selectDevice, this);
+      this.help = __bind(this.help, this);
+      this.helpHide = __bind(this.helpHide, this);
       this.render = __bind(this.render, this);
       DevicetypeChoiceView.__super__.constructor.apply(this, arguments);
     }
@@ -1491,7 +1634,25 @@
     };
 
     DevicetypeChoiceView.prototype.events = {
-      'click .devicetype': 'selectDevice'
+      'click .devicetype': 'selectDevice',
+      'click .devicetype-help-show': 'help',
+      'click .devicetype-help-hide': 'helpHide'
+    };
+
+    DevicetypeChoiceView.prototype.helpHide = function() {
+      $('.devicetype-help-panel', this.$el).addClass('hide');
+      $('.devicetype-help-show', this.$el).removeClass('hide');
+      $('.devicetype-help-hide', this.$el).addClass('hide');
+      return false;
+    };
+
+    DevicetypeChoiceView.prototype.help = function(ev) {
+      var dtel;
+      this.helpHide();
+      dtel = $(ev.target).parents('.devicetype');
+      $('.devicetype-help-button', dtel).toggleClass('hide');
+      dtel.next('.panel').removeClass('hide');
+      return false;
     };
 
     DevicetypeChoiceView.prototype.selectDevice = function(ev) {
@@ -1592,6 +1753,11 @@
       this.optionSendInternet = __bind(this.optionSendInternet, this);
       this.optionGet = __bind(this.optionGet, this);
       this.optionView = __bind(this.optionView, this);
+      this.helpOptionGet = __bind(this.helpOptionGet, this);
+      this.helpOptionSendCache = __bind(this.helpOptionSendCache, this);
+      this.helpOptionSendInternet = __bind(this.helpOptionSendInternet, this);
+      this.helpOptionView = __bind(this.helpOptionView, this);
+      this.helpOption = __bind(this.helpOption, this);
       this.render = __bind(this.render, this);
       this.template = __bind(this.template, this);
       EntryInfoView.__super__.constructor.apply(this, arguments);
@@ -1631,10 +1797,41 @@
     };
 
     EntryInfoView.prototype.events = {
+      'click .help-option-view': 'helpOptionView',
+      'click .help-option-send-internet': 'helpOptionSendInternet',
+      'click .help-option-send-cache': 'helpOptionSendCache',
+      'click .help-option-get': 'helpOptionGet',
       'click .option-view': 'optionView',
       'click .option-get': 'optionGet',
       'click .option-send-internet': 'optionSendInternet',
       'click .option-send-cache': 'optionSendCache'
+    };
+
+    EntryInfoView.prototype.helpOption = function(name) {
+      var b, offset;
+      $(".help-option-" + name, this.$el).toggleClass('hide');
+      b = $(".help-option-" + name, this.$el).get(1);
+      if (!$(b).hasClass('hide')) {
+        offset = $(b).offset();
+        window.scrollTo(0, offset.top);
+      }
+      return false;
+    };
+
+    EntryInfoView.prototype.helpOptionView = function() {
+      return this.helpOption('view');
+    };
+
+    EntryInfoView.prototype.helpOptionSendInternet = function() {
+      return this.helpOption('send-internet');
+    };
+
+    EntryInfoView.prototype.helpOptionSendCache = function() {
+      return this.helpOption('send-cache');
+    };
+
+    EntryInfoView.prototype.helpOptionGet = function() {
+      return this.helpOption('get');
     };
 
     EntryInfoView.prototype.optionView = function() {
@@ -1716,7 +1913,6 @@
       var views, _ref;
       console.log("EntryListView render (devicetype " + ((_ref = window.options.attributes.devicetype) != null ? _ref.attributes.term : void 0) + ")");
       this.$el.empty();
-      this.$el.append('<div class="floating-help-button"><img src="icons/help.png"></div>');
       views = [];
       this.model.forEach(this.add);
       return this;
@@ -1744,7 +1940,74 @@
 
     EntryListView.prototype.showHelp = function() {
       console.log("EntryList help...");
-      return window.scrollTo(0, 0);
+      return window.router.navigate('help', {
+        trigger: true
+      });
+    };
+
+    return EntryListView;
+
+  })();
+
+}).call(this);
+}, "views/EntryListHelp": function(exports, require, module) {(function() {
+  var EntryListView, templateEntryListHelp;
+  var __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; }, __hasProp = Object.prototype.hasOwnProperty, __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor; child.__super__ = parent.prototype; return child; };
+
+  templateEntryListHelp = require('templates/EntryListHelp');
+
+  module.exports = EntryListView = (function() {
+
+    __extends(EntryListView, Backbone.View);
+
+    function EntryListView() {
+      this.remove = __bind(this.remove, this);
+      this.template = __bind(this.template, this);
+      this.render = __bind(this.render, this);
+      EntryListView.__super__.constructor.apply(this, arguments);
+    }
+
+    EntryListView.prototype.tagName = 'div';
+
+    EntryListView.prototype.className = 'entry-list-help';
+
+    EntryListView.prototype.initialize = function() {
+      return this.render();
+    };
+
+    EntryListView.prototype.render = function() {
+      var backHelp, data, deviceHelp;
+      data = {};
+      this.$el.html(this.template(data));
+      this.extraEls = [];
+      backHelp = $('<p class="help-below-left-align"><img src="icons/label-below-right.png" class="help-label"><span>Touch to go back</span></p>');
+      $('#back').append(backHelp);
+      this.extraEls.push(backHelp);
+      deviceHelp = $('<p class="help-below-right-align"><span>Identify your phone</span><img src="icons/label-below-left.png" class="help-label"></p>');
+      $('#chooseDevicetype').append(deviceHelp);
+      this.extraEls.push(deviceHelp);
+      return this;
+    };
+
+    EntryListView.prototype.template = function(d) {
+      return templateEntryListHelp(d);
+    };
+
+    EntryListView.prototype.events = {
+      'click': 'close'
+    };
+
+    EntryListView.prototype.close = function(ev) {
+      ev.preventDefault();
+      window.router.back();
+      return false;
+    };
+
+    EntryListView.prototype.remove = function() {
+      console.log('close/remove EntryListHelp');
+      this.$el.remove();
+      $('#back .help-below-left-align').remove();
+      return $('#chooseDevicetype .help-below-right-align').remove();
     };
 
     return EntryListView;
@@ -1800,10 +2063,12 @@
 
 }).call(this);
 }, "views/EntrySendCache": function(exports, require, module) {(function() {
-  var EntrySendCacheView, getter, kiosk, templateEntrySendCache;
+  var EntrySendCacheView, getter, kiosk, templateEntrySendCache, templateQRCodeHelp;
   var __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; }, __hasProp = Object.prototype.hasOwnProperty, __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor; child.__super__ = parent.prototype; return child; };
 
   templateEntrySendCache = require('templates/EntrySendCache');
+
+  templateQRCodeHelp = require('templates/QRCodeHelp');
 
   getter = require('getter');
 
@@ -1814,6 +2079,8 @@
     __extends(EntrySendCacheView, Backbone.View);
 
     function EntrySendCacheView() {
+      this.help = __bind(this.help, this);
+      this.helpHide = __bind(this.helpHide, this);
       this.render = __bind(this.render, this);
       EntrySendCacheView.__super__.constructor.apply(this, arguments);
     }
@@ -1833,19 +2100,46 @@
     };
 
     EntrySendCacheView.prototype.render = function() {
-      var data, fullurl, geturl, qrurl;
+      var data, fullurl, geturl, qrurl, _ref;
       console.log("render EntrySendCache " + this.model.id + " " + this.model.attributes.title);
       fullurl = getter.getGetUrl(this.model, window.options.attributes.devicetype, false);
       geturl = kiosk.getTempRedirect(fullurl);
       qrurl = kiosk.getQrCode(geturl);
       data = {
+        templateQRCodeHelp: templateQRCodeHelp,
         entry: this.model.attributes,
         geturl: geturl,
         qrurl: qrurl,
-        ssid: kiosk.getWifiSsid()
+        devicetype: window.options.attributes.devicetype,
+        ssid: (_ref = kiosk.getWifiSsid()) != null ? _ref : "??"
       };
       this.$el.html(this.template(data));
       return this;
+    };
+
+    EntrySendCacheView.prototype.events = {
+      'click .entry-option-step-show': 'help',
+      'click .entry-option-step-hide': 'helpHide'
+    };
+
+    EntrySendCacheView.prototype.helpHide = function() {
+      $('.entry-option-step-panel', this.$el).addClass('hide');
+      $('.entry-option-step-show', this.$el).removeClass('hide');
+      $('.entry-option-step-hide', this.$el).addClass('hide');
+      return false;
+    };
+
+    EntrySendCacheView.prototype.help = function(ev) {
+      var dtel, offset;
+      $('.entry-option-step-panel', this.$el).addClass('hide');
+      offset = $(ev.target).offset();
+      $('.entry-option-step-show', this.$el).removeClass('hide');
+      $('.entry-option-step-hide', this.$el).addClass('hide');
+      dtel = $(ev.target).parents('.row').first();
+      $('.entry-option-step-help-button', dtel).toggleClass('hide');
+      $('.entry-option-step-panel', dtel).removeClass('hide');
+      window.scrollTo(0, offset.top);
+      return false;
     };
 
     return EntrySendCacheView;
@@ -1854,10 +2148,12 @@
 
 }).call(this);
 }, "views/EntrySendInternet": function(exports, require, module) {(function() {
-  var EntrySendInternetView, getter, kiosk, templateEntrySendInternet;
+  var EntrySendInternetView, getter, kiosk, templateEntrySendInternet, templateQRCodeHelp;
   var __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; }, __hasProp = Object.prototype.hasOwnProperty, __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor; child.__super__ = parent.prototype; return child; };
 
   templateEntrySendInternet = require('templates/EntrySendInternet');
+
+  templateQRCodeHelp = require('templates/QRCodeHelp');
 
   getter = require('getter');
 
@@ -1868,6 +2164,8 @@
     __extends(EntrySendInternetView, Backbone.View);
 
     function EntrySendInternetView() {
+      this.help = __bind(this.help, this);
+      this.helpHide = __bind(this.helpHide, this);
       this.render = __bind(this.render, this);
       this.template = __bind(this.template, this);
       EntrySendInternetView.__super__.constructor.apply(this, arguments);
@@ -1894,12 +2192,39 @@
       geturl = (_ref = window.entries.shorturls[fullurl]) != null ? _ref : fullurl;
       qrurl = kiosk.getQrCode(geturl);
       data = {
+        templateQRCodeHelp: templateQRCodeHelp,
         entry: this.model.attributes,
         geturl: geturl,
-        qrurl: qrurl
+        qrurl: qrurl,
+        devicetype: window.options.attributes.devicetype
       };
       this.$el.html(this.template(data));
       return this;
+    };
+
+    EntrySendInternetView.prototype.events = {
+      'click .entry-option-step-show': 'help',
+      'click .entry-option-step-hide': 'helpHide'
+    };
+
+    EntrySendInternetView.prototype.helpHide = function() {
+      $('.entry-option-step-panel', this.$el).addClass('hide');
+      $('.entry-option-step-show', this.$el).removeClass('hide');
+      $('.entry-option-step-hide', this.$el).addClass('hide');
+      return false;
+    };
+
+    EntrySendInternetView.prototype.help = function(ev) {
+      var dtel, offset;
+      $('.entry-option-step-panel', this.$el).addClass('hide');
+      offset = $(ev.target).offset();
+      $('.entry-option-step-show', this.$el).removeClass('hide');
+      $('.entry-option-step-hide', this.$el).addClass('hide');
+      dtel = $(ev.target).parents('.row').first();
+      $('.entry-option-step-help-button', dtel).toggleClass('hide');
+      $('.entry-option-step-panel', dtel).removeClass('hide');
+      window.scrollTo(0, offset.top);
+      return false;
     };
 
     return EntrySendInternetView;

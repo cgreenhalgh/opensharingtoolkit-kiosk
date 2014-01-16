@@ -7787,10 +7787,11 @@ th.hide-for-touch {
 
 /* line 55, ../../scss/app.scss */
 .entry-option {
-  width: 90%;
+  width: 100%;
+  position: relative;
 }
 
-/* line 60, ../../scss/app.scss */
+/* line 62, ../../scss/app.scss */
 .devicetype {
   width: 100%;
   margin-top: 6px;
@@ -7798,9 +7799,10 @@ th.hide-for-touch {
   overflow: auto;
   font-size: 1.4375rem;
   vertical-align: middle;
+  position: relative;
 }
 
-/* line 73, ../../scss/app.scss */
+/* line 77, ../../scss/app.scss */
 .option-value-icon {
   display: inline-block;
   border: 4px solid;
@@ -7811,47 +7813,187 @@ th.hide-for-touch {
   height: 48px;
 }
 
-/* line 85, ../../scss/app.scss */
+/* line 86, ../../scss/app.scss */
+.option-url {
+  font-family: Monospace;
+  font-size: 80%;
+  text-align: center;
+  word-wrap: break-word;
+}
+
+/* line 92, ../../scss/app.scss */
+.option-qrcode {
+  width: 80%;
+  text-align: center;
+  height: auto;
+}
+
+/* line 97, ../../scss/app.scss */
+.option-step {
+  border: 2px solid #a1a1a1;
+  padding: 10px 10px;
+  background: #dddddd;
+  #width: 300px;
+  border-radius: 10px;
+}
+
+/* line 108, ../../scss/app.scss */
 span.ssid {
   font-family: monospace;
   font-weight: bold;
 }
 
-/* line 90, ../../scss/app.scss */
+/* line 113, ../../scss/app.scss */
 .floating-help-button {
   z-index: 20;
   position: fixed;
   width: 2em;
   height: 2em;
   right: 0.2em;
-  bottom: 0.2em;
+  top: 0.2em;
 }
-/* line 97, ../../scss/app.scss */
+/* line 120, ../../scss/app.scss */
 .floating-help-button img {
   width: 100%;
   height: 100%;
   cursor: pointer;
 }
 
-/* line 104, ../../scss/app.scss */
+/* line 126, ../../scss/app.scss */
+.menubar-help-pad {
+  width: 6em;
+}
+
+/* line 129, ../../scss/app.scss */
+.entry-option-help-button {
+  position: absolute;
+  right: 0.5em;
+  width: 2em;
+  height: 2em;
+  top: 0.2em;
+  padding: 0.2em;
+  cursor: pointer;
+}
+
+/* line 139, ../../scss/app.scss */
+.entry-option-more-help-button {
+  width: 3em;
+  height: 3em;
+  padding: 0.2em;
+  cursor: pointer;
+}
+
+/* line 146, ../../scss/app.scss */
+.entry-option-step-help-button {
+  width: 1.5em;
+  height: 1.5em;
+  overflow: visible;
+  cursor: pointer;
+  float: right;
+}
+
+/* line 153, ../../scss/app.scss */
+.devicetype-help-button {
+  width: 1.5em;
+  height: 1.5em;
+  overflow: visible;
+  cursor: pointer;
+}
+
+/* line 160, ../../scss/app.scss */
+.devicetype-help-image {
+  height: 6em;
+  width: auto;
+  margin-left: 1em;
+  float: right;
+}
+
+/* line 166, ../../scss/app.scss */
+.clear-both {
+  clear: both;
+}
+
+/* line 171, ../../scss/app.scss */
 .help-relative {
   position: relative;
 }
 
-/* line 107, ../../scss/app.scss */
+/* line 174, ../../scss/app.scss */
 .help-below-left-align {
   position: absolute;
   top: 1.5em;
-  left: 0.2em;
+  left: 1.2em;
+  right: -100%;
+  text-align: left;
   z-index: 40;
-  background-color: rgba(255, 255, 255, 0.6);
+}
+/* line 182, ../../scss/app.scss */
+.help-below-left-align img {
+  position: relative;
+  height: 1.5em;
+  width: 1.5em;
+}
+/* line 187, ../../scss/app.scss */
+.help-below-left-align span {
+  position: relative;
+  top: 0.8em;
 }
 
-/* line 114, ../../scss/app.scss */
+/* line 192, ../../scss/app.scss */
 .help-below-right-align {
   position: absolute;
   top: 1.5em;
-  right: 0.2em;
+  right: 1.2em;
+  left: -100%;
+  text-align: right;
   z-index: 40;
-  background-color: rgba(255, 255, 255, 0.6);
+}
+/* line 200, ../../scss/app.scss */
+.help-below-right-align img {
+  position: relative;
+  height: 1.5em;
+  width: 1.5em;
+}
+/* line 205, ../../scss/app.scss */
+.help-below-right-align span {
+  position: relative;
+  top: 0.8em;
+}
+
+/* line 210, ../../scss/app.scss */
+.help-label {
+  height: 1.5em;
+  width: 1.5em;
+}
+
+/* line 215, ../../scss/app.scss */
+.entry-list-help {
+  z-index: 30;
+  background-color: rgba(255, 255, 255, 0.8);
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+}
+/* line 223, ../../scss/app.scss */
+.entry-list-help .entry-list-help-top {
+  height: 5em;
+}
+/* line 226, ../../scss/app.scss */
+.entry-list-help .help-scroll-vertical {
+  width: 1.5em;
+  height: 6em;
+}
+/* line 230, ../../scss/app.scss */
+.entry-list-help .entry-list-help-ok {
+  position: fixed;
+  right: 0.2em;
+  bottom: 0.2em;
+  cursor: pointer;
+}
+
+/* line 237, ../../scss/app.scss */
+.entry-option-step-panel p {
+  font-size: 50%;
 }

@@ -1,5 +1,6 @@
 # Entry Send Cache View
 templateEntrySendCache = require 'templates/EntrySendCache'
+templateQRCodeHelp = require 'templates/QRCodeHelp'
 
 getter = require 'getter'
 kiosk = require 'kiosk'
@@ -30,12 +31,35 @@ module.exports = class EntrySendCacheView extends Backbone.View
     # determine QRCode URL
     qrurl = kiosk.getQrCode geturl
     data = 
+      templateQRCodeHelp: templateQRCodeHelp
       entry: @model.attributes
       geturl: geturl
       qrurl: qrurl
-      ssid: kiosk.getWifiSsid()
+      devicetype: window.options.attributes.devicetype
+      ssid: kiosk.getWifiSsid() ? "??"
     @$el.html @template data
     @
 
-  #events: 
+  events: 
+    'click .entry-option-step-show': 'help'
+    'click .entry-option-step-hide': 'helpHide'
+
+  helpHide: =>
+    $( '.entry-option-step-panel', @$el ).addClass 'hide'
+    $( '.entry-option-step-show', @$el ).removeClass 'hide'
+    $( '.entry-option-step-hide', @$el ).addClass 'hide'
+    false
+
+  help: (ev) =>
+    $( '.entry-option-step-panel', @$el ).addClass 'hide'
+    # need to get the position at the right time!
+    offset = $( ev.target ).offset()
+    $( '.entry-option-step-show', @$el ).removeClass 'hide'
+    $( '.entry-option-step-hide', @$el ).addClass 'hide'
+
+    dtel = $( ev.target ).parents('.row').first()
+    $( '.entry-option-step-help-button', dtel ).toggleClass 'hide'
+    $( '.entry-option-step-panel', dtel ).removeClass 'hide'
+    window.scrollTo 0,offset.top
+    false
 

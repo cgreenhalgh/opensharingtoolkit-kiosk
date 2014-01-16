@@ -1,8 +1,83 @@
-<%# Entry send cache, takes { entry: Entry, geturl: ..., qrurl: ..., ssid: ... } as data %>
 <div class="small-12 large-12 columns">
   <h1><%= @entry.title %></h1>
-  <p class="option-info">Join Wifi Network <span class="ssid"><%= @ssid %></span> and scan/enter...</p>
-  <img class="option-qrcode" src="<%= @qrurl %>" alt="qrcode for item">
-  <p class="option-url"><%= @geturl %></p>
+  <div class="row">
+    <div class="small-12 medium-6 large-6 columns">
+      <p class="option-info"><span class="option-step">1</span>
+        <img src="icons/help.png" class="entry-option-step-help-button entry-option-step-show">
+        <img src="icons/help-right.png" class="entry-option-step-help-button entry-option-step-hide hide">
+        Join Wifi Network <span class="ssid"><%= @ssid %></span>
+        <div class="clear-both"></div>
+      </p>
+    </div>
+    <div class="small-12 medium-6 large-6 columns">
+      <div class="panel hide entry-option-step-panel">
+        <p>You can get this content directly from this device using its own WiFi network.</p>
+        <p>Note: if you want to install a QR code reader from the Internet then do that first (see the next step).<p>
+        <p>Use the settings on your phone or tablet to search for WiFi networks; find the one called <span class="ssid"><%= @ssid %></span> and join it. Within about 10 seconds you should have joined the network.</p>
+        <p>If you are unable to find or join this WiFi network then you will have to try downloading over the Internet - go back and choose that option.</p>
+      </div>
+    </div>
+  </div>    
+
+  <div class="row">
+    <div class="small-12 medium-6 large-6 columns">
+      <p class="option-info"><span class="option-step">2</span>
+        <img src="icons/help.png" class="entry-option-step-help-button entry-option-step-show">
+        <img src="icons/help-right.png" class="entry-option-step-help-button entry-option-step-hide hide">
+        Either (a) scan this QR-code:
+        <div class="clear-both"></div>
+      </p>
+      <p class="option-url"><img class="option-qrcode" src="<%= @qrurl %>" alt="qrcode for item"></p>
+    </div>
+    <div class="small-12 medium-6 large-6 columns">
+      <div class="panel hide entry-option-step-panel">
+        <%- @templateQRCodeHelp(@) %>
+        <p>Note that you CANNOT access the app store or download new apps while you are connected to this device's WiFi network. You will have to disconnect from it and connect to the Internet.
+      </div>
+    </div>
+  </div>    
+
+  <div class="row">
+    <div class="small-12 medium-6 large-6 columns">
+      <p class="option-info">
+        <img src="icons/help.png" class="entry-option-step-help-button entry-option-step-show">
+        <img src="icons/help-right.png" class="entry-option-step-help-button entry-option-step-hide hide">
+        Or (b) enter this URL in your web browser:
+        <div class="clear-both"></div>
+      </p>
+      <p class="option-url"><%= @geturl %></p>
+    </div>
+    <div class="small-12 medium-6 large-6 columns">
+      <div class="panel hide entry-option-step-panel">
+        <p>Typing this URL into your phone's web browser is just the same as scanning the QR code.</p>
+        <p>Note: type it all together on one line, even it is appears split here. There are no spaces in it.</p>
+      </div>
+    </div>
+  </div>    
+
+  <div class="row">
+    <div class="small-12 medium-6 large-6 columns">
+      <p class="option-info"><span class="option-step">3</span>
+        In a few seconds you should see a simple web page with a link to this content.
+      </p>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="small-12 medium-6 large-6 columns">
+      <p class="option-info">
+        <img src="icons/help.png" class="entry-option-step-help-button entry-option-step-show">
+        <img src="icons/help-right.png" class="entry-option-step-help-button entry-option-step-hide hide">
+        <span class="option-step">4</span>
+        Disconnect from this device's WiFi network when you have the content you want.
+      </p>
+    </div>
+    <div class="small-12 medium-6 large-6 columns">
+      <div class="panel hide entry-option-step-panel">
+        <p>This may be called "forgetting" or deleting this network on your phone's WiFi settings.</p>
+        <p>If you don't do this then your phone may keep connecting to this WiFi network and you will not able to access the Internet while you are near this device.</p>
+      </div>
+    </div>
+  </div>
 </div>
 

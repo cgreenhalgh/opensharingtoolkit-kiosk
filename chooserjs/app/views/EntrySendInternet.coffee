@@ -1,5 +1,6 @@
 # Entry Send Internet View
 templateEntrySendInternet = require 'templates/EntrySendInternet'
+templateQRCodeHelp = require 'templates/QRCodeHelp'
 
 getter = require 'getter'
 kiosk = require 'kiosk'
@@ -16,7 +17,7 @@ module.exports = class EntrySendInternetView extends Backbone.View
     @render()
 
   # syntax ok?? or (x...) -> 
-  template: (d) =>
+  template: (d) =>    
     templateEntrySendInternet d
 
   render: =>
@@ -30,9 +31,11 @@ module.exports = class EntrySendInternetView extends Backbone.View
     # determine QRCode URL
     qrurl = kiosk.getQrCode geturl
     data = 
+      templateQRCodeHelp: templateQRCodeHelp
       entry: @model.attributes
       geturl: geturl
       qrurl: qrurl
+      devicetype: window.options.attributes.devicetype
     @$el.html @template data
     @
 
@@ -47,8 +50,12 @@ module.exports = class EntrySendInternetView extends Backbone.View
     false
 
   help: (ev) =>
+    $( '.entry-option-step-panel', @$el ).addClass 'hide'
+    # need to get the position at the right time!
     offset = $( ev.target ).offset()
-    @helpHide()
+    $( '.entry-option-step-show', @$el ).removeClass 'hide'
+    $( '.entry-option-step-hide', @$el ).addClass 'hide'
+
     dtel = $( ev.target ).parents('.row').first()
     $( '.entry-option-step-help-button', dtel ).toggleClass 'hide'
     $( '.entry-option-step-panel', dtel ).removeClass 'hide'
