@@ -10,10 +10,46 @@
   </div>
 </div>
 <div class="small-12 medium-6 large-6 columns">
-<% if @optionPreview: %><div class="entry-option option-view">Preview</div>
-<% else: %><div class="entry-option disabled">Sorry, cannot preview this</div><% end %>
-<% if @optionSendInternet: %><div class="entry-option option-send-internet">Send over Internet</div><% end %>
-<% if @optionSendCache: %><div class="entry-option option-send-cache">Send locally</div><% end %>
-<% if @optionGet: %><div class="entry-option option-get">Get on this device</div><% end %>
+<% if @optionPreview: %>
+  <div class="entry-option option-view">Preview
+    <img src="icons/help.png" class="entry-option-help-button help-option-view">
+    <img src="icons/help-down.png" class="entry-option-help-button help-option-view hide">
+  </div>
+  <div class="panel help-option-view hide">
+    <p>Have a look before you download anything.<p>
+  </div>
+<% else: %>
+  <div class="entry-option disabled">Sorry, cannot preview this
+  </div>
+<% end %>
+<% if @optionSendInternet: %>
+  <div class="entry-option option-send-internet">Send over Internet
+    <img src="icons/help.png" class="entry-option-help-button help-option-send-internet">
+    <img src="icons/help-down.png" class="entry-option-help-button help-option-send-internet hide">
+  </div>
+  <div class="panel help-option-send-internet hide">
+    <p>Download this content onto your phone using your own mobile data connection.<p>
+    <!--<p class="text-right">Find out more...<img src="icons/help.png" class="entry-option-more-help-button more-help-option-send-internet"></p>-->
+  </div>
+<% end %>
+<% if @optionSendCache: %>
+  <div class="entry-option option-send-cache">Send locally
+    <img src="icons/help.png" class="entry-option-help-button help-option-send-cache">
+    <img src="icons/help-down.png" class="entry-option-help-button help-option-send-cache hide">
+  </div>
+  <div class="panel help-option-send-cache hide">
+    <p>Download this content onto your phone using a direct WiFi connection.<p>
+    <!--<p class="text-right">Find out more...<img src="icons/help.png" class="entry-option-more-help-button more-help-option-send-cache"></p>-->
+  </div>
+<% end %>
+<% if @optionGet: %>
+  <div class="entry-option option-get">Get on this device
+    <img src="icons/help.png" class="entry-option-help-button help-option-get">
+    <img src="icons/help-down.png" class="entry-option-help-button help-option-get hide">
+  </div>
+  <div class="panel help-option-get hide">
+    <p>Download this content on this device.<p>
+  </div>
+<% end %>
 </div>
 

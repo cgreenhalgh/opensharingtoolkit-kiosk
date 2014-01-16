@@ -54,7 +54,9 @@
 };
 .entry-option {
   @extend .button;
-  width: 90%;
+  width: 100%;
+  // for help button
+  position: relative;
 }
 // device type choice in list
 .devicetype {
@@ -99,6 +101,23 @@ span.ssid {
     height: 100%;
     cursor: pointer;
   };
+};
+.entry-option-help-button {
+  position: absolute;
+  right: 0.5em;
+  width: 2em;
+  height: 2em;
+  top: 0.2em;
+  //height: 10%;
+  padding: 0.2em;
+  cursor: pointer;
+};
+.entry-option-more-help-button {
+  width: 3em;
+  height: 3em;
+  //height: 10%;
+  padding: 0.2em;
+  cursor: pointer;
 };
 // help overlay helper
 .help-relative {

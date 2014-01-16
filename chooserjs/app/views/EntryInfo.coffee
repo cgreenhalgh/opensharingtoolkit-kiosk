@@ -32,10 +32,38 @@ module.exports = class EntryInfoView extends Backbone.View
     @
 
   events: 
+    'click .help-option-view': 'helpOptionView'
+    'click .help-option-send-internet': 'helpOptionSendInternet'
+    'click .help-option-send-cache': 'helpOptionSendCache'
+    'click .help-option-get': 'helpOptionGet'
     'click .option-view': 'optionView'
     'click .option-get': 'optionGet'
     'click .option-send-internet': 'optionSendInternet'
     'click .option-send-cache': 'optionSendCache' 
+    #'click .more-help-option-send-internet': 'moreHelpOptionSendInternet'
+    #'click .more-help-option-send-cache': 'moreHelpOptionSendCache'
+
+
+  helpOption: (name) =>
+    $( ".help-option-#{name}", @$el ).toggleClass 'hide'
+    b = $( ".help-option-#{name}", @$el ).get(1)
+    if not $(b).hasClass 'hide'
+      offset = $(b).offset()
+      window.scrollTo 0,offset.top
+      #$(b).scrollIntoView()
+    false
+
+  helpOptionView: =>
+    @helpOption 'view'
+
+  helpOptionSendInternet: =>
+    @helpOption 'send-internet'
+
+  helpOptionSendCache: =>
+    @helpOption 'send-cache'
+
+  helpOptionGet: =>
+    @helpOption 'get'
 
   optionView: =>
     console.log "option:view entry #{ @model.id }"

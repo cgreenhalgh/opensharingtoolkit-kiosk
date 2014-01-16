@@ -81,6 +81,15 @@ class Router extends Backbone.Router
     "sendInternet/:eid" : "sendInternet"
     "sendCache/:eid" : "sendCache"
 
+  back: ->
+    bcas = $('.breadcrumbs a')
+    if bcas.length >= 2
+      href = $(bcas[bcas.length-2]).attr 'href'
+      console.log "back to #{href}"
+      router.navigate(href,{trigger:true})
+    else
+      console.log "back with nothing to go back to"
+
   entries: ->
     # all entries - top-level view
     while window.views.length>1
@@ -91,13 +100,12 @@ class Router extends Backbone.Router
     if window.views.length==0
       console.log "cannot show help - no initial view"
     else
+      v = window.views[window.views.length-1]
       view = new EntryListHelpView()
       addView view, "Help", "entries/help"
       # special case - overlay show entries
-      if window.views.length==2
-        v = window.views[0]
-        v.scrollTop = 0
-        v.$el.show()
+      v.scrollTop = 0
+      v.$el.show()
 
 
   getEntry: (id) ->
@@ -257,13 +265,7 @@ App =
           if href=='-chooseDevicetype'
             chooseDevicetype()
           else if href=='-back'
-            bcas = $('.breadcrumbs a')
-            if bcas.length >= 2
-              href = $(bcas[bcas.length-2]).attr 'href'
-              console.log "back to #{href}"
-              router.navigate(href,{trigger:true})
-            else
-              console.log "back with nothing to go back to"
+            router.back()
           else
             console.log "ignore click #{href}"
         else
