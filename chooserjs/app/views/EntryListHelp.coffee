@@ -28,8 +28,10 @@ module.exports = class EntryListView extends Backbone.View
   events: 
     'click': 'close'
 
-  close: ->
+  close: (ev)->
+    ev.preventDefault()
     window.router.back()
+    false
 
   remove: =>
     console.log 'close/remove EntryListHelp'

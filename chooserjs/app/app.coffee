@@ -75,7 +75,7 @@ class Router extends Backbone.Router
   routes: 
     #"home" : "entries"
     "entries" : "entries"
-    "entries/help" : "helpEntries"
+    "help" : "help"
     "entry/:eid" : "entry"
     "preview/:eid" : "preview"
     "sendInternet/:eid" : "sendInternet"
@@ -95,8 +95,8 @@ class Router extends Backbone.Router
     while window.views.length>1
       popView()
 
-  helpEntries: ->
-    @entries()
+  help: ->
+    #@entries()
     if window.views.length==0
       console.log "cannot show help - no initial view"
     else

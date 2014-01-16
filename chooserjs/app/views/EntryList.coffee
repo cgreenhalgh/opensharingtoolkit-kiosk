@@ -16,7 +16,7 @@ module.exports = class EntryListView extends Backbone.View
     # TODO
     console.log "EntryListView render (devicetype #{window.options.attributes.devicetype?.attributes.term})"
     @$el.empty()
-    @$el.append '<div class="floating-help-button"><img src="icons/help.png"></div>'
+    #@$el.append '<div class="floating-help-button"><img src="icons/help.png"></div>'
 
     views = []
     @model.forEach @add
@@ -37,5 +37,5 @@ module.exports = class EntryListView extends Backbone.View
 
   showHelp: =>
     console.log "EntryList help..."
-    window.router.navigate 'entries/help', trigger:true
+    window.router.navigate 'help', trigger:true
     
