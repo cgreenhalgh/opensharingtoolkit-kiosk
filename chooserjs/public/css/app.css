@@ -7997,3 +7997,19 @@ span.ssid {
 .entry-option-step-panel p {
   font-size: 50%;
 }
+
+/* line 241, ../../scss/app.scss */
+.attract-modal {
+  z-index: 200;
+  background-color: white;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+}
+/* line 249, ../../scss/app.scss */
+.attract-modal canvas {
+  position: absolute;
+  background-color: #fbfbfb;
+}

@@ -18,6 +18,7 @@ EntryListHelpView = require 'views/EntryListHelp'
 # atom/entry file loader
 loader = require 'loader'
 kiosk = require 'kiosk'
+attract = require 'attract'
 
 # view stack?!
 window.views = []

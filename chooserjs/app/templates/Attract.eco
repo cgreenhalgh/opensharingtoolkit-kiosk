@@ -1,0 +1,3 @@
+<%# Attract; no particular data?! parent is div class=attract-modal %>
+<canvas id="attractCanvas">
+</canvas>

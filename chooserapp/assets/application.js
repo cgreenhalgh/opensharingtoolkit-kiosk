@@ -49,7 +49,7 @@
   }
   return this.require.define;
 }).call(this)({"app": function(exports, require, module) {(function() {
-  var App, Devicetype, DevicetypeChoiceView, DevicetypeList, Entry, EntryInfoView, EntryList, EntryListHelpView, EntryListView, EntryPreviewView, EntrySendCacheView, EntrySendInternetView, Mimetype, MimetypeList, Options, OptionsDevicetypeLabelView, Router, addView, chooseDevicetype, kiosk, loader, popView, testentry1;
+  var App, Devicetype, DevicetypeChoiceView, DevicetypeList, Entry, EntryInfoView, EntryList, EntryListHelpView, EntryListView, EntryPreviewView, EntrySendCacheView, EntrySendInternetView, Mimetype, MimetypeList, Options, OptionsDevicetypeLabelView, Router, addView, attract, chooseDevicetype, kiosk, loader, popView, testentry1;
   var __hasProp = Object.prototype.hasOwnProperty, __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor; child.__super__ = parent.prototype; return child; };
 
   Mimetype = require('models/Mimetype');
@@ -85,6 +85,8 @@
   loader = require('loader');
 
   kiosk = require('kiosk');
+
+  attract = require('attract');
 
   window.views = [];
 
@@ -410,6 +412,38 @@
   };
 
   module.exports = App;
+
+}).call(this);
+}, "attract": function(exports, require, module) {(function() {
+  var ATTRACT_DELAY, AttractView, currentAttract, showAttract, timer;
+
+  AttractView = require('views/Attract');
+
+  currentAttract = null;
+
+  showAttract = function() {
+    if ((currentAttract != null) && $(currentAttract.el).is(":visible")) {} else {
+      if (currentAttract != null) {
+        try {
+          currentAttract.remove();
+        } catch (error) {
+          console.log("error re-showing attract: " + error);
+        }
+      }
+      currentAttract = new AttractView();
+      $('#mainEntrylistHolder').after(currentAttract.el);
+      return $(currentAttract.el).trigger('isVisible');
+    }
+  };
+
+  ATTRACT_DELAY = 20000;
+
+  timer = setTimeout(showAttract, 1000);
+
+  $(window).on('touchstart touchmove touchend mousedown mousemove mouseup', function() {
+    clearTimeout(timer);
+    return timer = setTimeout(showAttract, ATTRACT_DELAY);
+  });
 
 }).call(this);
 }, "getter": function(exports, require, module) {(function() {
@@ -1077,7 +1111,51 @@
   })();
 
 }).call(this);
-}, "templates/DevicetypeInChoice": function(exports, require, module) {module.exports = function(__obj) {
+}, "templates/Attract": function(exports, require, module) {module.exports = function(__obj) {
+  if (!__obj) __obj = {};
+  var __out = [], __capture = function(callback) {
+    var out = __out, result;
+    __out = [];
+    callback.call(this);
+    result = __out.join('');
+    __out = out;
+    return __safe(result);
+  }, __sanitize = function(value) {
+    if (value && value.ecoSafe) {
+      return value;
+    } else if (typeof value !== 'undefined' && value != null) {
+      return __escape(value);
+    } else {
+      return '';
+    }
+  }, __safe, __objSafe = __obj.safe, __escape = __obj.escape;
+  __safe = __obj.safe = function(value) {
+    if (value && value.ecoSafe) {
+      return value;
+    } else {
+      if (!(typeof value !== 'undefined' && value != null)) value = '';
+      var result = new String(value);
+      result.ecoSafe = true;
+      return result;
+    }
+  };
+  if (!__escape) {
+    __escape = __obj.escape = function(value) {
+      return ('' + value)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;');
+    };
+  }
+  (function() {
+    
+      __out.push('\n<canvas id="attractCanvas">\n</canvas>\n');
+    
+  }).call(__obj);
+  __obj.safe = __objSafe, __obj.escape = __escape;
+  return __out.join('');
+}}, "templates/DevicetypeInChoice": function(exports, require, module) {module.exports = function(__obj) {
   if (!__obj) __obj = {};
   var __out = [], __capture = function(callback) {
     var out = __out, result;
@@ -1589,7 +1667,244 @@
   }).call(__obj);
   __obj.safe = __objSafe, __obj.escape = __escape;
   return __out.join('');
-}}, "views/DevicetypeChoice": function(exports, require, module) {(function() {
+}}, "views/Attract": function(exports, require, module) {(function() {
+  var AttractView, SLIDE_INTERVAL, TRANSITION_DURATION, data, images, queue, slide, slides, templateAttract;
+  var __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; }, __hasProp = Object.prototype.hasOwnProperty, __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor; child.__super__ = parent.prototype; return child; };
+
+  templateAttract = require('templates/Attract');
+
+  createjs.Ticker.timingMode = createjs.Ticker.RAF;
+
+  createjs.Ticker.setFPS(40);
+
+  slides = [
+    [
+      {
+        text: "Do you have a\nsmart phone or\ntablet?",
+        x: 50,
+        y: 50,
+        font: "100px Arial,sans-serif"
+      }, {
+        bitmap: "icons/example_android.png",
+        height: 700,
+        x: 500,
+        y: 300
+      }
+    ], [
+      {
+        text: "Get free digital\nleaflets and other\ndownloads here",
+        x: 50,
+        y: 350,
+        font: "100px Arial,sans-serif"
+      }
+    ], [
+      {
+        text: "Touch the screen\n to start...",
+        x: 50,
+        y: 700,
+        font: "bold 110px Arial,sans-serif"
+      }, {
+        bitmap: "icons/pointing hand dark.png",
+        height: 700,
+        x: 250,
+        y: 0
+      }
+    ], [
+      {
+        text: "Download straight\nto your phone\nusing WiFi or 3G",
+        x: 50,
+        y: 50,
+        font: "100px Arial,sans-serif"
+      }
+    ], [
+      {
+        text: "View downloads,\nand take them away\nwith you",
+        x: 50,
+        y: 350,
+        font: "100px Arial,sans-serif"
+      }
+    ], [
+      {
+        text: "Downloads have been\ncarefully selected\nfor you",
+        x: 30,
+        y: 650,
+        font: "90px Arial,sans-serif"
+      }
+    ]
+  ];
+
+  queue = new createjs.LoadQueue(true);
+
+  images = (function() {
+    var _i, _len, _results;
+    _results = [];
+    for (_i = 0, _len = slides.length; _i < _len; _i++) {
+      slide = slides[_i];
+      _results.push((function() {
+        var _j, _len2, _results2;
+        _results2 = [];
+        for (_j = 0, _len2 = slide.length; _j < _len2; _j++) {
+          data = slide[_j];
+          if (data.bitmap != null) {
+            _results2.push({
+              src: data.bitmap
+            });
+          }
+        }
+        return _results2;
+      })());
+    }
+    return _results;
+  })();
+
+  console.log("images to load: " + (JSON.stringify(images)));
+
+  queue.loadManifest(_.flatten(images));
+
+  TRANSITION_DURATION = 300;
+
+  SLIDE_INTERVAL = 3500;
+
+  module.exports = AttractView = (function() {
+
+    __extends(AttractView, Backbone.View);
+
+    function AttractView() {
+      this.remove = __bind(this.remove, this);
+      this.resize = __bind(this.resize, this);
+      this.template = __bind(this.template, this);
+      this.render = __bind(this.render, this);
+      this.nextSlide = __bind(this.nextSlide, this);
+      AttractView.__super__.constructor.apply(this, arguments);
+    }
+
+    AttractView.prototype.tagName = 'div';
+
+    AttractView.prototype.className = 'attract-modal';
+
+    AttractView.prototype.initialize = function() {
+      this.render();
+      if (queue.loaded) {
+        console.log('queue already loaded on create attract');
+        return this.initStage();
+      } else {
+        return queue.on('complete', this.initStage, this);
+      }
+    };
+
+    AttractView.prototype.initStage = function() {
+      var bounds, data, o, obj, qi, slide, _i, _j, _len, _len2, _ref, _ref2, _ref3, _ref4;
+      console.log('initStage');
+      this.stage = new createjs.Stage($('canvas', this.$el).get(0));
+      createjs.Ticker.addEventListener("tick", this.stage);
+      for (_i = 0, _len = slides.length; _i < _len; _i++) {
+        slide = slides[_i];
+        slide.show = new createjs.Timeline();
+        slide.show.loop = false;
+        slide.show.setPaused(true);
+        slide.hide = new createjs.Timeline();
+        slide.hide.loop = false;
+        slide.hide.setPaused(true);
+        for (_j = 0, _len2 = slide.length; _j < _len2; _j++) {
+          data = slide[_j];
+          obj = data.text != null ? (o = new createjs.Text(data.text), o.font = (_ref = data.font) != null ? _ref : data.font = '100px sans-serif', o) : data.bitmap ? (qi = queue.getResult(data.bitmap), console.log("queue item " + data.bitmap + " = " + qi), o = new createjs.Bitmap(qi), bounds = o.getBounds(), (data.width != null) && (data.height != null) ? o.scaleX = o.scaleY = Math.min(data.width / bounds.width, data.height / bounds.height) : data.width != null ? o.scaleX = o.scaleY = data.width / bounds.width : data.height != null ? o.scaleX = o.scaleY = data.height / bounds.height : void 0, o) : (console.log('Unknown attract item ' + JSON.stringify(data)), null);
+          if (obj != null) {
+            obj.color = (_ref2 = data.font) != null ? _ref2 : data.font = '#000';
+            obj.x = (_ref3 = data.x) != null ? _ref3 : data.x = 500;
+            obj.y = (_ref4 = data.y) != null ? _ref4 : data.y = 500;
+            obj.visible = false;
+            this.stage.addChild(obj);
+            data.obj = obj;
+            slide.show.addTween(createjs.Tween.get(obj).to({
+              visible: true,
+              alpha: 0,
+              x: data.text != null ? obj.x - 1000 : obj.x + 1000
+            }).to({
+              visible: true,
+              alpha: 1,
+              x: obj.x
+            }, TRANSITION_DURATION, createjs.Ease.quadOut));
+            slide.hide.addTween(createjs.Tween.get(obj).to({
+              alpha: 1,
+              visible: true
+            }).to({
+              alpha: 0,
+              visible: false
+            }, TRANSITION_DURATION));
+          }
+        }
+      }
+      slides[0].show.setPosition(0);
+      slides[0].show.setPaused(false);
+      this.slideIx = 0;
+      this.timer = setInterval(this.nextSlide, SLIDE_INTERVAL);
+      return this.stage.update();
+    };
+
+    AttractView.prototype.nextSlide = function() {
+      slides[this.slideIx].show.setPaused(true);
+      slides[this.slideIx].hide.setPosition(0);
+      slides[this.slideIx].hide.setPaused(false);
+      this.slideIx = this.slideIx + 1 >= slides.length ? 0 : this.slideIx + 1;
+      slides[this.slideIx].show.setPosition(0);
+      return slides[this.slideIx].show.setPaused(false);
+    };
+
+    AttractView.prototype.render = function() {
+      data = {};
+      this.$el.html(this.template(data));
+      $(window).on('resize', this.resize);
+      return this;
+    };
+
+    AttractView.prototype.template = function(d) {
+      return templateAttract(d);
+    };
+
+    AttractView.prototype.events = {
+      'click': 'close',
+      'isVisible': 'resize'
+    };
+
+    AttractView.prototype.resize = function() {
+      var $canvasel, ph, pw, size;
+      console.log('attract resize...');
+      pw = this.$el.width();
+      ph = this.$el.height();
+      size = pw > ph ? ph : pw;
+      console.log("keepMaxSquare: size=" + size);
+      $canvasel = $('canvas', this.$el);
+      $canvasel.css('height', size + 'px');
+      $canvasel.css('width', size + 'px');
+      $canvasel.css('top', (ph - size) / 2 + 'px');
+      $canvasel.css('left', (pw - size) / 2 + 'px');
+      this.stage.scaleX = size / 1000;
+      this.stage.scaleY = size / 1000;
+      this.stage.canvas.height = size;
+      this.stage.canvas.width = size;
+      return this.stage.update();
+    };
+
+    AttractView.prototype.close = function(ev) {
+      this.remove();
+      return false;
+    };
+
+    AttractView.prototype.remove = function() {
+      console.log('close/remove Attract');
+      this.$el.remove();
+      $(window).off('resize', this.resize);
+      queue.off('complete', this.initStage, this);
+      createjs.Ticker.removeEventListener("tick", this.stage);
+      return clearInterval(this.timer);
+    };
+
+    return AttractView;
+
+  })();
+
+}).call(this);
+}, "views/DevicetypeChoice": function(exports, require, module) {(function() {
   var DevicetypeChoiceView, templateDevicetypeInChoice;
   var __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; }, __hasProp = Object.prototype.hasOwnProperty, __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor; child.__super__ = parent.prototype; return child; };
 
