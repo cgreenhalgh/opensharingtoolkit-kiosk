@@ -134,6 +134,8 @@ module.exports = class AttractView extends Backbone.View
 
   events: 
     'click': 'close'
+    'mousedown': 'close'
+    'touchstart': 'close'
     'isVisible': 'resize'
 
   resize: () =>

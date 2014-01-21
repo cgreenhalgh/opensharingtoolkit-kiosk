@@ -1863,6 +1863,8 @@
 
     AttractView.prototype.events = {
       'click': 'close',
+      'mousedown': 'close',
+      'touchstart': 'close',
       'isVisible': 'resize'
     };
 
