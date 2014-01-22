@@ -14,8 +14,12 @@ import android.util.Log;
 import android.view.KeyEvent;
 import android.view.WindowManager;
 
-public class MainActivity extends BrowserActivity {
+import org.opensharingtoolkit.common.Recorder;
 
+public class MainActivity extends BrowserActivity {
+	
+	private Recorder mRecorder = new Recorder(this, "chooser.main");
+	
 	@Override
 	@SuppressLint("SetJavaScriptEnabled")
 	protected void onCreate(Bundle savedInstanceState) {
@@ -48,12 +52,14 @@ public class MainActivity extends BrowserActivity {
 	private long mStopTime;
 	@Override
 	protected void onPause() {
+		mRecorder.i("activity.pause", null);
 		mStopTime = System.currentTimeMillis();
 		super.onPause();
 	}
 
 	@Override
 	protected void onResume() {
+		mRecorder.i("activity.resume", null);
 		super.onResume();
 		mStopTime = 0;
 		finishWakeLocker();
