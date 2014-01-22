@@ -15,6 +15,8 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 
+import org.opensharingtoolkit.common.Record;
+
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -227,5 +229,12 @@ public class JavascriptHelper {
 			// extra //
 			url = "file:///"+url.substring("file:/".length());
 		return url;
+	}
+	/** log to Record 
+	 * 
+	 */
+	@JavascriptInterface
+	public void record(int level, String event, String jsonInfo) {
+		Record.log(mContext, level, "chooser.js", event, jsonInfo);
 	}
 }

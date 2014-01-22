@@ -58,12 +58,22 @@ public class Record {
 		try {
 			context.startService(i);
 		}
-		catch (ThreadDeath td) {
-			// rethrow!!
-			throw td;
-		}
-		catch (RuntimeException e) {
+		catch (Exception e) {
 			Log.e(TAG,"Could not log: "+level+" "+component+" "+event+": "+e);
+		}
+	}
+	public static void logJson(Context context, int level, String component, String event, String jsoninfo) {
+		long now = System.currentTimeMillis();
+		Intent i = new Intent(); //"org.opensharingtoolkit.intent.action.LOG");
+		i.setClassName("org.opensharingtoolkit.logging","org.opensharingtoolkit.logging.LoggingService");
+		i.putExtra("time", now);
+		i.putExtra("level", level);
+		i.putExtra("component", component);
+		i.putExtra("event", event);
+		if (jsoninfo!=null)
+			i.putExtra("info", jsoninfo);
+		try {
+			context.startService(i);
 		}
 		catch (Exception e) {
 			Log.e(TAG,"Could not log: "+level+" "+component+" "+event+": "+e);
@@ -71,7 +81,7 @@ public class Record {
 	}
 	private static String packInfo(Object oinfo) {
 		if (oinfo==null)
-			return "null";
+			return null;
 		if (oinfo instanceof String || oinfo instanceof Integer || oinfo instanceof Long || oinfo instanceof Boolean || oinfo instanceof Double) {
 			JSONStringer s = new JSONStringer();
 			try {
