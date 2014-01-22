@@ -58,6 +58,9 @@
   // for help button
   position: relative;
 }
+#chooseDeviceModal {
+  top: 0.5em;
+};
 // device type choice in list
 .devicetype {
   width: 100%;
@@ -233,6 +236,18 @@ span.ssid {
     bottom: 0.2em;
     cursor: pointer;
   };
+  .entry-list-help-info {
+    position: absolute;
+    width: 2em;
+    height: 2em;
+    bottom: 1em;
+    left: 1em;
+    img {
+      width: 100%;
+      height: 100%;
+      cursor: pointer;
+    };
+  };
 };
 .entry-option-step-panel p {
   font-size: 50%;
@@ -249,6 +264,29 @@ span.ssid {
   canvas {
     position: absolute;
     background-color: rgb(251,251,251);
+  };
+};
+// consent overlay/modal
+.consent-modal {
+  z-index: 190;
+  background-color: rgba(255,255,255,1.0);
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  .panel {
+    margin-top: 1em;
+  }
+  .consent-button {
+    width: 100%;
+  };
+  .consent-logo {
+    float: right;
+  };
+  .button-row {
+    position: absolute;
+    bottom: 0.2em;
   };
 };
 

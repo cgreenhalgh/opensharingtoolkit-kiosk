@@ -170,3 +170,6 @@ module.exports = class AttractView extends Backbone.View
     queue.off 'complete', @initStage, @
     createjs.Ticker.removeEventListener("tick", @stage)
     clearInterval @timer
+
+    router.navigate("consent",{trigger:true})
+

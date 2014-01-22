@@ -2,6 +2,9 @@
 # back is #back, choose device is #chooseDevicetype
 templateEntryListHelp = require 'templates/EntryListHelp'
 
+recorder = require 'recorder'
+attract = require 'attract'
+
 module.exports = class EntryListView extends Backbone.View
 
   tagName: 'div'
@@ -26,7 +29,12 @@ module.exports = class EntryListView extends Backbone.View
     templateEntryListHelp d
 
   events: 
+    'click .entry-list-help-info': 'showAttract'
     'click': 'close'
+
+  showAttract: () ->
+    recorder.i 'user.requestHelp.info'
+    attract.show()
 
   close: (ev)->
     ev.preventDefault()

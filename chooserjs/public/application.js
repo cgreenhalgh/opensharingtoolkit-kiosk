@@ -49,7 +49,7 @@
   }
   return this.require.define;
 }).call(this)({"app": function(exports, require, module) {(function() {
-  var App, Devicetype, DevicetypeChoiceView, DevicetypeList, Entry, EntryInfoView, EntryList, EntryListHelpView, EntryListView, EntryPreviewView, EntrySendCacheView, EntrySendInternetView, Mimetype, MimetypeList, Options, OptionsDevicetypeLabelView, Router, addView, attract, chooseDevicetype, kiosk, loader, popView, recorder, testentry1;
+  var App, ConsentView, Devicetype, DevicetypeChoiceView, DevicetypeList, Entry, EntryInfoView, EntryList, EntryListHelpView, EntryListView, EntryPreviewView, EntrySendCacheView, EntrySendInternetView, Mimetype, MimetypeList, Options, OptionsDevicetypeLabelView, Router, addView, attract, chooseDevicetype, kiosk, loader, popView, recorder, testentry1;
   var __hasProp = Object.prototype.hasOwnProperty, __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor; child.__super__ = parent.prototype; return child; };
 
   Mimetype = require('models/Mimetype');
@@ -81,6 +81,8 @@
   OptionsDevicetypeLabelView = require('views/OptionsDevicetypeLabel');
 
   EntryListHelpView = require('views/EntryListHelp');
+
+  ConsentView = require('views/Consent');
 
   loader = require('loader');
 
@@ -186,7 +188,8 @@
       "entry/:eid": "entry",
       "preview/:eid": "preview",
       "sendInternet/:eid": "sendInternet",
-      "sendCache/:eid": "sendCache"
+      "sendCache/:eid": "sendCache",
+      "consent": "consent"
     };
 
     Router.prototype.back = function() {
@@ -225,6 +228,17 @@
         addView(view, "Help", "help");
         v.scrollTop = 0;
         return v.$el.show();
+      }
+    };
+
+    Router.prototype.consent = function() {
+      var view;
+      if (window.views.length === 0) {
+        return console.log("cannot show consent - no initial view");
+      } else {
+        attract.active();
+        view = new ConsentView();
+        return addView(view, "Consent", "consent");
       }
     };
 
@@ -407,6 +421,8 @@
               chooseDevicetype();
             } else if (href === '-back') {
               router.back();
+            } else if (href === '-info') {
+              attract.show();
             } else {
               console.log("ignore click " + href);
             }
@@ -533,6 +549,8 @@
   });
 
   module.exports.active = active;
+
+  module.exports.show = showAttract;
 
 }).call(this);
 }, "getter": function(exports, require, module) {(function() {
@@ -1328,6 +1346,50 @@
   }).call(__obj);
   __obj.safe = __objSafe, __obj.escape = __escape;
   return __out.join('');
+}}, "templates/Consent": function(exports, require, module) {module.exports = function(__obj) {
+  if (!__obj) __obj = {};
+  var __out = [], __capture = function(callback) {
+    var out = __out, result;
+    __out = [];
+    callback.call(this);
+    result = __out.join('');
+    __out = out;
+    return __safe(result);
+  }, __sanitize = function(value) {
+    if (value && value.ecoSafe) {
+      return value;
+    } else if (typeof value !== 'undefined' && value != null) {
+      return __escape(value);
+    } else {
+      return '';
+    }
+  }, __safe, __objSafe = __obj.safe, __escape = __obj.escape;
+  __safe = __obj.safe = function(value) {
+    if (value && value.ecoSafe) {
+      return value;
+    } else {
+      if (!(typeof value !== 'undefined' && value != null)) value = '';
+      var result = new String(value);
+      result.ecoSafe = true;
+      return result;
+    }
+  };
+  if (!__escape) {
+    __escape = __obj.escape = function(value) {
+      return ('' + value)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;');
+    };
+  }
+  (function() {
+    
+      __out.push('\n<div class="row">\n  <div class="small-12 large-12 columns">\n    <div class="panel">\n      <img src="icons/uon_logo.png" class="consent-logo">\n      <p>This is a prototype being developed by the University of Nottingham.</p>\n      <p>Anonymous usage data is collected to allow us to understand how it is being used and how to improve it. To find out more look at the poster or leaflets nearby.</p>\n      <div class="clear-both"></div>\n    </div>\n  </div>\n</div>\n<div class="row button-row">\n  <div class="small-6 large-6 columns">\n    <a href="-consent-yes" class="button consent-button">OK, that\'s fine</a>\n  </div>\n  <div class="small-6 large-6 columns">\n    <a href="-consent-no" class="button consent-button">No thanks</a>\n  </div>\n</div>\n');
+    
+  }).call(__obj);
+  __obj.safe = __objSafe, __obj.escape = __escape;
+  return __out.join('');
 }}, "templates/DevicetypeInChoice": function(exports, require, module) {module.exports = function(__obj) {
   if (!__obj) __obj = {};
   var __out = [], __capture = function(callback) {
@@ -1577,7 +1639,7 @@
   }
   (function() {
     
-      __out.push('\n<div class="entry-list-help-top"></div>\n<div class="row">\n  <div class="small-6 large-6 columns">\n    <p class="text-centre"><img class="help-scroll-vertical" src="icons/scroll-vertical-hint.png">Drag to scroll up and down</p>\n  </div>\n  <div class="small-6 large-6 columns">\n    <p class="text-centre">Touch an item to find out more</p>\n  </div>\n</div>\n<div class="entry-list-help-ok">\n  <a href="-back" class="button">OK</a>\n</div>\n\n');
+      __out.push('\n<div class="entry-list-help-top"></div>\n<div class="row">\n  <div class="small-6 large-6 columns">\n    <p class="text-centre"><img class="help-scroll-vertical" src="icons/scroll-vertical-hint.png">Drag to scroll up and down</p>\n  </div>\n  <div class="small-6 large-6 columns">\n    <p class="text-centre">Touch an item to find out more</p>\n  </div>\n</div>\n<div class="entry-list-help-info"><a href="-info"><img src="icons/information.png"></a></div>\n<div class="entry-list-help-ok">\n  <a href="-back" class="button">OK</a>\n</div>\n\n');
     
   }).call(__obj);
   __obj.safe = __objSafe, __obj.escape = __escape;
@@ -2074,10 +2136,76 @@
       $(window).off('resize', this.resize);
       queue.off('complete', this.initStage, this);
       createjs.Ticker.removeEventListener("tick", this.stage);
-      return clearInterval(this.timer);
+      clearInterval(this.timer);
+      return router.navigate("consent", {
+        trigger: true
+      });
     };
 
     return AttractView;
+
+  })();
+
+}).call(this);
+}, "views/Consent": function(exports, require, module) {(function() {
+  var ConsentView, attract, recorder, templateConsent;
+  var __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; }, __hasProp = Object.prototype.hasOwnProperty, __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor; child.__super__ = parent.prototype; return child; };
+
+  templateConsent = require('templates/Consent');
+
+  recorder = require('recorder');
+
+  attract = require('attract');
+
+  module.exports = ConsentView = (function() {
+
+    __extends(ConsentView, Backbone.View);
+
+    function ConsentView() {
+      this.template = __bind(this.template, this);
+      ConsentView.__super__.constructor.apply(this, arguments);
+    }
+
+    ConsentView.prototype.tagName = 'div';
+
+    ConsentView.prototype.className = 'consent-modal';
+
+    ConsentView.prototype.initialize = function() {
+      return this.render();
+    };
+
+    ConsentView.prototype.render = function() {
+      var data;
+      data = {};
+      this.$el.html(this.template(data));
+      return this;
+    };
+
+    ConsentView.prototype.template = function(d) {
+      return templateConsent(d);
+    };
+
+    ConsentView.prototype.events = {
+      'click [href=-consent-yes]': 'consentYes',
+      'click [href=-consent-no]': 'consentNo'
+    };
+
+    ConsentView.prototype.close = function(ev) {
+      window.router.back();
+      return false;
+    };
+
+    ConsentView.prototype.consentYes = function() {
+      recorder.i('user.consent.yes');
+      return this.close();
+    };
+
+    ConsentView.prototype.consentNo = function() {
+      recorder.i('user.consent.no');
+      return attract.show();
+    };
+
+    return ConsentView;
 
   })();
 
@@ -2508,10 +2636,14 @@
 
 }).call(this);
 }, "views/EntryListHelp": function(exports, require, module) {(function() {
-  var EntryListView, templateEntryListHelp;
+  var EntryListView, attract, recorder, templateEntryListHelp;
   var __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; }, __hasProp = Object.prototype.hasOwnProperty, __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor; child.__super__ = parent.prototype; return child; };
 
   templateEntryListHelp = require('templates/EntryListHelp');
+
+  recorder = require('recorder');
+
+  attract = require('attract');
 
   module.exports = EntryListView = (function() {
 
@@ -2551,7 +2683,13 @@
     };
 
     EntryListView.prototype.events = {
+      'click .entry-list-help-info': 'showAttract',
       'click': 'close'
+    };
+
+    EntryListView.prototype.showAttract = function() {
+      recorder.i('user.requestHelp.info');
+      return attract.show();
     };
 
     EntryListView.prototype.close = function(ev) {

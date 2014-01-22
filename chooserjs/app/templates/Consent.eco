@@ -1,0 +1,19 @@
+<%# consent; no particular data?! parent is div class=consent-modal %>
+<div class="row">
+  <div class="small-12 large-12 columns">
+    <div class="panel">
+      <img src="icons/uon_logo.png" class="consent-logo">
+      <p>This is a prototype being developed by the University of Nottingham.</p>
+      <p>Anonymous usage data is collected to allow us to understand how it is being used and how to improve it. To find out more look at the poster or leaflets nearby.</p>
+      <div class="clear-both"></div>
+    </div>
+  </div>
+</div>
+<div class="row button-row">
+  <div class="small-6 large-6 columns">
+    <a href="-consent-yes" class="button consent-button">OK, that's fine</a>
+  </div>
+  <div class="small-6 large-6 columns">
+    <a href="-consent-no" class="button consent-button">No thanks</a>
+  </div>
+</div>

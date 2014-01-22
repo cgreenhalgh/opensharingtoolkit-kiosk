@@ -56,4 +56,6 @@ $(window).on 'scroll', () ->
   true
 
 module.exports.active = active
+module.exports.show = showAttract
+
 

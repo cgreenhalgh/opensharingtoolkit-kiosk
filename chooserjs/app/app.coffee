@@ -14,6 +14,7 @@ EntrySendCacheView = require 'views/EntrySendCache'
 DevicetypeChoiceView = require 'views/DevicetypeChoice'
 OptionsDevicetypeLabelView = require 'views/OptionsDevicetypeLabel'
 EntryListHelpView = require 'views/EntryListHelp'
+ConsentView = require 'views/Consent'
 
 # atom/entry file loader
 loader = require 'loader'
@@ -95,6 +96,7 @@ class Router extends Backbone.Router
     "preview/:eid" : "preview"
     "sendInternet/:eid" : "sendInternet"
     "sendCache/:eid" : "sendCache"
+    "consent" : "consent"
 
   back: ->
     attract.active()
@@ -125,6 +127,13 @@ class Router extends Backbone.Router
       v.scrollTop = 0
       v.$el.show()
 
+  consent: ->
+    if window.views.length==0
+      console.log "cannot show consent - no initial view"
+    else
+      attract.active()
+      view = new ConsentView()
+      addView view, "Consent", "consent"
 
   getEntry: (id) ->
     attract.active()
@@ -297,6 +306,8 @@ App =
             chooseDevicetype()
           else if href=='-back'
             router.back()
+          else if href=='-info'
+            attract.show()
           else
             console.log "ignore click #{href}"
         else
