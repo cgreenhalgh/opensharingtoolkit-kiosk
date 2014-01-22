@@ -1,6 +1,8 @@
 # EntryList View
 templateEntryInList = require 'templates/EntryInList'
 
+recorder = require 'recorder'
+
 module.exports = class EntryInListView extends Backbone.View
 
   tagName: 'div'
@@ -22,6 +24,7 @@ module.exports = class EntryInListView extends Backbone.View
 
   view: (ev) =>
     console.log 'view '+@model.id
+    recorder.i 'user.selectEntry',{id:@model.id,title:@model.attributes.title}
     window.router.navigate 'entry/'+encodeURIComponent(@model.id), trigger:true
     # done
     ev.preventDefault()

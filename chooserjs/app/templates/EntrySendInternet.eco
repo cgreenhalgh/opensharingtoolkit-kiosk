@@ -1,7 +1,7 @@
 <%# Entry send internet, takes { entry: Entry, geturl: ..., qrurl: ... } as data %>
 <div class="small-12 large-12 columns">
   <h1><%= @entry.title %></h1>
-  <div class="row">
+  <div class="row" help-section="enable internet">
     <div class="small-12 medium-6 large-6 columns">
       <p class="option-info"><span class="option-step">1</span>
         <img src="icons/help.png" class="entry-option-step-help-button entry-option-step-show">
@@ -19,7 +19,7 @@
     </div>
   </div>    
 
-  <div class="row">
+  <div class="row" help-section="scan qr">
     <div class="small-12 medium-6 large-6 columns">
       <p class="option-info"><span class="option-step">2</span>
         <img src="icons/help.png" class="entry-option-step-help-button entry-option-step-show">
@@ -36,7 +36,7 @@
     </div>
   </div>    
 
-  <div class="row">
+  <div class="row" help-section="enter url">
     <div class="small-12 medium-6 large-6 columns">
       <p class="option-info">
         <img src="icons/help.png" class="entry-option-step-help-button entry-option-step-show">
@@ -54,7 +54,7 @@
     </div>
   </div>    
 
-  <div class="row">
+  <div class="row" help-section="wait">
     <div class="small-12 medium-6 large-6 columns">
       <p class="option-info"><span class="option-step">3</span>
         In a few seconds you should see a simple web page with a link to this content.

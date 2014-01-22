@@ -18,7 +18,9 @@ import org.opensharingtoolkit.common.Recorder;
 
 public class MainActivity extends BrowserActivity {
 	
-	private Recorder mRecorder = new Recorder(this, "chooser.main");
+	public MainActivity() {
+		super("chooser.main");
+	}
 	
 	@Override
 	@SuppressLint("SetJavaScriptEnabled")
@@ -75,10 +77,12 @@ public class MainActivity extends BrowserActivity {
 		public void onReceive(Context context, Intent intent) {
 			if ((intent.getAction().equals(Intent.ACTION_SCREEN_OFF))) {
 				Log.w(TAG,"ACTION_SCREEN_OFF");
-
+				mRecorder.i("device.screenOff", null);
+				
 				long now = System.currentTimeMillis();
 				if (mStopTime==0 || now-mStopTime < 1000) {
 					Log.w(TAG,"Try to restart...");
+					mRecorder.i("app.tryWake", null);
 					PowerManager pm = (PowerManager) context.getSystemService(Context.POWER_SERVICE);
 					if (mWakeLock==null)
 						mWakeLock = pm.newWakeLock(PowerManager.SCREEN_DIM_WAKE_LOCK | PowerManager.ACQUIRE_CAUSES_WAKEUP | PowerManager.ON_AFTER_RELEASE, "TEST");
@@ -95,6 +99,8 @@ public class MainActivity extends BrowserActivity {
 	// Finish your WakeLock HERE. call this method after U put the activity in front or when u exit from the new activity.
 	private void finishWakeLocker(){
 		if (mWakeLock != null) {
+			mRecorder.d("app.releaseWakeLock", null);
+
 			mWakeLock.release();
 			mWakeLock = null;
 		}
@@ -104,9 +110,11 @@ public class MainActivity extends BrowserActivity {
 	
 	@Override
 	protected boolean handleBackPressed() {
-		if (!super.handleBackPressed())
+		if (!super.handleBackPressed()) {
 			// always 'handled'?? leave to kiosk??
 			Log.w(TAG,"ignoring Back");
+			mRecorder.i("user.key.back", null);
+		}
 		return true;
 	}
 	@Override
@@ -114,6 +122,7 @@ public class MainActivity extends BrowserActivity {
 	    if (keyCode == KeyEvent.KEYCODE_POWER) {
 	        // Do something here...
 	    	Log.w(TAG,"POWER KeyDown ignored");
+			mRecorder.i("user.key.power.down", null);
 	        return true;
 	    }
 	    return super.onKeyDown(keyCode, event);
@@ -124,6 +133,7 @@ public class MainActivity extends BrowserActivity {
 	    if (keyCode == KeyEvent.KEYCODE_POWER) {
 	        // Do something here...
 	    	Log.w(TAG,"POWER KeyLongPress ignored");
+			mRecorder.i("user.key.power.longPress", null);
 	        return true;
 	    }
 	    return super.onKeyLongPress(keyCode, event);

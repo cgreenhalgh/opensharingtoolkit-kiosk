@@ -1,6 +1,8 @@
 # EntryList View
 EntryInListView = require 'views/EntryInList'
 
+recorder = require 'recorder'
+
 module.exports = class EntryListView extends Backbone.View
 
   tagName: 'div'
@@ -36,6 +38,7 @@ module.exports = class EntryListView extends Backbone.View
     'click .floating-help-button': 'showHelp'
 
   showHelp: =>
+    recorder.i 'user.requestHelp.floatingHelp'
     console.log "EntryList help..."
     window.router.navigate 'help', trigger:true
     

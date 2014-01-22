@@ -3,7 +3,10 @@
  */
 package org.opensharingtoolkit.chooser;
 
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.opensharingtoolkit.chooser.R;
+import org.opensharingtoolkit.common.Recorder;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
@@ -34,6 +37,12 @@ public class BrowserActivity extends Activity {
 
 	public static final String TAG = "kiosk";
 
+	protected Recorder mRecorder;
+
+	public BrowserActivity(String component) {
+		mRecorder = new Recorder(this, component);
+	}
+	
 	@SuppressLint("SetJavaScriptEnabled")
 	@Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -86,6 +95,14 @@ public class BrowserActivity extends Activity {
 			public boolean onJsAlert(WebView view, String url, String message,
 					JsResult result) {
 				Log.w(TAG,"onJsAlert: ("+url+") "+message+" ("+result+")");
+				JSONObject jo = new JSONObject();
+				try {
+					jo.put("url", url);
+					jo.put("message", message);
+				} catch (JSONException e) {
+					Log.w(TAG,"Error converting JsAlert to json", e);
+				}
+				mRecorder.w("js.alert", jo);
 				// TODO Auto-generated method stub
 				return super.onJsAlert(view, url, message, result);
 			}

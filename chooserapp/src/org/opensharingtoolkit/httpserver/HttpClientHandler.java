@@ -17,7 +17,9 @@ import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 
+import org.json.JSONObject;
 import org.opensharingtoolkit.chooser.Service;
+import org.opensharingtoolkit.common.Recorder;
 
 import android.util.Log;
 
@@ -35,10 +37,12 @@ public class HttpClientHandler extends Thread {
 	private InputStream mResponseContent = null;
 	private String mMimeType = null;
 	private Map<String, String> mExtraHeaders;
-
+	private Recorder mRecorder = null;
+	
 	public HttpClientHandler(Service service, Socket s) {
 		this.service = service;
 		this.s = s;
+		mRecorder = new Recorder(service, "http");
 	}
 	
 	public void run() {
@@ -102,11 +106,41 @@ public class HttpClientHandler extends Thread {
 			String requestBody = new String(buf,0,count,"UTF-8");
 			Log.d(TAG,"get "+path+" with "+requestBody);
 			
+			String userAgent = headers.get("user-agent");
+			String referer = headers.get("referer");
+			String host = headers.get("host");
+			JSONObject info = new JSONObject();
+			try {
+				info.put("method", requestEls[0]);
+				info.put("userAgent", userAgent);
+				info.put("referer", referer);
+				info.put("path", path);
+				info.put("host", host);
+				info.put("requestLength", requestBody.length());
+				info.put("localPort", s.getLocalPort());
+				info.put("remotePort", s.getPort());
+				info.put("remoteAddress", s.getInetAddress().getHostAddress());
+			} catch (Exception e) {
+				Log.e(TAG,"Error marshalling request record info", e);
+			}
+			mRecorder.i("http.request", info);
+			
 			synchronized (this) {
 				service.postRequest(path, requestBody, new HttpContinuation() {
 
 					public void done(int status, String message, String mimeType, long length, InputStream content, Map<String,String> extraHeaders) {
 						Log.d(TAG,"http done: status="+status+", message="+message+", length="+length);
+						JSONObject info = new JSONObject();
+						try {
+							info.put("status", status);
+							info.put("message", message);
+							info.put("mimeType", mimeType);
+							info.put("responseLength", length);
+						} catch (Exception e) {
+							Log.e(TAG,"Error marshalling request record info", e);
+						}
+						mRecorder.i("http.response", info);
+
 						mStatus = status;
 						mMimeType = mimeType;
 						mMessage = message;
@@ -166,11 +200,36 @@ public class HttpClientHandler extends Thread {
 			//bos.write(resp);
 			bos.close();
 			Log.d(TAG,"Sent "+mStatus+" "+mMessage+" ("+mResponseLength+" bytes)");
+			mRecorder.i("http.response.complete", info);
 		}
 		catch (IOException ie) {
 			Log.d(TAG,"Error: "+ie.getMessage());
+			JSONObject info = new JSONObject();
+			try {
+				info.put("exception", ie.toString());
+				info.put("localPort", s.getLocalPort());
+				info.put("remotePort", s.getPort());
+				info.put("remoteAddress", s.getInetAddress().getHostAddress());
+			}
+			catch (Exception e) {
+				Log.e(TAG,"Error marshalling request error info", e);				
+			}
+			mRecorder.w("http.error", info);
 		} catch (HttpError e) {
 			Log.d(TAG,"Sending error: "+e.getMessage());
+			JSONObject info = new JSONObject();
+			try {
+				info.put("status", e.getStatus());
+				info.put("message", e.getMessage());
+				info.put("localPort", s.getLocalPort());
+				info.put("remotePort", s.getPort());
+				info.put("remoteAddress", s.getInetAddress().getHostAddress());
+			}
+			catch (Exception e2) {
+				Log.e(TAG,"Error marshalling request http error info", e);				
+			}
+			mRecorder.w("http.response.error", info);
+
 			sendError(e.getStatus(), e.getMessage());
 		}
 		try {

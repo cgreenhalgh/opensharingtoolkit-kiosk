@@ -19,6 +19,7 @@ EntryListHelpView = require 'views/EntryListHelp'
 loader = require 'loader'
 kiosk = require 'kiosk'
 attract = require 'attract'
+recorder = require 'recorder'
 
 # view stack?!
 window.views = []
@@ -37,6 +38,7 @@ addView = (view,title,path) ->
         bcix++
       # done
       console.log "Re-show existing view"
+      recorder.i 'view.add.existing', {title:title,path:path,level:window.views.length}
       return
 
   if window.views.length>0 
@@ -50,7 +52,10 @@ addView = (view,title,path) ->
   window.views.push view
   $('#mainEntrylistHolder').after view.el
   bc.append "<li><a href='#{path}'>#{title}</a></li>"
+  recorder.d 'app.scroll',{scrollTop:0,scrollLeft:0}
   window.scrollTo 0,0
+
+  recorder.i 'view.page.add', {title:title,path:path,level:window.views.length}
 
 popView = ->
   if window.views.length>0
@@ -63,12 +68,21 @@ popView = ->
     v.$el.show()
     if v.scrollTop?
       console.log "scroll to #{v.scrollTop}"
+      recorder.d 'app.scroll',{scrollTop:v.scrollTop,scrollLeft:0}
       window.scrollTo 0,v.scrollTop
+
+    bc = $ '.breadcrumbs' 
+    bcas = $('a',bc)
+    path = if bcas.length>0 then $(bcas[bcas.length-1]).attr 'href' else undefined
+    recorder.i 'view.page.reveal', {path:path,level:window.views.length}
   else
     console.log "no scrollTop found"
+    recorder.i 'view.page.reveal.empty', {level:window.views.length}
+
   if window.views.length<=1
     $('#topbar-menu').removeClass 'hide'
     $('#topbar-back').addClass 'hide'
+
 
 
 # main internal url router
@@ -83,6 +97,7 @@ class Router extends Backbone.Router
     "sendCache/:eid" : "sendCache"
 
   back: ->
+    attract.active()
     bcas = $('.breadcrumbs a')
     if bcas.length >= 2
       href = $(bcas[bcas.length-2]).attr 'href'
@@ -92,35 +107,40 @@ class Router extends Backbone.Router
       console.log "back with nothing to go back to"
 
   entries: ->
+    attract.active()
     # all entries - top-level view
     while window.views.length>1
       popView()
 
   help: ->
+    attract.active()
     #@entries()
     if window.views.length==0
       console.log "cannot show help - no initial view"
     else
       v = window.views[window.views.length-1]
       view = new EntryListHelpView()
-      addView view, "Help", "entries/help"
+      addView view, "Help", "help"
       # special case - overlay show entries
       v.scrollTop = 0
       v.$el.show()
 
 
   getEntry: (id) ->
+    attract.active()
     # id is already URI-decoded
     entry = window.entries?.get id
     if not entry? 
       #alert "Could not find that entry (#{id})"
       console.log "Could not find entry #{id}"
       $('#entryNotFoundModal').foundation 'reveal','open'
+      recorder.w 'view.error.entryNotFound',{id:id}
       null
     else
       entry
 
   entry: (id) ->
+    attract.active()
     entry = @getEntry id
     if not entry? 
       return false
@@ -129,6 +149,7 @@ class Router extends Backbone.Router
     addView view, entry.attributes.title, "entry/#{encodeURIComponent id}"
 
   preview: (id) ->
+    attract.active()
     entry = @getEntry id
     if not entry? 
       return false
@@ -137,6 +158,7 @@ class Router extends Backbone.Router
     addView view, "Preview", "preview/#{encodeURIComponent id}"
   
   sendInternet: (id) ->
+    attract.active()
     entry = @getEntry id
     if not entry? 
       return false
@@ -145,6 +167,7 @@ class Router extends Backbone.Router
     addView view, "Send over Internet", "sendInternet/#{encodeURIComponent id}"
   
   sendCache: (id) ->
+    attract.active()
     entry = @getEntry id
     if not entry? 
       return false
@@ -161,6 +184,7 @@ testentry1 = new Entry
 chooseDevicetype = ->
   console.log "chooseDevicetype"
   $('#chooseDeviceModal').foundation 'reveal','open'
+  recorder.w 'view.modal.chooseDevice.show'
   return false
 
 
@@ -260,10 +284,12 @@ App =
 
     # anchors
     $(document).on 'click','a', (ev) ->
+      attract.active()
       #alert "click"
       ev.preventDefault()
       href = $(@).attr 'href'
       console.log "click #{href}"
+      recorder.i 'user.click',{href:href}
       if href?
         if href.substring(0,1)=='-'
           # special case
@@ -279,10 +305,12 @@ App =
 
     # reset/reload
     $('.title-area .name').on 'mousedown touchstart', ()->
+      attract.active()
       start = new Date().getTime()
       armed = [false]
       reload = () -> location.reload()
       arm = () ->
+        recorder.i 'user.reload'
         $('#reloadModal').foundation 'reveal','open'
         armed[0] = true
         setInterval reload,5000
@@ -291,6 +319,7 @@ App =
       $(document).one 'mouseup touchend',() ->
         clearInterval timer
         if armed[0]
+          recorder.w 'reload'
           reload()
 
     # navigation delayed by device choice
@@ -298,6 +327,8 @@ App =
     $(document).on 'closed', '[data-reveal]', ()->
       modal = $(@).attr 'id'
       console.log "closed #{modal}"
+      recorder.i 'view.modal.closed',{id:modal}
+      attract.active()
       if modal == 'chooseDeviceModal' and window.delayedNavigate?
         url = window.delayedNavigate
         window.delayedNavigate = null

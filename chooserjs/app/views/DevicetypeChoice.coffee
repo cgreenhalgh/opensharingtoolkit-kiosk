@@ -1,5 +1,7 @@
 # EntryList View
 templateDevicetypeInChoice = require 'templates/DevicetypeInChoice'
+recorder = require 'recorder'
+attract = require 'attract'
 
 module.exports = class DevicetypeChoiceView extends Backbone.View
 
@@ -32,6 +34,7 @@ module.exports = class DevicetypeChoiceView extends Backbone.View
     'click .devicetype-help-hide': 'helpHide'
 
   helpHide: =>
+    attract.active()
     $( '.devicetype-help-panel', @$el ).addClass 'hide'
     $( '.devicetype-help-show', @$el ).removeClass 'hide'
     $( '.devicetype-help-hide', @$el ).addClass 'hide'
@@ -42,9 +45,16 @@ module.exports = class DevicetypeChoiceView extends Backbone.View
     dtel = $( ev.target ).parents '.devicetype'
     $( '.devicetype-help-button', dtel ).toggleClass 'hide'
     dtel.next('.panel').removeClass 'hide'
+
+    term = dtel.get(0).id
+    if term.substring(0,'devicetype-'.length)=='devicetype-'
+      term = term.substring 'devicetype-'.length
+    recorder.i 'user.requestHelp.devicetype',{term:term}
+
     false
 
   selectDevice: (ev) =>
+    attract.active()
     term = ev.currentTarget.id
     if term.substring(0,'devicetype-'.length)=='devicetype-'
       term = term.substring 'devicetype-'.length
@@ -53,6 +63,7 @@ module.exports = class DevicetypeChoiceView extends Backbone.View
     if devicetype?
       console.log "select device #{term} = #{devicetype?.attributes.label}"
       @model.set devicetype: devicetype
+      recorder.i 'user.selectDevice',{term:term,label:devicetype.attributes.label}
     else
       console.log "select unknown device #{term}"
     

@@ -2,6 +2,7 @@
 Entry = require 'models/Entry'
 
 kiosk = require 'kiosk'
+recorder = require 'recorder'
 
 getCachePath = (url,cacheFiles,prefix) ->
   if url?
@@ -152,6 +153,7 @@ loadEntries = (entries,atomurl,prefix,baseurl,cacheFiles) ->
     error: (xhr, textStatus, errorThrown) ->
       console.log 'error, '+textStatus+': '+errorThrown	
       $('#atomfileErrorModal').foundation 'reveal','open'
+      recorder.w 'view.error.atomFileError',{atomurl:atomurl,status:textStatus,error:errorThrown}
 
 module.exports.load = (entries, atomurl) ->
   # abolute URL...

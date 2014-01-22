@@ -1,5 +1,6 @@
 # attract animation - effectively modal
 templateAttract = require 'templates/Attract'
+recorder = require 'recorder'
 
 # requestAnimationFrame-based (if possible)
 createjs.Ticker.timingMode = createjs.Ticker.RAF
@@ -162,6 +163,7 @@ module.exports = class AttractView extends Backbone.View
     false
 
   remove: =>
+    recorder.i 'view.attract.hide'
     console.log 'close/remove Attract'
     @$el.remove()
     $(window).off 'resize', @resize

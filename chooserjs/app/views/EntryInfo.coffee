@@ -3,6 +3,8 @@ templateEntryInfo = require 'templates/EntryInfo'
 
 getter = require 'getter'
 kiosk = require 'kiosk'
+recorder = require 'recorder'
+attract = require 'attract'
 
 module.exports = class EntryInfoView extends Backbone.View
 
@@ -45,10 +47,13 @@ module.exports = class EntryInfoView extends Backbone.View
 
 
   helpOption: (name) =>
+    attract.active()
+    recorder.i 'user.requestHelp.option',{option:name}
     $( ".help-option-#{name}", @$el ).toggleClass 'hide'
     b = $( ".help-option-#{name}", @$el ).get(1)
     if not $(b).hasClass 'hide'
       offset = $(b).offset()
+      recorder.d 'app.scroll',{scrollTop:offset.top,scrollLeft:0}
       window.scrollTo 0,offset.top
       #$(b).scrollIntoView()
     false
@@ -66,10 +71,13 @@ module.exports = class EntryInfoView extends Backbone.View
     @helpOption 'get'
 
   optionView: =>
+    attract.active()
+    recorder.i 'user.option.view',{id:@model.id}
     console.log "option:view entry #{ @model.id }"
     window.router.navigate "preview/#{ encodeURIComponent @model.id }", trigger:true
 
   optionGet: =>
+    attract.active()
     console.log "option:get entry #{ @model.id }"
     # non-kiosk only! (but can do this in kiosk mode)
     # get.html should be available relative to page.
@@ -83,21 +91,31 @@ module.exports = class EntryInfoView extends Backbone.View
 
     url = getter.getGetUrl @model, devicetype
 
+    recorder.i 'user.option.get',{id:@model.id,devicetype:devicetype.attributes.term,url:url}
+
     window.open(url)
 
   optionSendInternet: =>
+    attract.active()
     if not window.options.attributes.devicetype?
+      recorder.i 'user.option.sendInternet.noDevicetype',{id:@model.id}
       window.delayedNavigate = "sendInternet/#{ encodeURIComponent @model.id }"
       $('#chooseDeviceModal').foundation 'reveal','open'
+      recorder.w 'view.modal.chooseDevice'
     else
+      recorder.i 'user.option.sendInternet',{id:@model.id}
       console.log "option:send(internet) entry #{ @model.id }"
       window.router.navigate "sendInternet/#{ encodeURIComponent @model.id }", trigger:true
 
   optionSendCache: =>
+    attract.active()
     if not window.options.attributes.devicetype?
+      recorder.i 'user.option.sendCache.noDevicetype',{id:@model.id}
       window.delayedNavigate = "sendCache/#{ encodeURIComponent @model.id }"
       $('#chooseDeviceModal').foundation 'reveal','open'
+      recorder.w 'view.modal.chooseDevice'
     else
+      recorder.i 'user.option.sendCache',{id:@model.id}
       console.log "option:send(cache) entry #{ @model.id }"
       window.router.navigate "sendCache/#{ encodeURIComponent @model.id }", trigger:true
 
