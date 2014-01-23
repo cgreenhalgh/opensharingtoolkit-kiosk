@@ -23,7 +23,9 @@
             </intent-filter>
         </activity>
         
-        <service android:name=".HotspotService"></service>
+        <service android:name=".HotspotService"
+            android:exported="true"> 
+        </service>
     </application>
 
 </manifest>

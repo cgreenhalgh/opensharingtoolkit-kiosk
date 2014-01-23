@@ -15,13 +15,7 @@ import android.util.Log;
  */
 public class ExecTask extends AsyncTask<String, Float, ExecResult> {
 
-	private static final String TAG = "exectask";
-
-	/* (non-Javadoc)
-	 * @see android.os.AsyncTask#doInBackground(Params[])
-	 */
-	@Override
-	protected ExecResult doInBackground(String... params) {
+	public static ExecResult exec(String... params) {
 		ProcessBuilder pbuilder = new ProcessBuilder (params);
 		
 		try {
@@ -32,7 +26,10 @@ public class ExecTask extends AsyncTask<String, Float, ExecResult> {
 				InputReader stdin = new InputReader(p.getInputStream());
 				try {
 					int exitCode = p.waitFor();
-					Log.d(TAG,"Process "+params[0]+" completed with status "+exitCode);
+					if (exitCode!=0) 
+						Log.w(TAG,"Process "+params[0]+" completed with status "+exitCode);
+					else
+						Log.d(TAG,"Process "+params[0]+" completed with status "+exitCode);
 					return new ExecResult((exitCode==0),
 							exitCode,
 							stdin.getInput(),
@@ -51,6 +48,17 @@ public class ExecTask extends AsyncTask<String, Float, ExecResult> {
 			Log.w(TAG,"Error starting process "+params[0]+": "+e);
 		}
 		return new ExecResult(false,0,null,null);
+		
+	}
+	
+	private static final String TAG = "exectask";
+
+	/* (non-Javadoc)
+	 * @see android.os.AsyncTask#doInBackground(Params[])
+	 */
+	@Override
+	protected ExecResult doInBackground(String... params) {
+		return exec(params);
 	}
 
 }

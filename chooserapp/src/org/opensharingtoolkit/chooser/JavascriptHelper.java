@@ -109,7 +109,7 @@ public class JavascriptHelper {
 	}
 	@JavascriptInterface
 	public int getPort() {
-		return Service.HTTP_PORT;
+		return Service.getPort();
 	}
 	private Intent makeIntent(String url, String mimeTypeHint) {
 		Intent i = new Intent(Intent.ACTION_VIEW, Uri.parse(url));

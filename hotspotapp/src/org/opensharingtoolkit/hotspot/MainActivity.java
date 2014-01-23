@@ -26,9 +26,9 @@ public class MainActivity extends Activity {
 	@Override
 	protected void onResume() {
 		super.onResume();
-		Log.d(TAG,"Starting service...");
-		Intent service = new Intent(this, HotspotService.class);
-		startService(service);
+		//Log.d(TAG,"Starting service...");
+		//Intent service = new Intent(this, HotspotService.class);
+		//startService(service);
 	}
 
 }

@@ -590,7 +590,7 @@
 
 }).call(this);
 }, "kiosk": function(exports, require, module) {(function() {
-  var Entry, REDIRECT_LIFETIME_MS, asset_prefix, getParameter, kiosk, localhost2_prefix, localhost_prefix, urlParams;
+  var Entry, REDIRECT_LIFETIME_MS, asset_prefix, getParameter, getPortOpt, kiosk, localhost2_prefix, localhost_prefix, urlParams;
 
   Entry = require('models/Entry');
 
@@ -656,6 +656,20 @@
     }
   };
 
+  getPortOpt = function() {
+    var port;
+    port = module.exports.getPort();
+    if (port != null) {
+      if (port === 80) {
+        return "";
+      } else {
+        return ":" + port;
+      }
+    } else {
+      return "";
+    }
+  };
+
   asset_prefix = 'file:///android_asset/';
 
   localhost_prefix = 'http://localhost';
@@ -668,12 +682,12 @@
       kiosk = window.kiosk;
       if (url.indexOf(asset_prefix) === 0) {
         console.log("getPortableUrl for asset " + url);
-        return 'http://' + kiosk.getHostAddress() + ':' + kiosk.getPort() + '/a/' + url.substring(asset_prefix.length);
+        return 'http://' + kiosk.getHostAddress() + getPortOpt() + '/a/' + url.substring(asset_prefix.length);
       } else if (url.indexOf('file:') === 0) {
         file_prefix = kiosk.getLocalFilePrefix() + '/';
         if (url.indexOf(file_prefix) === 0) {
           console.log("getPortableUrl for app file " + url);
-          return 'http://' + kiosk.getHostAddress() + ':' + kiosk.getPort() + '/f/' + url.substring(file_prefix.length);
+          return 'http://' + kiosk.getHostAddress() + getPortOpt() + '/f/' + url.substring(file_prefix.length);
         } else {
           console.log("Warning: file URL which does not match local file prefix: " + url);
           return url;
@@ -699,7 +713,7 @@
     if (window.kiosk != null) {
       kiosk = window.kiosk;
       redir = kiosk.registerTempRedirect(url, REDIRECT_LIFETIME_MS);
-      return "http://" + kiosk.getHostAddress() + ":" + kiosk.getPort() + redir;
+      return "http://" + kiosk.getHostAddress() + getPortOpt() + redir;
     } else {
       console.log("getTempRedirect when not kiosk for " + url);
       return url;

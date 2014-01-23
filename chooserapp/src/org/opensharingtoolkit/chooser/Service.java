@@ -7,19 +7,29 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Locale;
 
 import org.opensharingtoolkit.httpserver.HttpContinuation;
 import org.opensharingtoolkit.httpserver.HttpError;
 import org.opensharingtoolkit.httpserver.HttpListener;
 import org.opensharingtoolkit.chooser.R;
+import org.opensharingtoolkit.common.Hotspot;
 
 import android.app.Notification;
 import android.app.PendingIntent;
+import android.content.ComponentName;
+import android.content.Context;
 import android.content.Intent;
+import android.content.ServiceConnection;
 import android.content.res.AssetFileDescriptor;
 import android.content.res.AssetManager;
+import android.os.Handler;
 import android.os.IBinder;
+import android.os.Message;
+import android.os.Messenger;
+import android.os.RemoteException;
 import android.util.Log;
 
 /**
@@ -34,6 +44,8 @@ public class Service extends android.app.Service {
 	private static final int SERVICE_NOTIFICATION_ID = 1;
 	private HttpListener httpListener = null;
 	public static final int HTTP_PORT = 8080;
+	private static int port = HTTP_PORT;
+	
 	@Override
 	public void onCreate() {
 		super.onCreate();
@@ -52,12 +64,35 @@ public class Service extends android.app.Service {
 				
 		httpListener = new HttpListener(this, HTTP_PORT);
 		httpListener.start();
+		
+		// bind the hotspot service
+		Intent i = new Intent();
+		i.setClassName("org.opensharingtoolkit.hotspot","org.opensharingtoolkit.hotspot.HotspotService");
+        try {
+        	boolean res = bindService(i, mConnection, Context.BIND_AUTO_CREATE);
+        	if (res)
+        		Log.i(TAG,"successful bindService for HotspotService");
+        	else
+        		Log.w(TAG,"Unable to bindService to HotspotService");
+        }
+        catch (Exception e) {
+        	Log.e(TAG,"Error binding to HotspotService", e);
+        }
+        
+        // attempt to redirect port
+        redirectPort(80, HTTP_PORT);
 	}
 
 	@Override
 	public void onDestroy() {
 		Log.d(TAG,"service onDestroy");
 		super.onDestroy();
+		
+		// Unbind from the Hotspot service
+        if (mBound) {
+            unbindService(mConnection);
+            mBound = false;
+        }
 		
 		stopForeground(true);
 		
@@ -70,6 +105,116 @@ public class Service extends android.app.Service {
 			httpListener = null;
 		}
 	}
+	
+	public static int getPort() {
+		return port;
+	}
+	
+    /** Messenger for communicating with the Hotspot service. */
+    private Messenger mService = null;
+
+    /** Flag indicating whether we have called bind on the service. */
+    private boolean mBound;
+
+    /** pending messages */
+    private List<Message> mPendingMessages = new LinkedList<Message>();
+    
+    /**
+     * Class for interacting with the main interface of the service.
+     */
+    private ServiceConnection mConnection = new ServiceConnection() {
+        public void onServiceConnected(ComponentName className, IBinder service) {
+            // This is called when the connection with the service has been
+            // established, giving us the object we can use to
+            // interact with the service.  We are communicating with the
+            // service using a Messenger, so here we get a client-side
+            // representation of that from the raw IBinder object.
+            mService = new Messenger(service);
+        	Log.d(TAG,"HotspotService connected");
+            synchronized (Service.this) {
+            	mBound = true;
+            }
+           	sendPendingMessages();
+        }
+
+        public void onServiceDisconnected(ComponentName className) {
+            // This is called when the connection with the service has been
+            // unexpectedly disconnected -- that is, its process crashed.
+            mService = null;
+            mBound = false;
+            Log.d(TAG,"HotspotService disconnected");
+        }
+    };
+
+    private void redirectPort(int fromPort, int toPort) {
+        Message msg = Hotspot.getRedirectPortMessage(fromPort, toPort);
+        msg.replyTo = mHotspotMessenger;
+        synchronized (this) {
+        	if (!mBound) {
+        		Log.d(TAG,"Queue redirectPort "+fromPort+" -> "+toPort);
+    			mPendingMessages.add(msg);
+    			msg = null;
+        	}
+        }
+        if (msg!=null) {
+			try {
+				Log.d(TAG,"Send redirectPort "+fromPort+" -> "+toPort);
+				mService.send(msg);
+			} catch (RemoteException e) {
+				Log.w(TAG,"Error sending redirectPort", e);
+		        synchronized (this) {
+		        	// try again later?
+	    			mPendingMessages.add(msg);
+		        }
+			}
+        }
+    }
+
+
+	protected synchronized void sendPendingMessages() {
+		while (true) {
+			Message msg = null;
+			synchronized (this) {
+				if (mBound && !mPendingMessages.isEmpty()) 
+					msg = mPendingMessages.remove(0);
+			}
+			if (msg==null)
+				break;
+			try {
+				Log.d(TAG,"Send pending message what="+msg.what);
+				mService.send(msg);
+			} catch (RemoteException e) {
+				Log.w(TAG,"Error sending pending message what="+msg.what);
+		        synchronized (this) {
+		        	// try again later?
+	    			mPendingMessages.add(msg);
+		        }
+		        break;
+			}
+		}
+	}
+    /**
+     * Handler of incoming messages from clients.
+     */
+    class HotspotHandler extends Handler {
+        @Override
+        public void handleMessage(Message msg) {
+            switch (msg.what) {
+                case Hotspot.MSG_REDIRECTED_PORT:
+                	Log.i(TAG,"Redirected port "+msg.arg1+" -> "+msg.arg2);
+                	if (msg.arg1!=0)
+                		port = msg.arg1;
+                    break;
+                default:
+                    super.handleMessage(msg);
+            }
+        }
+    }
+
+    /**
+     * For replies from Hotspot service messages.
+     */
+    final Messenger mHotspotMessenger = new Messenger(new HotspotHandler());
 
 	// starting service...
 	private void handleCommand(Intent intent) {

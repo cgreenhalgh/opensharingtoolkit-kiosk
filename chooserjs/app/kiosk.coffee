@@ -46,6 +46,16 @@ module.exports.getPort = () ->
   else
     window.location.port
 
+getPortOpt = () ->
+  port = module.exports.getPort()
+  if port?
+    if port==80
+      ""
+    else
+      ":#{port}"
+  else
+    ""
+
 asset_prefix = 'file:///android_asset/'
 localhost_prefix = 'http://localhost'
 localhost2_prefix = 'http://127.0.0.1'
@@ -57,12 +67,12 @@ module.exports.getPortableUrl = (url) ->
     kiosk = window.kiosk
     if url.indexOf(asset_prefix)==0
       console.log "getPortableUrl for asset #{url}"
-      'http://'+kiosk.getHostAddress()+':'+kiosk.getPort()+'/a/'+url.substring(asset_prefix.length)
+      'http://'+kiosk.getHostAddress()+getPortOpt()+'/a/'+url.substring(asset_prefix.length)
     else if url.indexOf('file:')==0
       file_prefix = kiosk.getLocalFilePrefix()+'/'
       if url.indexOf(file_prefix)==0
         console.log "getPortableUrl for app file #{url}"
-        'http://'+kiosk.getHostAddress()+':'+kiosk.getPort()+'/f/'+url.substring(file_prefix.length)
+        'http://'+kiosk.getHostAddress()+getPortOpt()+'/f/'+url.substring(file_prefix.length)
       else 
         console.log "Warning: file URL which does not match local file prefix: #{url}"
         url
@@ -83,7 +93,7 @@ module.exports.getTempRedirect = (url) ->
   if window.kiosk?
     kiosk = window.kiosk
     redir = kiosk.registerTempRedirect url, REDIRECT_LIFETIME_MS
-    "http://"+kiosk.getHostAddress()+":"+kiosk.getPort()+redir
+    "http://"+kiosk.getHostAddress()+getPortOpt()+redir
   else
     console.log "getTempRedirect when not kiosk for #{url}"
     url
