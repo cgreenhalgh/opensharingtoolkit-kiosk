@@ -22,6 +22,7 @@ import org.opensharingtoolkit.common.Hotspot;
 public class HotspotService extends Service {
 
 	private static final String TAG = "ost-hotspot";
+	private static final long ARP_INTERVAL = 2000;
 
     /**
      * Handler of incoming messages from clients.
@@ -67,12 +68,26 @@ public class HotspotService extends Service {
 		return Iptables.redirectPort(fromPort, toPort);
 	}
 
+	private Handler mDelayHandler = new Handler();
+	private ArpMonitor mArpMonitor;
+	
 	@Override
 	public void onCreate() {
 		super.onCreate();
 		Log.d(TAG,"Created HotspotService");
+		mArpMonitor = new ArpMonitor(this);
+		mDelayHandler.postDelayed(new ArpPoll(), ARP_INTERVAL);
 	}
 
+	private class ArpPoll implements Runnable {
+		@Override
+		public void run() {
+			Log.d(TAG,"ArpPoll...");
+			mArpMonitor.poll();
+			mDelayHandler.postDelayed(new ArpPoll(), ARP_INTERVAL);
+		}		
+	}
+	
 	@Override
 	public void onDestroy() {
 		super.onDestroy();
