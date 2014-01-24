@@ -3,7 +3,7 @@ package org.opensharingtoolkit.hotspot;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.os.Messenger;
-import android.app.Activity;
+import android.preference.PreferenceActivity;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -11,7 +11,7 @@ import android.content.ServiceConnection;
 import android.util.Log;
 import android.view.Menu;
 
-public class MainActivity extends Activity {
+public class MainActivity extends PreferenceActivity {
 
 	private static final String TAG = "ost-hotspot";
 
@@ -23,7 +23,7 @@ public class MainActivity extends Activity {
     @Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		setContentView(R.layout.activity_main);
+		addPreferencesFromResource(R.xml.preferences);
 		// bind the hotspot service
 		// (Could be simpler as a local interaction)
 		Intent i = new Intent();

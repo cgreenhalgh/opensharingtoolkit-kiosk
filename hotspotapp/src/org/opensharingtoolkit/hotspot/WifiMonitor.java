@@ -17,6 +17,7 @@ public class WifiMonitor {
 	public static final String TAG = "wifimonitor";
 	private Context mContext;
 	private BackgroundExecTask mTask;
+	private AddressMangler mMangler;
 	
 	private class EventListener implements LineListener {
 		private String mEvent;
@@ -27,7 +28,7 @@ public class WifiMonitor {
 		public void onLine(String line) {
 			JSONObject jo = new JSONObject();
 			try {
-				jo.put("line", line);
+				jo.put("line", mMangler.mangle(line));
 			}
 			catch (Exception e) {
 				Log.e(TAG,"Error marshalling wifi.event info", e);
@@ -38,6 +39,7 @@ public class WifiMonitor {
 	
 	public WifiMonitor(Context context) {
 		mContext = context;
+		mMangler = AddressMangler.getInstance(context);
 		// if i run iwevent as a regular process:
 		// - it fails to show join/leave with message "iw_sockets_open: Address family not supported by protocol"
 		// - it carries on running after the app is removed. Not sure if this is because .destroy doesn't get called, or process resists

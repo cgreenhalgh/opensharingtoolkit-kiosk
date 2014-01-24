@@ -4,5 +4,8 @@
     <string name="app_name">OST Hotspot</string>
     <string name="action_settings">Settings</string>
     <string name="hello_world">Hello world!</string>
-
+    <string name="pref_hashkey_title">Hash Key</string>
+    <string name="pref_hashkey_summary">Key to hash MAC Addresses in log file</string>
+    <string name="pref_hashkey_default">9wLNYWbZ</string>
+    
 </resources>

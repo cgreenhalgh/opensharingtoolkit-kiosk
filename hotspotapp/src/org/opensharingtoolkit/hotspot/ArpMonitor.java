@@ -21,8 +21,10 @@ public class ArpMonitor {
 	private static final String TAG = "arpmonitor";
 	private Map<String,String> entries = new HashMap<String,String>();
 	private Context mContext;
+	private AddressMangler mMangler;
 	public ArpMonitor(Context context) {
 		this.mContext = context;
+		mMangler = AddressMangler.getInstance(context);
 	}
 	public void poll() {
 		ExecResult res = ExecTask.exec("ip","neigh");
@@ -30,6 +32,9 @@ public class ArpMonitor {
 		entries = new HashMap<String,String>();
 		if (res.isSuccess()) {
 			String lines[] = res.getStdout().split("\n");
+			for (int ix=0; ix<lines.length; ix++)
+				lines[ix] = mMangler.mangle(lines[ix]);
+
 			for (String line : lines) {
 				if (line.length()==0)
 					continue;
