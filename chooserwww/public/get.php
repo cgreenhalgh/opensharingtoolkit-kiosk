@@ -38,12 +38,40 @@ else
 ?></p>
 <h1 style="">Get <?php echo $_GET['t']; ?></h1>
 <?php
+$reqDevice = $_GET['d'];
+$dnames = array( 'ios' => 'an iPhone or iPad',
+  'android' => 'an Android phone or tablet',
+  'windowsmobile' => 'a Windows Phone',
+  'other' => 'some other kind of device' );
+function dname($d) {
+  if ($dnames[$d]) 
+    return $dnames[$d];
+  else
+    return 'a '.$d.' device';
+}
+$userAgent = $_SERVER['HTTP_USER_AGENT'];
+$device = null;
+if (strpos($userAgent,'iPhone')!==FALSE || strpos($userAgent,'iPod')!==FALSE || strpos($userAgent,'iPad')!==FALSE)
+  $device = 'ios';
+else if (strpos($userAgent,'Android')!==FALSE)
+  $device = 'android';
+if ($reqDevice!=$device) {
+  echo '<p>Warning: ';
+  if (!empty($device)) { echo 'this looks like '.dname($device); }
+  else { echo 'I\'m not sure what kind of device this is'; }
+  if (!empty($reqDevice) && reqDevice!='other') {
+    echo ' but you said it was '.dname($reqDevice);
+  }
+  echo '; you might need a different helper application to view this download</p>';
+} 
 $appurl = $_GET['a'];
 if (isset($appurl)) {
  if ($appurl==='') 
     echo '<p>Warning: this content may not be supported on your device!</p>';
   else {
-    echo '<p>Note: you may need <a href="'.$appurl.'">this helper application</a> to view this download.</p>'; 
+    echo '<p>Note: ';
+    if (!empty($reqDevice)) echo 'for '.dname($reqDevice).' ';
+    echo 'you may need <a href="'.$appurl.'">this helper application</a> to view this download.</p>'; 
     if (!empty($ssid)) 
       echo '<p>You may need to switch back to standard Internet to download the helper application.</p>';
   }
@@ -69,7 +97,8 @@ if (!empty($url)) {
         // full
         $base = "http://".$host.substr($requestUri,0,$ix+1);
       if (strlen($base)==0 || strpos($url,$base)===0) {
-        $f = $url.substr(strlen($base));
+        //echo '<p>base = '.htmlentities($base).'</p>';
+        $f = substr($url,strlen($base));
         $url = "send.php?f=".urlencode($f)."&m=".urlencode($m);
       } 
     }
