@@ -42,13 +42,14 @@ if (reqDevice!=device) {
   if (device=='ios') { document.write('this looks like an iPhone or similar'); }
   else if (device=='android') { document.write('this looks like an Android device'); }
   else { document.write('I\'m not sure what kind of device this is'); }
-  if (reqDevice) {
+  if (reqDevice && reqDevice!='other') {
     document.write(' but you said it was ');
     if (reqDevice=='ios') document.write('an iPhone or similar');
     else if (reqDevice=='android') document.write('an Android device');
     else if (reqDevice=='windowsphone') document.write('a Windows Phone');
     else document.write('a '+reqDevice+' device');
   }
+  document.write('; you might need a different helper application to view this download</p>');
 } 
 var appurl = urlParams.a;
 if (appurl!==undefined) {
