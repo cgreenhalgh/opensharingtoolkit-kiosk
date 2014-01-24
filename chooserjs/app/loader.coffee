@@ -39,6 +39,8 @@ addEntry = (entries, atomentry, atomurl, prefix, baseurl, cacheFiles) ->
     if href?
       path = getCachePath href, cacheFiles, prefix
       entry.enclosures.push {mime: type, url: href, path: path}
+      if path? and type?
+        kiosk.registerMimeType path,type
   entry.requiresDevice = []
   $('category[scheme=\'requires-device\']', atomentry).each (index, el) ->	
     device = $(el).attr 'term'

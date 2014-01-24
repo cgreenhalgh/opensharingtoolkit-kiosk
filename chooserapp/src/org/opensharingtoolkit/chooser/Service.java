@@ -7,9 +7,11 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 
 import org.opensharingtoolkit.httpserver.HttpContinuation;
 import org.opensharingtoolkit.httpserver.HttpError;
@@ -273,6 +275,15 @@ public class Service extends android.app.Service {
 			path = path.substring(0,qix);
 		return path;
 	}
+	private static Map<String,String> extensionMimeTypes = new HashMap<String,String>();
+	public static void registerExtension(String path, String mimeType) {
+		int ix = path.lastIndexOf(".");
+		String extension = ix>=0 ? path.substring(ix+1) : path;
+		if (!extensionMimeTypes.containsKey(extension)) {
+			Log.d(TAG,"Register mimetype "+mimeType+" for ."+extension);
+			extensionMimeTypes.put(extension, mimeType);
+		}
+	}
 	private String guessMimeType(String path) throws HttpError {
 		int ix = path.lastIndexOf('/');
 		String mimeType = "application/unknown";
@@ -302,8 +313,12 @@ public class Service extends android.app.Service {
 				mimeType = "image/gif";
 			else if (extension.equals("pdf"))
 				mimeType = "application/pdf";
-			else
-				Log.w(TAG,"Unknown file extension "+extension+" (get "+path+")");
+			else {
+				if (extensionMimeTypes.containsKey(extension))
+					mimeType = extensionMimeTypes.get(extension);
+				else
+					Log.w(TAG,"Unknown file extension "+extension+" (get "+path+")");
+			}
 		}			
 		Log.d(TAG,"Sending "+path+" as "+mimeType);
 		return mimeType;

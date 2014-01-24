@@ -88,6 +88,7 @@ module.exports = class EntryInfoView extends Backbone.View
     devicetype = window.options.getBrowserDevicetype()
     if window.options.attributes.devicetype? and window.options.attributes.devicetype != devicetype
       console.log "Warning: browser device type is not selected device type (#{devicetype?.attributes.term} vs #{window.options.devicetype?.attributes.term}"
+      devicetype = window.options.attributes.devicetype
 
     url = getter.getGetUrl @model, devicetype
 

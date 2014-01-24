@@ -30,6 +30,26 @@ else
 </script></p>
 <h1 style="">Get <script type="text/javascript">document.write(urlParams.t);</script></h1>
 <script type="text/javascript">
+var reqDevice = urlParams.d;
+var userAgent = navigator.userAgent;
+var device = null;
+if (/(iPhone)|(iPod)|(iPad)/.test(userAgent))
+  device = 'ios';
+else if (/Android/.test(userAgent))
+  device = 'android';
+if (reqDevice!=device) {
+  document.write('<p>Warning: ');
+  if (device=='ios') { document.write('this looks like an iPhone or similar'); }
+  else if (device=='android') { document.write('this looks like an Android device'); }
+  else { document.write('I\'m not sure what kind of device this is'); }
+  if (reqDevice) {
+    document.write(' but you said it was ');
+    if (reqDevice=='ios') document.write('an iPhone or similar');
+    else if (reqDevice=='android') document.write('an Android device');
+    else if (reqDevice=='windowsphone') document.write('a Windows Phone');
+    else document.write('a '+reqDevice+' device');
+  }
+} 
 var appurl = urlParams.a;
 if (appurl!==undefined) {
 	if (appurl=='') 

@@ -40,6 +40,10 @@ module.exports.getHostAddress = () ->
   else
     window.location.hostname
 
+module.exports.registerMimeType = (path,mime) ->
+  if window.kiosk?
+    window.kiosk.registerMimeType path,mime
+
 module.exports.getPort = () ->
   if window.kiosk?
     window.kiosk.getPort()

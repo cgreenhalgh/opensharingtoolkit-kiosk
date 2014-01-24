@@ -559,7 +559,7 @@
   kiosk = require('kiosk');
 
   module.exports.getGetUrl = function(entry, devicetype, nocache) {
-    var app, apps, baseurl, enc, hix, ix, ssid, url, _i, _len, _ref;
+    var app, apps, baseurl, enc, getscript, hix, ix, ssid, url, _i, _len, _ref;
     if (nocache == null) nocache = false;
     enc = entry.attributes.enclosures[0];
     url = nocache ? enc.url : (_ref = enc.path) != null ? _ref : enc.url;
@@ -575,7 +575,12 @@
     baseurl = hix >= 0 ? baseurl.substring(0, hix) : baseurl;
     ix = baseurl.lastIndexOf('/');
     baseurl = ix >= 0 ? baseurl.substring(0, ix + 1) : '';
-    url = kiosk.getPortableUrl(baseurl + 'get.html') + '?' + 'u=' + encodeURIComponent(url) + '&t=' + encodeURIComponent(entry.attributes.title);
+    getscript = nocache ? 'get.php' : 'get.html';
+    url = kiosk.getPortableUrl(baseurl + getscript) + '?' + 'u=' + encodeURIComponent(url) + '&t=' + encodeURIComponent(entry.attributes.title);
+    if (devicetype != null) {
+      url = url + '&d=' + encodeURIComponent(devicetype.attributes.term);
+    }
+    if (enc.mime != null) url = url + '&m=' + encodeURIComponent(enc.mime);
     for (_i = 0, _len = apps.length; _i < _len; _i++) {
       app = apps[_i];
       url = url + '&a=' + encodeURIComponent(kiosk.getPortableUrl(app));
@@ -583,6 +588,8 @@
     if (kiosk.isKiosk() && !nocache) {
       ssid = kiosk.getWifiSsid();
       url = url + '&n=' + encodeURIComponent(ssid);
+    } else {
+
     }
     console.log("Using helper page url " + url);
     return url;
@@ -646,6 +653,10 @@
     } else {
       return window.location.hostname;
     }
+  };
+
+  module.exports.registerMimeType = function(path, mime) {
+    if (window.kiosk != null) return window.kiosk.registerMimeType(path, mime);
   };
 
   module.exports.getPort = function() {
@@ -811,11 +822,14 @@
       href = $(el).attr('href');
       if (href != null) {
         path = getCachePath(href, cacheFiles, prefix);
-        return entry.enclosures.push({
+        entry.enclosures.push({
           mime: type,
           url: href,
           path: path
         });
+        if ((path != null) && (type != null)) {
+          return kiosk.registerMimeType(path, type);
+        }
       }
     });
     entry.requiresDevice = [];
@@ -2522,6 +2536,7 @@
       devicetype = window.options.getBrowserDevicetype();
       if ((window.options.attributes.devicetype != null) && window.options.attributes.devicetype !== devicetype) {
         console.log("Warning: browser device type is not selected device type (" + (devicetype != null ? devicetype.attributes.term : void 0) + " vs " + ((_ref = window.options.devicetype) != null ? _ref.attributes.term : void 0));
+        devicetype = window.options.attributes.devicetype;
       }
       url = getter.getGetUrl(this.model, devicetype);
       recorder.i('user.option.get', {

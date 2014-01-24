@@ -22,9 +22,14 @@ module.exports.getGetUrl = (entry, devicetype, nocache) ->
   baseurl = if (hix>=0) then baseurl.substring(0,hix) else baseurl
   ix = baseurl.lastIndexOf '/'
   baseurl = if (ix>=0) then baseurl.substring(0,ix+1) else ''
-  url = kiosk.getPortableUrl(baseurl+'get.html')+'?'+
+  getscript = if nocache then 'get.php' else 'get.html'
+  url = kiosk.getPortableUrl(baseurl+getscript)+'?'+
     'u='+encodeURIComponent(url)+
     '&t='+encodeURIComponent(entry.attributes.title)
+  if devicetype?
+    url = url+'&d='+encodeURIComponent(devicetype.attributes.term)
+  if enc.mime?
+    url = url+'&m='+encodeURIComponent(enc.mime)
   for app in apps
     url = url+'&a='+encodeURIComponent(kiosk.getPortableUrl(app))
 
@@ -32,6 +37,7 @@ module.exports.getGetUrl = (entry, devicetype, nocache) ->
   if kiosk.isKiosk() and not nocache
     ssid = kiosk.getWifiSsid()
     url = url+'&n='+encodeURIComponent(ssid);
+  else
 
   console.log "Using helper page url #{url}"	
   url

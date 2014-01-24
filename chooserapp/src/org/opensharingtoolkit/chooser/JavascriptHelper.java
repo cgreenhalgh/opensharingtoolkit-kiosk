@@ -252,6 +252,10 @@ public class JavascriptHelper {
 	    return null;
 	}
 
+	@JavascriptInterface
+	public void registerMimeType(String path, String mimeType) {
+		Service.registerExtension(path, mimeType);
+	}
 	/** register temporary redirect.
 	 * 
 	 *  @return Redirect path 
