@@ -4,6 +4,7 @@
 package org.opensharingtoolkit.hotspot;
 
 import java.io.BufferedInputStream;
+import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -11,23 +12,29 @@ import java.io.Reader;
 
 import android.util.Log;
 
-/**
+/** Read input a line at a time and call back
+ * 
  * @author pszcmg
  * 
  */
-public class InputReader extends Thread {
+public class LineInputReader extends Thread {
 
+	public static interface LineListener {
+		public void onLine(String line);
+	}
+	
 	private static final String TAG = "ost-hotspot";
-	private Reader bir;
-	private StringBuilder sb = new StringBuilder();
-	private String res;
+	private BufferedReader bir;
 	private boolean cancelled = false;
+	private boolean done = false;
+	private LineListener mLineListener;
 	
 	/** read all of input stream in a background thread (non-blocking).
 	 * call getInput() to get the result.
 	 */
-	public InputReader(InputStream is) {
-		bir = new InputStreamReader(new BufferedInputStream(is));
+	public LineInputReader(InputStream is, LineListener listener) {
+		bir = new BufferedReader(new InputStreamReader(is));
+		mLineListener = listener;
 		start();
 	}
 	
@@ -39,38 +46,40 @@ public class InputReader extends Thread {
 			this.interrupt();
 		}
 	}
-	
+		
 	/** wait for input - blocking.
-	 * @return all input (String), else null, e.g. if cancelled
+	 * @return done (not cancelled)
 	 */
-	public String getInput() {
+	public boolean waitForDone() {
 		synchronized (this) {
-			while (!cancelled && res==null)
+			while (!cancelled && !done)
 				try {
 					this.wait();
 				} catch (InterruptedException e) {
 					// ignore
 				}
-			if (cancelled)
-				return null;
-			return res;
+			return done;
 		}
 	}
-	
 	public void run() {
-		char buffer [] = new char[10000];
 		try {
 			while(true) {
 				synchronized (this) {
 					if (cancelled)
 						return;
 				}
-				int cnt = bir.read(buffer);
-				if (cnt<0) {
+				String line = bir.readLine();
+				if (line==null) {
 					done();
 					return;
 				}
-				sb.append(buffer, 0, cnt);
+				try {
+					if (mLineListener!=null)
+						mLineListener.onLine(line);
+				}
+				catch (Exception e) {
+					Log.w(TAG,"Error calling line listener with "+line, e);
+				}
 			}
 		} catch (IOException e) {
 			Log.d(TAG,"InputReader error: "+e, e);
@@ -86,7 +95,7 @@ public class InputReader extends Thread {
 			/* ignore */
 		}
 		synchronized (this) {
-			res = sb.toString();
+			done = true;
 			this.notifyAll();
 		}
 	}
