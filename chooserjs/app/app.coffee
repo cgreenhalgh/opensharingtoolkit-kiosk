@@ -232,6 +232,7 @@ App =
       mime: "application/x-itunes-app"
       icon: "icons/available_on_the_app_store.png"
       label: "iPhone app"
+    window.mimetypes = mimetypes
 
     # default device types
     devicetypes = new DevicetypeList()
@@ -265,12 +266,20 @@ App =
     # best way to find options?? (NB needed before Entry view(s))
     window.options = options
 
+    if not kiosk.isKiosk()
+      # default device
+      devicetype = window.options.getBrowserDevicetype()
+      if devicetype?
+        console.log 'set non-kiosk devicetype to '+devicetype.attributes.term
+        options.set devicetype: devicetype
+
     # device options view/change
     devicetypeChooser = new DevicetypeChoiceView model: options
     $('#chooseDeviceModal').append devicetypeChooser.$el
 
     devicetypeLabelView = new OptionsDevicetypeLabelView model: options
     devicetypeLabelView.setElement $('#chooseDevicetype a')
+    devicetypeLabelView.render()
 
     # TODO check user agent (if not kiosk)
 
@@ -308,6 +317,9 @@ App =
             router.back()
           else if href=='-info'
             attract.show()
+          else if href=='-menu'
+            console.log 'pass -menu for zurb?'
+            return true
           else
             console.log "ignore click #{href}"
         else

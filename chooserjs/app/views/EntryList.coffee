@@ -12,7 +12,7 @@ module.exports = class EntryListView extends Backbone.View
     @model.bind 'change', @render
     @model.bind 'add', @add
     window.options.on 'change:devicetype',@render
-    @$el.append '<div class="floating-help-button"><img src="icons/help.png"></div>'
+    #@$el.append '<div class="floating-help-button"><img src="icons/help.png"></div>'
 
   render: =>
     # TODO
@@ -28,8 +28,9 @@ module.exports = class EntryListView extends Backbone.View
 
   add: (entry, entrylist) =>
     if not entry.attributes.hidden
-      if window.options.attributes.devicetype? and not window.options.attributes.devicetype.supportsEntry entry
-        return false
+      # show all?!
+      #if window.options.attributes.devicetype? and not window.options.attributes.devicetype.supportsEntry entry
+      #  return false
       view = new EntryInListView model: entry
       @$el.append view.$el
       @views.push view

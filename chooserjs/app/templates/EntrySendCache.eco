@@ -5,9 +5,10 @@
       <p class="option-info"><span class="option-step">1</span>
         <img src="icons/help.png" class="entry-option-step-help-button entry-option-step-show">
         <img src="icons/help-right.png" class="entry-option-step-help-button entry-option-step-hide hide">
-        Join Wifi Network <span class="ssid"><%= @ssid %></span>
-        <div class="clear-both"></div>
+        Join this Wifi Network:
       </p>
+      <p class="option-url"><%= @ssid %></p>
+      <div class="clear-both"></div>
     </div>
     <div class="small-12 medium-6 large-6 columns">
       <div class="panel hide entry-option-step-panel">

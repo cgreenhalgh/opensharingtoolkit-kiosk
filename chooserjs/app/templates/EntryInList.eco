@@ -3,6 +3,11 @@
 <div class="entry-in-list-title-holder"><h4 class="entry-in-list-title"><%= @title %></h4></div>
 <div class="entry-in-list-icon">
   <div class="dummy"></div><%# required for CSS aspect ratio - see css %>
-  <img src="<%= @iconpath ? @iconurl %>">
+  <img src="<%= @iconpath ? @iconurl %>" class="entry-icon-image">
+  <% if @mimetypeicon?: %>
+    <div class="entry-in-list-mimetype">
+      <img src="<%= @mimetypeicon %>">
+    </div>
+  <% end %>
 </div>
 </a>

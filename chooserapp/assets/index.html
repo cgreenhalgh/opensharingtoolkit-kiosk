@@ -18,17 +18,15 @@
 <body>
 
   <!-- zurb top bar -->
-  <nav class="top-bar">
-    <ul class="title-area">
-      <!-- Title Area -->
-      <li class="name help-relative" id="back">
-        <h1><a href="-back"><img src="icons/topbar-menu.png" class="topbar-menu" id="topbar-menu">
-           <img src="icons/topbar-back.png" class="topbar-back hide" id="topbar-back">
-           <img src="icons/topbar-icon.png" class="topbar-icon">OST Kiosk</a></h1>
+  <nav class="top-bar" data-topbar>
+    <ul class="title-area help-relative">
+      <!-- Title Area  help-relative? -->
+      <li class="name" id="back">
+        <h1><a href="-back"><img src="icons/topbar-menu.png" class="topbar-menu" id="topbar-menu"><img src="icons/topbar-back.png" class="topbar-back hide" id="topbar-back"><img src="icons/topbar-icon.png" class="topbar-icon"><!--OST Kiosk--></a></h1>
         <!--<div class="help-below-left-align hide"><p>Go back</p></div>-->
       </li>
       <!-- Remove the class "menu-icon" to get rid of menu icon. Take out "Menu" to just have icon alone -->
-      <!-- <li class="toggle-topbar menu-icon"><a href=""><span>Menu</span></a></li> -->
+      <li class="toggle-topbar menu-icon"><a href="-menu">Menu</a></li>
     </ul>
 
     <section class="top-bar-section">
@@ -38,14 +36,15 @@
         <li class="help-relative" id="chooseDevicetype"><a href="-chooseDevicetype" >Unspecified Device (Change)</a>
           <!--<div class="help-below-right-align hide"><p>Identify your phone</p></div>-->
         </li>
-        <li class="menubar-help-pad"></li>
+        <li class="" ><a href="help"><!--<img src="icons/help.png" class="help-icon">-->Help</a></li>
+        <!--<li class="menubar-help-pad"></li>-->
       </ul>
     </section>
   </nav>
 
-  <div class="floating-help-button"><a href="help"><img src="icons/help.png"></a></div>
+  <!--<div class="floating-help-button"><a href="help"><img src="icons/help.png"></a></div>-->
 
-  <!-- zurb breadcrumbs -->
+  <!-- zurb breadcrumbs - hidden for now!-->
   <ul class="breadcrumbs">
   </ul>
 

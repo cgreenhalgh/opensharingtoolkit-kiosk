@@ -2,6 +2,7 @@
 @import "settings";
 @import "_settings";
 @import "foundation";
+$help-icon-size: rem-calc(56);
 // topbar icon(s)
 .topbar-icon {
   height: $topbar-height*0.7;
@@ -15,11 +16,20 @@
   height: $topbar-height*0.7;
   width: auto;
 };
+.help-icon {
+  width: $help-icon-size;
+  height: $help-icon-size;
+};
+// hide breadcrumbs for now (used internally)
+.breadcrumbs {
+  display: none;
+};
 .entry-in-list {
   @extend .columns;
   @extend .large-4;
   @extend .medium-4;
   @extend .small-6;
+  margin-top: 0.5em;
 };
 .entry-in-list-title-holder {
   height: 1.1em;
@@ -42,7 +52,7 @@
   .dummy {
     padding-top: 75%; //4:3 aspect
   };
-  img {
+  .entry-icon-image {
     width: 100%;
     position: absolute;
     top: 0;
@@ -51,6 +61,20 @@
     right: 0;
     height: auto;
   } 
+};
+.entry-in-list-mimetype {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  width: 1.2em;
+  height: 1.2em;
+  padding: 0.1em;
+  background-color: rgba(255,255,255,0.5);
+  .img {
+    width: 90%;
+    height: auto;
+    #height: 90%;
+  };
 };
 .entry-option {
   @extend .button;
@@ -68,7 +92,7 @@
   cursor: pointer;
   overflow: auto;
   // text
-  font-size: $h3-font-size;
+  font-size: $h2-font-size;
   vertical-align: middle;
   // for help button
   position: relative;
@@ -83,8 +107,8 @@
   border-radius: 6px;
   cursor: pointer;
   padding: 4px;
-  width: 48px;
-  height: 48px;
+  width: 56px;
+  height: 56px;
 };
 .option-url {
   font-family: Monospace;
@@ -132,30 +156,31 @@ span.ssid {
 .entry-option-help-button {
   position: absolute;
   right: 0.5em;
-  width: 2em;
-  height: 2em;
-  top: 0.2em;
+  width: $help-icon-size;
+  height: $help-icon-size;
+  top: 0.0em;
   //height: 10%;
-  padding: 0.2em;
+  padding: 0.0em;
   cursor: pointer;
 };
 .entry-option-more-help-button {
-  width: 3em;
-  height: 3em;
+  width: $help-icon-size;
+  height: $help-icon-size;
   //height: 10%;
   padding: 0.2em;
   cursor: pointer;
 };
 .entry-option-step-help-button {
-  width: 1.5em;
-  height: 1.5em;
+  width: $help-icon-size;
+  height: $help-icon-size;
   overflow: visible;
   cursor: pointer;
   float: right;
 };
 .devicetype-help-button {
-  width: 1.5em;
-  height: 1.5em;
+  width: $help-icon-size;
+  height: 2
+em;
   overflow: visible;
   //padding: 0.2em;
   cursor: pointer;
@@ -238,8 +263,8 @@ span.ssid {
   };
   .entry-list-help-info {
     position: absolute;
-    width: 2em;
-    height: 2em;
+    width: $help-icon-size;
+    height: $help-icon-size;
     bottom: 1em;
     left: 1em;
     img {
@@ -250,7 +275,7 @@ span.ssid {
   };
 };
 .entry-option-step-panel p {
-  font-size: 50%;
+  font-size: 75%;
 };
 // attract overlay/modal
 .attract-modal {

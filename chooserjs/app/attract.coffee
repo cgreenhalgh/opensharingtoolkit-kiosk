@@ -3,6 +3,7 @@
 
 AttractView = require 'views/Attract'
 recorder = require 'recorder'
+kiosk = require 'kiosk'
 
 currentAttract = null
 
@@ -12,9 +13,11 @@ RESET_DELAY = 60000
 
 reset = () ->
   resetTimer = null
-  console.log "!!!reset!!!"
-  recorder.i 'app.reset'
-  window.router.navigate "entries", trigger:true
+  if kiosk.isKiosk()
+    console.log "!!!reset!!!"
+    recorder.i 'app.reset'
+    window.options.set devicetype: null
+    window.router.navigate "entries", trigger:true
 
 showAttract = () ->
   if currentAttract? and $(currentAttract.el).is ":visible"

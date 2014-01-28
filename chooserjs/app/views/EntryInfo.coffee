@@ -20,10 +20,10 @@ module.exports = class EntryInfoView extends Backbone.View
     templateEntryInfo d
 
   render: =>
-    console.log "render EntryInfo #{ @model.id } #{ @model.attributes.title }"
     # TODO show send cache if we are not kiosk but are being served directly by cache
-    url = _.find @model.attributes.enclosures, (enc)->enc.url?
-    path = _.find @model.attributes.enclosures, (enc)->enc.path?
+    url = (_.find @model.attributes.enclosures, (enc)->enc.url?)?.url
+    path = (_.find @model.attributes.enclosures, (enc)->enc.path?)?.path
+    console.log "render EntryInfo #{ @model.id } #{ @model.attributes.title } url=#{url} path=#{path}"
     data =
       entry: @model.attributes
       optionGet: not kiosk.isKiosk()
@@ -94,7 +94,7 @@ module.exports = class EntryInfoView extends Backbone.View
 
     recorder.i 'user.option.get',{id:@model.id,devicetype:devicetype.attributes.term,url:url}
 
-    window.open(url)
+    window.open(url,'get')
 
   optionSendInternet: =>
     attract.active()

@@ -1,5 +1,6 @@
 # Atom file loader
 Entry = require 'models/Entry'
+Mimetype = require 'models/Mimetype'
 
 kiosk = require 'kiosk'
 recorder = require 'recorder'
@@ -7,7 +8,7 @@ recorder = require 'recorder'
 getCachePath = (url,cacheFiles,prefix) ->
   if url?
     file = cacheFiles[url]
-    if file? 
+    if file? and file.path?
       prefix+file.path
     else
       null
@@ -52,7 +53,11 @@ addEntry = (entries, atomentry, atomurl, prefix, baseurl, cacheFiles) ->
     label = $(el).attr 'label'
     if mime?
       entry.supportsMime.push mime
-      # TODO mime types?!
+      # new mime type?
+      if not (window.mimetypes.find (mt)->mt.attributes.mime==mime)?
+        console.log "add mimetype #{mime} #{label}" 
+        mt = { mime: mime, label: label, icon: iconpath ?= iconurl }
+        window.mimetypes.add new Mimetype mt
 
   entry.thumbnails = []
   # namespace media: explicitly by media|thumbnail, or explicit wildcard by *|thumbnail

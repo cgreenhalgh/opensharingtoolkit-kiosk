@@ -197,6 +197,7 @@ $h6-font-size: 1rem;
 
 // We use these to set various text styles for breadcrumbs.
 // $crumb-font-size: rem-calc(11);
+$crumb-font-size: rem-calc(11*2);
 // $crumb-font-color: $primary-color;
 // $crumb-font-color-current: #333;
 // $crumb-font-color-unavailable: #999;
@@ -944,6 +945,7 @@ $orbit-nav-arrow-color: #ccc;
 
 // Height and margin
 // $topbar-height: 45px;
+$topbar-height: 75px;
 // $topbar-margin-bottom: 0;
 
 // Control Input height for top bar
@@ -951,6 +953,7 @@ $orbit-nav-arrow-color: #ccc;
 // Controlling the styles for the title in the top bar
 // $topbar-title-weight: normal;
 // $topbar-title-font-size: rem-calc(17);
+$topbar-title-font-size: rem-calc(17*2);
 
 // Style the top bar dropdown elements
 // $topbar-dropdown-bg: #333;
@@ -966,6 +969,7 @@ $orbit-nav-arrow-color: #ccc;
 // $topbar-link-color-active: #fff;
 // $topbar-link-weight: normal;
 // $topbar-link-font-size: rem-calc(13);
+$topbar-link-font-size: rem-calc(13*2);
 // $topbar-link-hover-lightness: -10%; // Darken by 10%
 // $topbar-link-bg-hover: #272727  ;
 // $topbar-link-bg-active: $primary-color;

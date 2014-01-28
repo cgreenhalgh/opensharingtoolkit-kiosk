@@ -325,7 +325,7 @@
 
   App = {
     init: function() {
-      var atomfile, devicetypeChooser, devicetypeLabelView, devicetypes, entries, entryview, mimetypes, options, router;
+      var atomfile, devicetype, devicetypeChooser, devicetypeLabelView, devicetypes, entries, entryview, mimetypes, options, router;
       Backbone.sync = function(method, model, success, error) {
         return success();
       };
@@ -356,6 +356,7 @@
         icon: "icons/available_on_the_app_store.png",
         label: "iPhone app"
       }));
+      window.mimetypes = mimetypes;
       devicetypes = new DevicetypeList();
       devicetypes.add(new Devicetype({
         term: "ios",
@@ -387,6 +388,15 @@
         devicetypes: devicetypes
       });
       window.options = options;
+      if (!kiosk.isKiosk()) {
+        devicetype = window.options.getBrowserDevicetype();
+        if (devicetype != null) {
+          console.log('set non-kiosk devicetype to ' + devicetype.attributes.term);
+          options.set({
+            devicetype: devicetype
+          });
+        }
+      }
       devicetypeChooser = new DevicetypeChoiceView({
         model: options
       });
@@ -395,6 +405,7 @@
         model: options
       });
       devicetypeLabelView.setElement($('#chooseDevicetype a'));
+      devicetypeLabelView.render();
       entries = new EntryList();
       window.entries = entries;
       entryview = new EntryListView({
@@ -423,6 +434,9 @@
               router.back();
             } else if (href === '-info') {
               attract.show();
+            } else if (href === '-menu') {
+              console.log('pass -menu for zurb?');
+              return true;
             } else {
               console.log("ignore click " + href);
             }
@@ -486,11 +500,13 @@
 
 }).call(this);
 }, "attract": function(exports, require, module) {(function() {
-  var ATTRACT_DELAY, AttractView, RESET_DELAY, active, currentAttract, recorder, reset, resetTimer, showAttract, timer;
+  var ATTRACT_DELAY, AttractView, RESET_DELAY, active, currentAttract, kiosk, recorder, reset, resetTimer, showAttract, timer;
 
   AttractView = require('views/Attract');
 
   recorder = require('recorder');
+
+  kiosk = require('kiosk');
 
   currentAttract = null;
 
@@ -500,11 +516,16 @@
 
   reset = function() {
     resetTimer = null;
-    console.log("!!!reset!!!");
-    recorder.i('app.reset');
-    return window.router.navigate("entries", {
-      trigger: true
-    });
+    if (kiosk.isKiosk()) {
+      console.log("!!!reset!!!");
+      recorder.i('app.reset');
+      window.options.set({
+        devicetype: null
+      });
+      return window.router.navigate("entries", {
+        trigger: true
+      });
+    }
   };
 
   showAttract = function() {
@@ -739,6 +760,7 @@
   module.exports.addKioskEntry = function(entries, atomurl, ineturl) {
     var baseurl, e, enc, entry, inetbaseurl, ix, path, url;
     console.log("add kiosk entry " + atomurl + " / " + ineturl);
+    if (!(window.kiosk != null)) return null;
     baseurl = window.location.href;
     ix = baseurl.lastIndexOf('/');
     if (ix >= 0) baseurl = baseurl.substring(0, ix + 1);
@@ -777,9 +799,11 @@
 
 }).call(this);
 }, "loader": function(exports, require, module) {(function() {
-  var Entry, addEntry, addShorturls, getCacheFileMap, getCachePath, get_baseurl, kiosk, loadCache, loadEntries, loadShorturls, recorder;
+  var Entry, Mimetype, addEntry, addShorturls, getCacheFileMap, getCachePath, get_baseurl, kiosk, loadCache, loadEntries, loadShorturls, recorder;
 
   Entry = require('models/Entry');
+
+  Mimetype = require('models/Mimetype');
 
   kiosk = require('kiosk');
 
@@ -789,7 +813,7 @@
     var file;
     if (url != null) {
       file = cacheFiles[url];
-      if (file != null) {
+      if ((file != null) && (file.path != null)) {
         return prefix + file.path;
       } else {
         return null;
@@ -840,10 +864,23 @@
     });
     entry.supportsMime = [];
     $('category[scheme=\'supports-mime-type\']', atomentry).each(function(index, el) {
-      var label, mime;
+      var label, mime, mt;
       mime = $(el).attr('term');
       label = $(el).attr('label');
-      if (mime != null) return entry.supportsMime.push(mime);
+      if (mime != null) {
+        entry.supportsMime.push(mime);
+        if (!((window.mimetypes.find(function(mt) {
+          return mt.attributes.mime === mime;
+        })) != null)) {
+          console.log("add mimetype " + mime + " " + label);
+          mt = {
+            mime: mime,
+            label: label,
+            icon: iconpath != null ? iconpath : iconpath = iconurl
+          };
+          return window.mimetypes.add(new Mimetype(mt));
+        }
+      }
     });
     entry.thumbnails = [];
     $('thumbnail', atomentry).each(function(index, el) {
@@ -1113,13 +1150,14 @@
 }).call(this);
 }, "models/Entry": function(exports, require, module) {(function() {
   var Entry;
-  var __hasProp = Object.prototype.hasOwnProperty, __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor; child.__super__ = parent.prototype; return child; };
+  var __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; }, __hasProp = Object.prototype.hasOwnProperty, __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor; child.__super__ = parent.prototype; return child; };
 
   module.exports = Entry = (function() {
 
     __extends(Entry, Backbone.Model);
 
     function Entry() {
+      this.checkMimetypeIcon = __bind(this.checkMimetypeIcon, this);
       Entry.__super__.constructor.apply(this, arguments);
     }
 
@@ -1130,6 +1168,30 @@
       supportsMime: [],
       requiresDevice: [],
       hidden: false
+    };
+
+    Entry.prototype.checkMimetypeIcon = function() {
+      var enc, mimetypeicon, _i, _len, _ref, _ref2;
+      if (this.attributes.mimetypeicon != null) {
+        return this.attributes.mimetypeicon;
+      }
+      _ref = this.attributes.enclosures;
+      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+        enc = _ref[_i];
+        if (!(enc.mime != null)) continue;
+        mimetypeicon = (_ref2 = window.mimetypes.find(function(mt) {
+          return mt.attributes.mime === enc.mime && (mt.attributes.icon != null);
+        })) != null ? _ref2.attributes.icon : void 0;
+        if (mimetypeicon != null) {
+          console.log("found mimetypeicon for " + enc.mime + ": " + mimetypeicon);
+          this.set({
+            mimetypeicon: mimetypeicon
+          });
+          return this.attributes.mimetypeicon;
+        }
+        console.log("cannot find mimetype " + enc.mime);
+      }
+      return;
     };
 
     return Entry;
@@ -1533,7 +1595,15 @@
     
       __out.push(__sanitize((_ref = this.iconpath) != null ? _ref : this.iconurl));
     
-      __out.push('">\n</div>\n</a>\n');
+      __out.push('" class="entry-icon-image">\n  ');
+    
+      if (this.mimetypeicon != null) {
+        __out.push('\n    <div class="entry-in-list-mimetype">\n      <img src="');
+        __out.push(__sanitize(this.mimetypeicon));
+        __out.push('">\n    </div>\n  ');
+      }
+    
+      __out.push('\n</div>\n</a>\n');
     
     }).call(this);
     
@@ -1789,11 +1859,11 @@
     
       __out.push(__sanitize(this.entry.title));
     
-      __out.push('</h1>\n  <div class="row" help-section="join wifi">\n    <div class="small-12 medium-6 large-6 columns">\n      <p class="option-info"><span class="option-step">1</span>\n        <img src="icons/help.png" class="entry-option-step-help-button entry-option-step-show">\n        <img src="icons/help-right.png" class="entry-option-step-help-button entry-option-step-hide hide">\n        Join Wifi Network <span class="ssid">');
+      __out.push('</h1>\n  <div class="row" help-section="join wifi">\n    <div class="small-12 medium-6 large-6 columns">\n      <p class="option-info"><span class="option-step">1</span>\n        <img src="icons/help.png" class="entry-option-step-help-button entry-option-step-show">\n        <img src="icons/help-right.png" class="entry-option-step-help-button entry-option-step-hide hide">\n        Join this Wifi Network:\n      </p>\n      <p class="option-url">');
     
       __out.push(__sanitize(this.ssid));
     
-      __out.push('</span>\n        <div class="clear-both"></div>\n      </p>\n    </div>\n    <div class="small-12 medium-6 large-6 columns">\n      <div class="panel hide entry-option-step-panel">\n        <p>You can get this content directly from this device using its own WiFi network.</p>\n        <p>Note: if you want to install a QR code reader from the Internet then do that first (see the next step).<p>\n        <p>Use the settings on your phone or tablet to search for WiFi networks; find the one called <span class="ssid">');
+      __out.push('</p>\n      <div class="clear-both"></div>\n    </div>\n    <div class="small-12 medium-6 large-6 columns">\n      <div class="panel hide entry-option-step-panel">\n        <p>You can get this content directly from this device using its own WiFi network.</p>\n        <p>Note: if you want to install a QR code reader from the Internet then do that first (see the next step).<p>\n        <p>Use the settings on your phone or tablet to search for WiFi networks; find the one called <span class="ssid">');
     
       __out.push(__sanitize(this.ssid));
     
@@ -2379,6 +2449,9 @@
     };
 
     EntryInListView.prototype.render = function() {
+      if (!(this.model.attributes.mimetypeicon != null)) {
+        this.model.checkMimetypeIcon();
+      }
       console.log("render EntryInList " + this.model.attributes.title);
       this.$el.html(this.template(this.model.attributes));
       return this;
@@ -2453,14 +2526,14 @@
     };
 
     EntryInfoView.prototype.render = function() {
-      var data, path, url;
-      console.log("render EntryInfo " + this.model.id + " " + this.model.attributes.title);
-      url = _.find(this.model.attributes.enclosures, function(enc) {
+      var data, path, url, _ref, _ref2;
+      url = (_ref = _.find(this.model.attributes.enclosures, function(enc) {
         return enc.url != null;
-      });
-      path = _.find(this.model.attributes.enclosures, function(enc) {
+      })) != null ? _ref.url : void 0;
+      path = (_ref2 = _.find(this.model.attributes.enclosures, function(enc) {
         return enc.path != null;
-      });
+      })) != null ? _ref2.path : void 0;
+      console.log("render EntryInfo " + this.model.id + " " + this.model.attributes.title + " url=" + url + " path=" + path);
       data = {
         entry: this.model.attributes,
         optionGet: !kiosk.isKiosk(),
@@ -2544,7 +2617,7 @@
         devicetype: devicetype.attributes.term,
         url: url
       });
-      return window.open(url);
+      return window.open(url, 'get');
     };
 
     EntryInfoView.prototype.optionSendInternet = function() {
@@ -2618,8 +2691,7 @@
     EntryListView.prototype.initialize = function() {
       this.model.bind('change', this.render);
       this.model.bind('add', this.add);
-      window.options.on('change:devicetype', this.render);
-      return this.$el.append('<div class="floating-help-button"><img src="icons/help.png"></div>');
+      return window.options.on('change:devicetype', this.render);
     };
 
     EntryListView.prototype.render = function() {
@@ -2636,9 +2708,6 @@
     EntryListView.prototype.add = function(entry, entrylist) {
       var view;
       if (!entry.attributes.hidden) {
-        if ((window.options.attributes.devicetype != null) && !window.options.attributes.devicetype.supportsEntry(entry)) {
-          return false;
-        }
         view = new EntryInListView({
           model: entry
         });

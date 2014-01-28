@@ -117,7 +117,8 @@ module.exports.getQrCode = (url) ->
 
 module.exports.addKioskEntry = (entries,atomurl,ineturl) ->
     console.log "add kiosk entry #{atomurl} / #{ineturl}"
-    #if window.kiosk?
+    if not window.kiosk?
+      return null
     # index.html is this page; relative ref
     baseurl = window.location.href
     ix = baseurl.lastIndexOf('/')

@@ -166,7 +166,7 @@ public class LoggingService extends IntentService {
 					mLogFileLength += count;
 					mLogFileTotal += count;
 					break done;
-				} catch (IOException e) {
+				} catch (Exception e) {
 					Log.w(TAG,"Error writing entry: "+e);
 					// ok, tear it down and try again...
 					mPendingError = e.toString();
