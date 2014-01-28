@@ -81,8 +81,10 @@ if (isset($appurl)) {
 $url = $_GET['u'];
 if (!empty($url)) {
   // special-case using send? only local files and mime type given!
+  // nothing with query parameters, at least for now
   $m = $_GET['m'];
-  if (!empty($m)) {
+  if (!empty($m) && strpos($url,'?')===FALSE) {
+    //echo '<p>send '.$url.' - strpos='.strpos($url,'%3F');
     $requestUri =$_SERVER['REQUEST_URI'];
     // must be called get.php ?!
     $ix = strpos($requestUri, '/get.php?');
