@@ -6,7 +6,12 @@
   <p><%= @entry.summary %></p> 
   <div class="entry-in-list-icon">
     <div class="dummy"></div><%# required for CSS aspect ratio - see css %>
-    <img src="<%= @entry.iconpath ? @entry.iconurl %>">
+    <img src="<%= @entry.iconpath ? @entry.iconurl %>"  class="entry-icon-image">
+    <% if @entry.mimetypeicon?: %>
+      <div class="entry-in-list-mimetype">
+        <img src="<%= @entry.mimetypeicon %>">
+      </div>
+    <% end %>
   </div>
 </div>
 <div class="small-12 medium-6 large-6 columns">

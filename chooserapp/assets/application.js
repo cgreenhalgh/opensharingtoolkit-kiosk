@@ -1665,7 +1665,15 @@
     
       __out.push(__sanitize((_ref = this.entry.iconpath) != null ? _ref : this.entry.iconurl));
     
-      __out.push('">\n  </div>\n</div>\n<div class="small-12 medium-6 large-6 columns">\n');
+      __out.push('"  class="entry-icon-image">\n    ');
+    
+      if (this.entry.mimetypeicon != null) {
+        __out.push('\n      <div class="entry-in-list-mimetype">\n        <img src="');
+        __out.push(__sanitize(this.entry.mimetypeicon));
+        __out.push('">\n      </div>\n    ');
+      }
+    
+      __out.push('\n  </div>\n</div>\n<div class="small-12 medium-6 large-6 columns">\n');
     
       if (this.optionPreview) {
         __out.push('\n  <div class="entry-option option-view">Preview\n    <img src="icons/help.png" class="entry-option-help-button help-option-view">\n    <img src="icons/help-down.png" class="entry-option-help-button help-option-view hide">\n  </div>\n  <div class="panel help-option-view hide">\n    <p>Have a look before you download anything.<p>\n  </div>\n');
@@ -2689,7 +2697,6 @@
     EntryListView.prototype.className = 'entry-list';
 
     EntryListView.prototype.initialize = function() {
-      this.model.bind('change', this.render);
       this.model.bind('add', this.add);
       return window.options.on('change:devicetype', this.render);
     };
@@ -2708,6 +2715,7 @@
     EntryListView.prototype.add = function(entry, entrylist) {
       var view;
       if (!entry.attributes.hidden) {
+        console.log("EntryListView add " + entry.attributes.id);
         view = new EntryInListView({
           model: entry
         });

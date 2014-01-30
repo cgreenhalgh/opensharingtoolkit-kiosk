@@ -119,4 +119,17 @@
                       <email>cmg@cs.nott.ac.uk</email>
                 </author>
         </entry>
+        <entry>
+                <title>Jubilee Tour</title>
+                <link rel="enclosure" type="text/html" href="http://www.cs.nott.ac.uk/~cmg/AppropriateICT/JubileeCampus/1227.placebook/placebook.html" />
+                <link rel="alternate" type="image/png" href="http://www.cs.nott.ac.uk/~cmg/AppropriateICT/JubileeCampus/jubilee-tour-icon.png" />
+		<media:thumbnail url="http://www.cs.nott.ac.uk/~cmg/AppropriateICT/JubileeCampus/jubilee-tour-p1.png"/>
+                <id>tag:cmg@cs.nott.ac.uk,2014-01-30:atom/test/placebook2html/jubilee/1</id>
+                <updated>2013-09-26T12:32:01Z</updated>
+                <content>A map and short guide to some of the most recognisable buildings and monuments on the University of Nottinhgam's Jubilee Campus.</content>
+                <author>
+                      <name>Chris Greenhalgh</name>
+                      <email>cmg@cs.nott.ac.uk</email>
+                </author>
+        </entry>
  </feed> 
