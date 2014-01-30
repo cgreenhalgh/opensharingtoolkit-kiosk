@@ -2,7 +2,45 @@
 @import "settings";
 @import "_settings";
 @import "foundation";
+@import "foundation/components/global";
 $help-icon-size: rem-calc(56);
+// faster button hover
+//a,
+#back,
+#help,
+#chooseDevicetype,
+.entry-in-list,
+.button,
+.devicetype,
+.devicetype-help-button,
+.entry-option-step-help-button,
+.entry-option-help-button,
+.help-label {
+  &:active {
+    @if $experimental {
+      -webkit-box-shadow: 0 0 10px fade-out($primary-color, .25);
+      -moz-box-shadow: 0 0 10px fade-out($primary-color, .25);
+    }
+    box-shadow: 0 0 10px fade-out($primary-color, .25);
+    border-color: fade-out($primary-color, .25);
+  }
+  //@include block-glowing-effect(hover,10ms);
+  //@include block-glowing-effect(active,10ms);
+  &:hover {
+    cursor: pointer;
+  };
+};
+// disable text selection
+body {
+  //http://stackoverflow.com/questions/11237936/mobile-web-disable-long-touch-taphold-text-selection
+  -webkit-touch-callout:none;
+  -webkit-user-select:none;
+  -khtml-user-select:none;
+  -moz-user-select:none;
+  -ms-user-select:none;
+  user-select:none;
+  -webkit-tap-highlight-color:rgba(0,0,0,0);
+};
 // topbar icon(s)
 .topbar-icon {
   height: $topbar-height*0.7;
