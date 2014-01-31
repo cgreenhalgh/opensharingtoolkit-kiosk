@@ -472,7 +472,7 @@
         });
       });
       window.delayedNavigate = null;
-      return $(document).on('closed', '[data-reveal]', function() {
+      $(document).on('closed', '[data-reveal]', function() {
         var modal, url;
         modal = $(this).attr('id');
         console.log("closed " + modal);
@@ -493,6 +493,17 @@
           }
         }
       });
+      if (navigator.userAgent.toLowerCase().indexOf("android") > -1) {
+        return $(".clickable").on("touchstart", function() {
+          return $(this).addClass("touch-active");
+        }).on("touchend", function() {
+          return $(this).removeClass("touch-active").on("touchcancel", function() {
+            return $(this).removeClass("touch-active").on("click", function() {
+              return $(this).removeClass("touch-active");
+            });
+          });
+        });
+      }
     }
   };
 
@@ -1523,7 +1534,7 @@
     
       __out.push(__sanitize(this.selected ? 'devicetype-selected' : 'devicetype-unselected'));
     
-      __out.push(' devicetype" id="');
+      __out.push(' devicetype clickable" id="');
     
       __out.push(__sanitize('devicetype-' + this.devicetype.term));
     
@@ -1535,7 +1546,7 @@
     
       __out.push(__sanitize(this.devicetype.label));
     
-      __out.push('\n  <img src="icons/help.png" class="devicetype-help-button devicetype-help-show" >\n  <img src="icons/help-down.png" class="devicetype-help-button devicetype-help-hide hide" >\n</div>\n<div class="panel hide devicetype-help-panel" >');
+      __out.push('\n  <img src="icons/help.png" class="devicetype-help-button devicetype-help-show clickable" >\n  <img src="icons/help-down.png" class="devicetype-help-button devicetype-help-hide hide clickable" >\n</div>\n<div class="panel hide devicetype-help-panel" >');
     
       __out.push(this.devicetype.helpHtml);
     
@@ -1585,7 +1596,7 @@
     (function() {
       var _ref;
     
-      __out.push('\n<a href="#" class="open">\n<div class="entry-in-list-title-holder"><h4 class="entry-in-list-title">');
+      __out.push('\n<div class="entry-in-list-button clickable">\n<a href="#" class="open">\n<div class="entry-in-list-title-holder"><h4 class="entry-in-list-title">');
     
       __out.push(__sanitize(this.title));
     
@@ -1603,7 +1614,7 @@
         __out.push('">\n    </div>\n  ');
       }
     
-      __out.push('\n</div>\n</a>\n');
+      __out.push('\n</div>\n</a>\n</div>\n');
     
     }).call(this);
     
@@ -1745,7 +1756,7 @@
   }
   (function() {
     
-      __out.push('\n<div class="entry-list-help-top"></div>\n<div class="row">\n  <div class="small-6 large-6 columns">\n    <p class="text-centre"><img class="help-scroll-vertical" src="icons/scroll-vertical-hint.png">Drag to scroll up and down</p>\n  </div>\n  <div class="small-6 large-6 columns">\n    <p class="text-centre">Touch an item to find out more</p>\n  </div>\n</div>\n<div class="entry-list-help-info"><a href="-info"><img src="icons/information.png"></a></div>\n<div class="entry-list-help-ok">\n  <a href="-back" class="button">OK</a>\n</div>\n\n');
+      __out.push('\n<div class="entry-list-help-top"></div>\n<div class="row">\n  <div class="small-6 large-6 columns">\n    <p class="text-centre"><img class="help-scroll-vertical" src="icons/scroll-vertical-hint.png">Drag to scroll up and down</p>\n  </div>\n  <div class="small-6 large-6 columns">\n    <p class="text-centre">Touch an item to find out more</p>\n  </div>\n</div>\n<div class="entry-list-help-info"><a href="-info" class="clickable"><img src="icons/information.png"></a></div>\n<div class="entry-list-help-ok">\n  <a href="-back" class="button">OK</a>\n</div>\n\n');
     
   }).call(__obj);
   __obj.safe = __objSafe, __obj.escape = __escape;
@@ -1867,27 +1878,27 @@
     
       __out.push(__sanitize(this.entry.title));
     
-      __out.push('</h1>\n  <div class="row" help-section="join wifi">\n    <div class="small-12 medium-6 large-6 columns">\n      <p class="option-info"><span class="option-step">1</span>\n        <img src="icons/help.png" class="entry-option-step-help-button entry-option-step-show">\n        <img src="icons/help-right.png" class="entry-option-step-help-button entry-option-step-hide hide">\n        Join this Wifi Network:\n      </p>\n      <p class="option-url">');
+      __out.push('</h1>\n  <div class="row" help-section="join wifi">\n    <div class="small-12 medium-7 large-7 columns">\n      <p class="option-info"><span class="option-step">1</span>\n        <img src="icons/help.png" class="entry-option-step-help-button entry-option-step-show">\n        <img src="icons/help-right.png" class="entry-option-step-help-button entry-option-step-hide hide">\n        Join this Wifi Network:\n        <div class="clear-both"></div>\n      </p>\n      <p class="option-url">');
     
       __out.push(__sanitize(this.ssid));
     
-      __out.push('</p>\n      <div class="clear-both"></div>\n    </div>\n    <div class="small-12 medium-6 large-6 columns">\n      <div class="panel hide entry-option-step-panel">\n        <p>You can get this content directly from this device using its own WiFi network.</p>\n        <p>Note: if you want to install a QR code reader from the Internet then do that first (see the next step).<p>\n        <p>Use the settings on your phone or tablet to search for WiFi networks; find the one called <span class="ssid">');
+      __out.push('</p>\n    </div>\n    <div class="small-12 medium-5 large-5 columns">\n      <div class="panel hide entry-option-step-panel">\n        <p>You can get this content directly from this device using its own WiFi network.</p>\n        <p>Note: if you want to install a QR code reader from the Internet then do that first (see the next step).<p>\n        <p>Use the settings on your phone or tablet to search for WiFi networks; find the one called <span class="ssid">');
     
       __out.push(__sanitize(this.ssid));
     
-      __out.push('</span> and join it. Within about 10 seconds you should have joined the network.</p>\n        <p>If you are unable to find or join this WiFi network then you will have to try downloading over the Internet - go back and choose that option.</p>\n      </div>\n    </div>\n  </div>    \n\n  <div class="row" help-section="scan qr">\n    <div class="small-12 medium-6 large-6 columns">\n      <p class="option-info"><span class="option-step">2</span>\n        <img src="icons/help.png" class="entry-option-step-help-button entry-option-step-show">\n        <img src="icons/help-right.png" class="entry-option-step-help-button entry-option-step-hide hide">\n        Either (a) scan this QR-code:\n        <div class="clear-both"></div>\n      </p>\n      <p class="option-url"><img class="option-qrcode" src="');
-    
-      __out.push(__sanitize(this.qrurl));
-    
-      __out.push('" alt="qrcode for item"></p>\n    </div>\n    <div class="small-12 medium-6 large-6 columns">\n      <div class="panel hide entry-option-step-panel">\n        ');
-    
-      __out.push(this.templateQRCodeHelp(this));
-    
-      __out.push('\n        <p>Note that you CANNOT access the app store or download new apps while you are connected to this device\'s WiFi network. You will have to disconnect from it and connect to the Internet.\n      </div>\n    </div>\n  </div>    \n\n  <div class="row" help-section="enter url">\n    <div class="small-12 medium-6 large-6 columns">\n      <p class="option-info">\n        <img src="icons/help.png" class="entry-option-step-help-button entry-option-step-show">\n        <img src="icons/help-right.png" class="entry-option-step-help-button entry-option-step-hide hide">\n        Or (b) enter this URL in your web browser:\n        <div class="clear-both"></div>\n      </p>\n      <p class="option-url">');
+      __out.push('</span> and join it. Within about 10 seconds you should have joined the network.</p>\n        <p>If you are unable to find or join this WiFi network then you will have to try downloading over the Internet - go back and choose that option.</p>\n      </div>\n    </div>\n  </div>    \n\n  <div class="row" help-section="enter url">\n    <div class="small-12 medium-7 large-7 columns">\n      <p class="option-info"><span class="option-step">2</span>\n        <img src="icons/help.png" class="entry-option-step-help-button entry-option-step-show">\n        <img src="icons/help-right.png" class="entry-option-step-help-button entry-option-step-hide hide">\n        Either (a) enter this URL in your web browser:\n        <div class="clear-both"></div>\n      </p>\n      <p class="option-url">');
     
       __out.push(__sanitize(this.geturl));
     
-      __out.push('</p>\n    </div>\n    <div class="small-12 medium-6 large-6 columns">\n      <div class="panel hide entry-option-step-panel">\n        <p>Typing this URL into your phone\'s web browser is just the same as scanning the QR code.</p>\n        <p>Note: type it all together on one line, even it is appears split here. There are no spaces in it.</p>\n      </div>\n    </div>\n  </div>    \n\n  <div class="row" help-section="wait">\n    <div class="small-12 medium-6 large-6 columns">\n      <p class="option-info"><span class="option-step">3</span>\n        In a few seconds you should see a simple web page with a link to this content.\n      </p>\n    </div>\n  </div>\n\n  <div class="row" help-section="disconnect wifi">\n    <div class="small-12 medium-6 large-6 columns">\n      <p class="option-info">\n        <img src="icons/help.png" class="entry-option-step-help-button entry-option-step-show">\n        <img src="icons/help-right.png" class="entry-option-step-help-button entry-option-step-hide hide">\n        <span class="option-step">4</span>\n        Disconnect from this device\'s WiFi network when you have the content you want.\n      </p>\n    </div>\n    <div class="small-12 medium-6 large-6 columns">\n      <div class="panel hide entry-option-step-panel">\n        <p>This may be called "forgetting" or deleting this network on your phone\'s WiFi settings.</p>\n        <p>If you don\'t do this then your phone may keep connecting to this WiFi network and you will not able to access the Internet while you are near this device.</p>\n      </div>\n    </div>\n  </div>\n</div>\n\n');
+      __out.push('</p>\n    </div>\n    <div class="small-12 medium-5 large-5 columns">\n      <div class="panel hide entry-option-step-panel">\n        <p>Typing this URL into your phone\'s web browser is just the same as scanning the QR code.</p>\n        <p>Note: type it all together on one line, even it is appears split here. There are no spaces in it.</p>\n      </div>\n    </div>\n  </div>    \n\n  <div class="row" help-section="scan qr">\n    <div class="small-12 medium-7 large-7 columns">\n      <p class="option-info">\n        <img src="icons/help.png" class="entry-option-step-help-button entry-option-step-show">\n        <img src="icons/help-right.png" class="entry-option-step-help-button entry-option-step-hide hide">\n        Or (b) scan this QR-code:\n        <div class="clear-both"></div>\n      </p>\n      <p class="option-qrcode"><img src="');
+    
+      __out.push(__sanitize(this.qrurl));
+    
+      __out.push('" alt="qrcode for item"></p>\n    </div>\n    <div class="small-12 medium-5 large-5 columns">\n      <div class="panel hide entry-option-step-panel">\n        ');
+    
+      __out.push(this.templateQRCodeHelp(this));
+    
+      __out.push('\n        <p>Note that you CANNOT access the app store or download new apps while you are connected to this device\'s WiFi network. You will have to disconnect from it and connect to the Internet.\n      </div>\n    </div>\n  </div>    \n\n  <div class="row" help-section="wait">\n    <div class="small-12 medium-7 large-7 columns">\n      <p class="option-info"><span class="option-step">3</span>\n        In a few seconds you should see a simple web page with a link to this content.\n      </p>\n    </div>\n  </div>\n\n  <div class="row" help-section="disconnect wifi">\n    <div class="small-12 medium-7 large-7 columns">\n      <p class="option-info">\n        <img src="icons/help.png" class="entry-option-step-help-button entry-option-step-show">\n        <img src="icons/help-right.png" class="entry-option-step-help-button entry-option-step-hide hide">\n        <span class="option-step">4</span>\n        Disconnect from this device\'s WiFi network when you have the content you want.\n      </p>\n    </div>\n    <div class="small-12 medium-5 large-5 columns">\n      <div class="panel hide entry-option-step-panel">\n        <p>This may be called "forgetting" or deleting this network on your phone\'s WiFi settings.</p>\n        <p>If you don\'t do this then your phone may keep connecting to this WiFi network and you will not able to access the Internet while you are near this device.</p>\n      </div>\n    </div>\n  </div>\n</div>\n\n');
     
   }).call(__obj);
   __obj.safe = __objSafe, __obj.escape = __escape;
@@ -1935,19 +1946,19 @@
     
       __out.push(__sanitize(this.entry.title));
     
-      __out.push('</h1>\n  <div class="row" help-section="enable internet">\n    <div class="small-12 medium-6 large-6 columns">\n      <p class="option-info"><span class="option-step">1</span>\n        <img src="icons/help.png" class="entry-option-step-help-button entry-option-step-show">\n        <img src="icons/help-right.png" class="entry-option-step-help-button entry-option-step-hide hide">\n        Enable internet access\n        <div class="clear-both"></div>\n      </p>\n    </div>\n    <div class="small-12 medium-6 large-6 columns">\n      <div class="panel hide entry-option-step-panel">\n        <p>If you can access the internet on your phone or tablet at the moment then move to the next step.</p>\n        <p>If your phone or tablet has WiFi and you know and trust a network here then connect to that now.</p>\n        <p>If you have a data contract that you are happy to use (and a SIM, if you are using a tablet) then check that the signal strength is OK. If you cannot get a signal here then you may not be able to use the Internet - try WiFi instead.</p>\n      </div>\n    </div>\n  </div>    \n\n  <div class="row" help-section="scan qr">\n    <div class="small-12 medium-6 large-6 columns">\n      <p class="option-info"><span class="option-step">2</span>\n        <img src="icons/help.png" class="entry-option-step-help-button entry-option-step-show">\n        <img src="icons/help-right.png" class="entry-option-step-help-button entry-option-step-hide hide">\n        Either (a) scan this QR-code:\n        <div class="clear-both"></div>\n      </p>\n      <p class="option-url"><img class="option-qrcode" src="');
-    
-      __out.push(__sanitize(this.qrurl));
-    
-      __out.push('" alt="qrcode for item"></p>\n    </div>\n    <div class="small-12 medium-6 large-6 columns">\n      <div class="panel hide entry-option-step-panel">\n        ');
-    
-      __out.push(this.templateQRCodeHelp(this));
-    
-      __out.push('\n      </div>\n    </div>\n  </div>    \n\n  <div class="row" help-section="enter url">\n    <div class="small-12 medium-6 large-6 columns">\n      <p class="option-info">\n        <img src="icons/help.png" class="entry-option-step-help-button entry-option-step-show">\n        <img src="icons/help-right.png" class="entry-option-step-help-button entry-option-step-hide hide">\n        Or (b) enter this URL in your web browser:\n        <div class="clear-both"></div>\n      </p>\n      <p class="option-url">');
+      __out.push('</h1>\n  <div class="row" help-section="enable internet">\n    <div class="small-12 medium-7 large-7 columns">\n      <p class="option-info"><span class="option-step">1</span>\n        <img src="icons/help.png" class="entry-option-step-help-button entry-option-step-show">\n        <img src="icons/help-right.png" class="entry-option-step-help-button entry-option-step-hide hide">\n        Enable internet access\n        <div class="clear-both"></div>\n      </p>\n    </div>\n    <div class="small-12 medium-5 large-5 columns">\n      <div class="panel hide entry-option-step-panel">\n        <p>If you can access the internet on your phone or tablet at the moment then move to the next step.</p>\n        <p>If your phone or tablet has WiFi and you know and trust a network here then connect to that now.</p>\n        <p>If you have a data contract that you are happy to use (and a SIM, if you are using a tablet) then check that the signal strength is OK. If you cannot get a signal here then you may not be able to use the Internet - try WiFi instead.</p>\n      </div>\n    </div>\n  </div>    \n\n  <div class="row" help-section="enter url">\n    <div class="small-12 medium-7 large-7 columns">\n      <p class="option-info"><span class="option-step">2</span>\n        <img src="icons/help.png" class="entry-option-step-help-button entry-option-step-show">\n        <img src="icons/help-right.png" class="entry-option-step-help-button entry-option-step-hide hide">\n        Either (a) enter this URL in your web browser:\n        <div class="clear-both"></div>\n      </p>\n      <p class="option-url">');
     
       __out.push(__sanitize(this.geturl));
     
-      __out.push('</p>\n    </div>\n    <div class="small-12 medium-6 large-6 columns">\n      <div class="panel hide entry-option-step-panel">\n        <p>Typing this URL into your phone\'s web browser is just the same as scanning the QR code.</p>\n        <p>Note: type it all together on one line, even it is appears split here. There are no spaces in it.</p>\n      </div>\n    </div>\n  </div>    \n\n  <div class="row" help-section="wait">\n    <div class="small-12 medium-6 large-6 columns">\n      <p class="option-info"><span class="option-step">3</span>\n        In a few seconds you should see a simple web page with a link to this content.\n      </p>\n    </div>\n  </div>\n</div>\n\n');
+      __out.push('</p>\n    </div>\n    <div class="small-12 medium-5 large-5 columns">\n      <div class="panel hide entry-option-step-panel">\n        <p>Typing this URL into your phone\'s web browser is just the same as scanning the QR code.</p>\n        <p>Note: type it all together on one line, even it is appears split here. There are no spaces in it.</p>\n      </div>\n    </div>\n  </div>    \n\n  <div class="row" help-section="scan qr">\n    <div class="small-12 medium-7 large-7 columns">\n      <p class="option-info">\n        <img src="icons/help.png" class="entry-option-step-help-button entry-option-step-show">\n        <img src="icons/help-right.png" class="entry-option-step-help-button entry-option-step-hide hide">\n        Or (b) scan this QR-code:\n        <div class="clear-both"></div>\n      </p>\n      <p class="option-qrcode"><img src="');
+    
+      __out.push(__sanitize(this.qrurl));
+    
+      __out.push('" alt="qrcode for item"></p>\n    </div>\n    <div class="small-12 medium-5 large-5 columns">\n      <div class="panel hide entry-option-step-panel">\n        ');
+    
+      __out.push(this.templateQRCodeHelp(this));
+    
+      __out.push('\n      </div>\n    </div>\n  </div>    \n\n  <div class="row" help-section="wait">\n    <div class="small-12 medium-7 large-7 columns">\n      <p class="option-info"><span class="option-step">3</span>\n        In a few seconds you should see a simple web page with a link to this content.\n      </p>\n    </div>\n  </div>\n</div>\n\n');
     
   }).call(__obj);
   __obj.safe = __objSafe, __obj.escape = __escape;
@@ -1990,20 +2001,24 @@
     };
   }
   (function() {
+    (function() {
+      var _ref, _ref2, _ref3;
     
       __out.push('        <p>You need a scanning app on your phone or tablet to scan this "QR Code" - it is just the same as the web link below.</p>\n');
     
-      if (this.devicetype.attributes.term === 'ios') {
+      if (((_ref = this.devicetype) != null ? _ref.attributes.term : void 0) === 'ios') {
         __out.push('\n        <p>If you don\'t have a scanner already try searching in the app store for "QR Reader" - at least some apps are free. Note that you will need Internet access to download a new app.</p>\n');
-      } else if (this.devicetype.attributes.term === 'android') {
+      } else if (((_ref2 = this.devicetype) != null ? _ref2.attributes.term : void 0) === 'android') {
         __out.push('\n        <p>If you don\'t have a scanner already try searching in google play for "ZXing" - their app is good and free. Note that you will need Internet access to download a new app.</p>\n');
-      } else if (this.devicetype.attributes.term === 'windowsphone') {
+      } else if (((_ref3 = this.devicetype) != null ? _ref3.attributes.term : void 0) === 'windowsphone') {
         __out.push('\n        <p>If you don\'t have a scanner already try searching in the app store "QR" - at least some apps are free. Note that you will need Internet access to download a new app.</p>\n');
       } else {
         __out.push('\n        <p>If you don\'t have a scanner app already try searching in your device\'s app store for "QR"; hopefully there will be a free app! Note that you will need Internet access to download a new app.</p>\n');
       }
     
       __out.push('\n\n');
+    
+    }).call(this);
     
   }).call(__obj);
   __obj.safe = __objSafe, __obj.escape = __escape;

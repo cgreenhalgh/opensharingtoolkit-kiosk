@@ -1,9 +1,9 @@
         <p>You need a scanning app on your phone or tablet to scan this "QR Code" - it is just the same as the web link below.</p>
-<% if @devicetype.attributes.term == 'ios': %>
+<% if @devicetype?.attributes.term == 'ios': %>
         <p>If you don't have a scanner already try searching in the app store for "QR Reader" - at least some apps are free. Note that you will need Internet access to download a new app.</p>
-<% else if @devicetype.attributes.term == 'android': %>
+<% else if @devicetype?.attributes.term == 'android': %>
         <p>If you don't have a scanner already try searching in google play for "ZXing" - their app is good and free. Note that you will need Internet access to download a new app.</p>
-<% else if @devicetype.attributes.term == 'windowsphone': %>
+<% else if @devicetype?.attributes.term == 'windowsphone': %>
         <p>If you don't have a scanner already try searching in the app store "QR" - at least some apps are free. Note that you will need Internet access to download a new app.</p>
 <% else: %>
         <p>If you don't have a scanner app already try searching in your device's app store for "QR"; hopefully there will be a free app! Note that you will need Internet access to download a new app.</p>

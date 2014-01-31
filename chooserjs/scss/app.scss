@@ -6,17 +6,29 @@
 $help-icon-size: rem-calc(56);
 // faster button hover
 //a,
-#back,
-#help,
-#chooseDevicetype,
-.entry-in-list,
+//#back,
+//#help,
+//#chooseDevicetype,
+//.entry-in-list,
 .button,
-.devicetype,
-.devicetype-help-button,
+//.devicetype,
+//.devicetype-help-button,
 .entry-option-step-help-button,
 .entry-option-help-button,
-.help-label {
-  &:active {
+//.help-label
+.clickable {
+  // http://lfhck.com/question/388518/how-to-simulate-active-css-pseudo-class-in-android-on-non-link-elements
+  //&:active {
+  @if $experimental {
+      -webkit-box-shadow: 0 0 10px fade-out(#888, .25);
+      -moz-box-shadow: 0 0 10px fade-out(#888, .25);
+  }
+  box-shadow: 5px 5px 5px fade-out(#888, .25);
+  border: solid 1px;
+  border-radius: 5px;
+  border-color: fade-out(#888, .25);
+
+  &.touch-active,&:hover {
     @if $experimental {
       -webkit-box-shadow: 0 0 10px fade-out($primary-color, .25);
       -moz-box-shadow: 0 0 10px fade-out($primary-color, .25);
@@ -67,10 +79,18 @@ body {
   @extend .large-4;
   @extend .medium-4;
   @extend .small-6;
-  margin-top: 0.5em;
+  //margin-top: 0.5em;
+  padding: 0.2em;
+};
+entry-in-list-button {
+  //width: 100%;
+  //margin: 3%;
+  //margin: 0.5em;
+  padding: 0.2em;
 };
 .entry-in-list-title-holder {
   height: 1.1em;
+  margin: 0.2em;
 };
 .entry-in-list-title {
   position: relative;
@@ -153,11 +173,20 @@ body {
   font-size: 80%;
   text-align: center;
   word-wrap: break-word;
+  border: solid 1px;
+  border-radius: 10px;
+  //background-color: #ccc;
 };
 .option-qrcode {
-  width: 80%;
+  border: solid 1px;
+  border-radius: 10px;
+  padding: 10px;
   text-align: center;
-  height: auto;
+  
+  img  { 
+    width: 80%;
+    height: auto;
+  }
 };
 .option-step {
   border:2px solid #a1a1a1;
@@ -287,7 +316,7 @@ em;
   right: 0;
   bottom: 0;
   .entry-list-help-top {
-    height: 5em;
+    height: 3em;
   };
   .help-scroll-vertical {
     width: 1.5em;
@@ -305,6 +334,9 @@ em;
     height: $help-icon-size;
     bottom: 1em;
     left: 1em;
+    a { 
+      display: block;
+    };      
     img {
       width: 100%;
       height: 100%;
@@ -313,7 +345,7 @@ em;
   };
 };
 .entry-option-step-panel p {
-  font-size: 75%;
+  font-size: 60%;
 };
 // attract overlay/modal
 .attract-modal {

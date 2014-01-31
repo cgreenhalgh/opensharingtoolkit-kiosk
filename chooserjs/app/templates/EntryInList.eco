@@ -1,4 +1,5 @@
 <%# Entry in Entry List, takes Entry as data (title, iconurl) %>
+<div class="entry-in-list-button clickable">
 <a href="#" class="open">
 <div class="entry-in-list-title-holder"><h4 class="entry-in-list-title"><%= @title %></h4></div>
 <div class="entry-in-list-icon">
@@ -11,3 +12,4 @@
   <% end %>
 </div>
 </a>
+</div>

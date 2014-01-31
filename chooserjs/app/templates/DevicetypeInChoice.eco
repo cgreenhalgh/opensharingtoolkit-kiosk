@@ -1,9 +1,9 @@
 <%# Devicetype in Devicetype Choice (List), takes Devicetype and selected as data (devicetype.label, selected) %>
-<div class="<%= if @selected then 'devicetype-selected' else 'devicetype-unselected' %> devicetype" id="<%= 'devicetype-'+@devicetype.term %>">
+<div class="<%= if @selected then 'devicetype-selected' else 'devicetype-unselected' %> devicetype clickable" id="<%= 'devicetype-'+@devicetype.term %>">
   <div class="option-value-icon"><img class="" src="icons/<%= if @selected then 'cross.png' else 'emptybox.png' %>"></div>
   <%= @devicetype.label %>
-  <img src="icons/help.png" class="devicetype-help-button devicetype-help-show" >
-  <img src="icons/help-down.png" class="devicetype-help-button devicetype-help-hide hide" >
+  <img src="icons/help.png" class="devicetype-help-button devicetype-help-show clickable" >
+  <img src="icons/help-down.png" class="devicetype-help-button devicetype-help-hide hide clickable" >
 </div>
 <div class="panel hide devicetype-help-panel" ><%- @devicetype.helpHtml %><div class="clear-both"></div></div>
 

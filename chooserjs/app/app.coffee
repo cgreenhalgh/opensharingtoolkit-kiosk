@@ -361,4 +361,14 @@ App =
         else
           console.log "chooseDeviceModal closed cancels delayed navigate to #{url}"
 
+    # http://lfhck.com/question/388518/how-to-simulate-active-css-pseudo-class-in-android-on-non-link-elements
+    if (navigator.userAgent.toLowerCase().indexOf("android") > -1) 
+      $(".clickable")
+        .on "touchstart",  () -> 
+           #$(".touch-active").removeClass()
+           $(this).addClass("touch-active") 
+        .on "touchend", () -> $(this).removeClass("touch-active") 
+        .on "touchcancel", () -> $(this).removeClass("touch-active")
+        .on "click",  () -> $(this).removeClass("touch-active") 
+
 module.exports = App
