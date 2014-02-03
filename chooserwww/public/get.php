@@ -38,46 +38,63 @@ else
 ?></p>
 <h1 style="">Get <?php echo $_GET['t']; ?></h1>
 <?php
-$reqDevice = $_GET['d'];
-$dnames = array( 'ios' => 'an iPhone or iPad',
-  'android' => 'an Android phone or tablet',
-  'windowsmobile' => 'a Windows Phone',
-  'other' => 'some other kind of device' );
-function dname($d) {
-  if ($dnames[$d]) 
-    return $dnames[$d];
-  else
-    return 'a '.$d.' device';
-}
-$userAgent = $_SERVER['HTTP_USER_AGENT'];
-$device = null;
-if (strpos($userAgent,'iPhone')!==FALSE || strpos($userAgent,'iPod')!==FALSE || strpos($userAgent,'iPad')!==FALSE)
-  $device = 'ios';
-else if (strpos($userAgent,'Android')!==FALSE)
-  $device = 'android';
-if ($reqDevice!=$device) {
-  echo '<p>Warning: ';
-  if (!empty($device)) { echo 'this looks like '.dname($device); }
-  else { echo 'I\'m not sure what kind of device this is'; }
-  if (!empty($reqDevice) && reqDevice!='other') {
-    echo ' but you said it was '.dname($reqDevice);
+flush();
+$m = $_GET['m'];
+// try to read mimetypes.json
+$mimetypesin = file_get_contents('mimetypes.json');
+//echo 'mimetypes = '.$mimetypesin.'\n'; flush();
+$mimetypes = null;
+$json_decode = 'json_decode';
+//echo 'is_callable? '.is_callable($json_decode).'\n'; flush();
+//echo 'json_decode='.json_decode.'\n'; flush();
+if (!empty($mimetypesin))
+  $mimetypes = json_decode($mimetypesin, TRUE);
+//echo 'mimetypes='.$mimetypes.'\n'; flush();
+$mimetype = null;
+if (!empty($mimetypes) && !empty($m))
+  $mimetype = $mimetypes[$m];
+//echo 'mimetype = '.$mimetype.'\n'; flush();
+if (empty($mimetype) || empty($mimetype['compat'])) {
+  echo '<p>Warning: this content may not be supported on your device! (I can\'t tell because I am cannot get information about its MIME type)</p>';  
+} else {
+  $compat = null;
+  $devicetype = null;
+  foreach ($mimetype['compat'] as $dt => $mtcompat) {
+    //echo 'test '.$dt.'\n'; flush();
+    if ($compat===null && $dt=="other") {
+      // default
+      $devicetype = $dt;
+      $compat = $mtcompat;
+    }
+    if (!empty($mtcompat['userAgentPattern']) && !empty($userAgent)) {
+      if (strpos($mtcompat['userAgentPattern'],'/')!==0)
+        $mtcompat['userAgentPattern'] = '/'.$mtcompat['userAgentPattern'].'/';
+      if (preg_match($mtcompat['userAgentPattern'], $userAgent)===1) {
+        //echo 'userAgent match '.$dt.' with '.$mtcompat['userAgentPattern'].'\n'; flush();
+        $compat = $mtcompat;
+        $devicetype = $dt;
+      } else {
+        //echo 'userAgent match failed for '.$userAgent.' with '.$mtcompat['userAgentPattern'].'\n'; flush();
+      }
+    }
   }
-  echo '; you might need a different helper application to view this download</p>';
-} 
-$appurl = $_GET['a'];
-if (isset($appurl)) {
- if ($appurl==='') 
-    echo '<p>Warning: this content may not be supported on your device!</p>';
+  if (empty($compat))
+    echo '<p>Warning: this content may not be supported on your device! (As far as I can tell your device type is '.$devicetype.' but I cannot find any compatibility information for MIME type '.$m.')</p>';
   else {
-    echo '<p>Note: ';
-    if (!empty($reqDevice)) echo 'for '.dname($reqDevice).' ';
-    echo 'you may need <a href="'.$appurl.'">this helper application</a> to view this download.</p>'; 
-    if (!empty($ssid)) 
-      echo '<p>You may need to switch back to standard Internet to download the helper application.</p>';
+    if (!empty($compat['apps'])) {
+      foreach ($compat['apps'] as $app) {
+        echo '<p>Note: ';
+        echo 'you may need <a href="'.$app['url'].'">'.$app['name'].'</a> or a similar helper application to view this download. (I think your device type is '.$devicetype.')</p>';
+      }
+      if (!empty($ssid))
+        echo '<p>You may need to switch back to standard Internet to download the helper application.</p>';
+    } else if ($compat['builtin']!==TRUE) 
+      echo '<p>Warning: this content may not be supported on your device! (I think your device type is '.$devicetype.')</p>';
+    else
+      echo '<p>This content should have built-in support on your device. (I think your device type is '.$devicetype.')</p>';
   }
 }
-?>
-<p><?php
+?><p><?php
 $url = $_GET['u'];
 if (!empty($url)) {
   // special-case using send? only local files and mime type given!
