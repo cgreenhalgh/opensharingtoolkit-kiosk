@@ -13,6 +13,7 @@ module.exports = class EntryInfoView extends Backbone.View
 
   initialize: ->
     @model.bind 'change', @render
+    window.options.on 'change:devicetype',@render
     @render()
 
   # syntax ok?? or (x...) -> 
@@ -98,25 +99,13 @@ module.exports = class EntryInfoView extends Backbone.View
 
   optionSendInternet: =>
     attract.active()
-    if not window.options.attributes.devicetype?
-      recorder.i 'user.option.sendInternet.noDevicetype',{id:@model.id}
-      window.delayedNavigate = "sendInternet/#{ encodeURIComponent @model.id }"
-      $('#chooseDeviceModal').foundation 'reveal','open'
-      recorder.w 'view.modal.chooseDevice'
-    else
-      recorder.i 'user.option.sendInternet',{id:@model.id}
-      console.log "option:send(internet) entry #{ @model.id }"
-      window.router.navigate "sendInternet/#{ encodeURIComponent @model.id }", trigger:true
+    recorder.i 'user.option.sendInternet',{id:@model.id}
+    console.log "option:send(internet) entry #{ @model.id }"
+    window.router.navigate "sendInternet/#{ encodeURIComponent @model.id }", trigger:true
 
   optionSendCache: =>
     attract.active()
-    if not window.options.attributes.devicetype?
-      recorder.i 'user.option.sendCache.noDevicetype',{id:@model.id}
-      window.delayedNavigate = "sendCache/#{ encodeURIComponent @model.id }"
-      $('#chooseDeviceModal').foundation 'reveal','open'
-      recorder.w 'view.modal.chooseDevice'
-    else
-      recorder.i 'user.option.sendCache',{id:@model.id}
-      console.log "option:send(cache) entry #{ @model.id }"
-      window.router.navigate "sendCache/#{ encodeURIComponent @model.id }", trigger:true
+    recorder.i 'user.option.sendCache',{id:@model.id}
+    console.log "option:send(cache) entry #{ @model.id }"
+    window.router.navigate "sendCache/#{ encodeURIComponent @model.id }", trigger:true
 

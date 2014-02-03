@@ -1,0 +1,22 @@
+{
+  "text/html": {
+    "label": "HTML",
+    "exts": [ "html" ],
+    "icon": "icons/html.png"
+  },
+  "application/pdf": {
+    "exts": [ "pdf" ],
+    "icon": "icons/pdf.png",
+    "label": "PDF"
+  },
+  "application/vnd.android.package-archive" : {
+    "exts": [ "apk" ],
+    "icon": "icons/get_it_on_google_play.png",
+    "label": "Android app"
+  },
+  "application/x-itunes-app" : {
+    "comment": "This is NOT a real MimeType - just a placeholder within the sytem",
+    "icon": "icons/available_on_the_app_store.png",
+    "label": "iPhone app"
+  }
+}

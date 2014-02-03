@@ -1,6 +1,14 @@
 <%# Entry send internet, takes { entry: Entry, geturl: ..., qrurl: ... } as data %>
 <div class="small-12 large-12 columns">
   <h1><%= @entry.title %></h1>
+<% if window.options.attributes.devicetype?: %>
+<% compat = if @entry.compat? then @entry.compat[window.options.attributes.devicetype.attributes.term] else null %>
+<% if compat!='builtin': %>
+<div data-alert class="alert-box warning">
+  <%= if compat=='optional' then 'This content may be supported on your device, or you may need to find and download an app to view it' else if compat=='app' then 'You may need to download an app to view this content' else if compat=='none' then 'This content is not probably not compatible with your device (see top of screen)' else 'This content may not be supported on your device, or you may need to find and download an app to view it' %>
+</div>
+<% end %>
+<% end %>
   <div class="row" help-section="enable internet">
     <div class="small-12 medium-7 large-7 columns">
       <p class="option-info"><span class="option-step">1</span>
@@ -24,7 +32,7 @@
       <p class="option-info"><span class="option-step">2</span>
         <img src="icons/help.png" class="entry-option-step-help-button entry-option-step-show">
         <img src="icons/help-right.png" class="entry-option-step-help-button entry-option-step-hide hide">
-        Either (a) enter this URL in your web browser:
+        Either (a) enter this URL in your web browser, all on one line:
         <div class="clear-both"></div>
       </p>
       <p class="option-url"><%= @geturl %></p>

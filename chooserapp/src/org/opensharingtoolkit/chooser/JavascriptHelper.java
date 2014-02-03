@@ -15,6 +15,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 
+import org.json.JSONArray;
 import org.json.JSONObject;
 import org.opensharingtoolkit.common.Record;
 import org.opensharingtoolkit.common.Recorder;
@@ -255,6 +256,29 @@ public class JavascriptHelper {
 	@JavascriptInterface
 	public void registerMimeType(String path, String mimeType) {
 		Service.registerExtension(path, mimeType);
+	}
+	@JavascriptInterface
+	public void registerMimetypeCompat(String mimetype, String devicetype, String jsonCompat) {
+		try {
+			JSONObject compat = new JSONObject(jsonCompat);
+			Boolean builtin = null;
+			if (compat.has("builtin"))
+				builtin = compat.getBoolean("builtin");
+			JSONArray japps = compat.getJSONArray("apps");
+			List<GetServer.App> apps = new LinkedList<GetServer.App>();
+			for (int ix=0; ix<japps.length(); ix++) {
+				JSONObject japp = japps.getJSONObject(ix);
+				apps.add(new GetServer.App(japp.getString("name"), japp.getString("url")));
+			}
+			String userAgentPattern = null;
+			if (compat.has("userAgentPattern"))
+				userAgentPattern = compat.getString("userAgentPattern");
+					
+			GetServer.registerMimetypeCompat(mimetype, devicetype, userAgentPattern, builtin, apps);
+		}
+		catch (Exception e) {
+			Log.e(TAG,"Error doing registerMimetypeCompat for "+mimetype+" for "+devicetype+" with "+jsonCompat+": "+e);
+		}
 	}
 	/** register temporary redirect.
 	 * 

@@ -1,0 +1,29 @@
+{
+  "android": {
+    "label": "Android",
+    "userAgentPattern": "Android",
+    "supportsMime": [ "text/html", "application/vnd.android.package-archive" ],
+    "optionalSupportsMime": [ "application/pdf" ],
+    "helpHtml": "There are many different Android phones and tablets, including devices made by Google, Samsung, Motorola, HTC, Sony Ericsson and Asus (some Nexus)."
+  },
+  "ios": {
+    "label": "iPhone",
+    "userAgentPattern": "(iPhone)|(iPod)|(iPad)",
+    "supportsMime": [ "text/html", "application/x-itunes-app" ],
+    "optionalSupportsMime": [ "application/pdf" ],
+    "helpHtml": "There are several different models of iPhone, all sold by Apple, but they are all broadly compatible. You should also use this option if you have an iPad, iPad mini or iPod Touch."
+  },
+  "windowsphone": {
+    "label": "Windows Phone",
+    "supportsMime": [ "text/html" ],
+    "optionalSupportsMime": [ "application/pdf" ],
+    "helpHtml": "Windows phones include newer Nokia smart phones, and also specific phones made by HTC, Samsung and others. Windows Phones have a distinctive square tile-based interface."
+  },
+  "other": {
+    "label": "Other Device",
+    "supportsMime": [ ], 
+    "optionalSupportsMime": [ "text/html", "application/pdf" ],
+    "helpHtml": "If you have another sort of smart phone or tablet to the ones listed then some of the content here may work, but unfortunately we can't make any guarantees. If you just aren't sure what sort of phone it is then make guess!"
+  }
+}
+

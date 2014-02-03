@@ -333,55 +333,14 @@
       Backbone.history.start();
       window.router = router;
       mimetypes = new MimetypeList();
-      mimetypes.add(new Mimetype({
-        mime: "application/pdf",
-        ext: "pdf",
-        icon: "icons/pdf.png",
-        label: "PDF"
-      }));
-      mimetypes.add(new Mimetype({
-        mime: "text/html",
-        ext: "html",
-        icon: "icons/html.png",
-        label: "HTML"
-      }));
-      mimetypes.add(new Mimetype({
-        mime: "application/vnd.android.package-archive",
-        ext: "apk",
-        icon: "icons/get_it_on_google_play.png",
-        label: "Android app"
-      }));
-      mimetypes.add(new Mimetype({
-        mime: "application/x-itunes-app",
-        icon: "icons/available_on_the_app_store.png",
-        label: "iPhone app"
-      }));
       window.mimetypes = mimetypes;
       devicetypes = new DevicetypeList();
       devicetypes.add(new Devicetype({
-        term: "ios",
-        label: "iPhone",
-        userAgentPattern: '(iPhone)|(iPod)|(iPad)',
-        supportsMime: ["text/html", "application/x-itunes-app"],
-        helpHtml: '<p><img class="devicetype-help-image" src="icons/example_ios.png">There are several different models of iPhone, all sold by Apple, but they are all broadly compatible. You should also use this option if you have an iPad, iPad mini or iPod Touch.</p>'
-      }));
-      devicetypes.add(new Devicetype({
-        term: "windowsphone",
-        label: "Windows Phone",
-        supportsMime: ["text/html"],
-        helpHtml: '<p><img class="devicetype-help-image" src="icons/example_windowsphone.png">Windows phones include newer Nokia smart phones, and also specific phones made by HTC, Samsung and others. Windows Phones have a distinctive square tile-based interface.</p>'
-      }));
-      devicetypes.add(new Devicetype({
-        term: "android",
-        label: "Android",
-        userAgentPattern: 'Android',
-        supportsMime: ["text/html", "application/vnd.android.package-archive"],
-        helpHtml: '<p><img class="devicetype-help-image" src="icons/example_android.png">There are many different Android phones and tablets, including devices made by Google, Samsung, Motorola, HTC, Sony Ericsson and Asus (some Nexus).</p>'
-      }));
-      devicetypes.add(new Devicetype({
+        id: "other",
         term: "other",
         label: "Other Device",
-        supportsMime: ["text/html"],
+        supportsMime: [],
+        optionalSupportsMime: ["text/html"],
         helpHtml: '<p>If you have another sort of smart phone or tablet to the ones listed then some of the content here may work, but unfortunately we can\'t make any guarantees. If you just aren\'t sure what sort of phone it is then make guess!</p>'
       }));
       options = new Options({
@@ -591,32 +550,20 @@
   kiosk = require('kiosk');
 
   module.exports.getGetUrl = function(entry, devicetype, nocache) {
-    var app, apps, baseurl, enc, getscript, hix, ix, ssid, url, _i, _len, _ref;
+    var baseurl, enc, getscript, hix, ix, ssid, url, _ref;
     if (nocache == null) nocache = false;
     enc = entry.attributes.enclosures[0];
     url = nocache ? enc.url : (_ref = enc.path) != null ? _ref : enc.url;
     url = kiosk.getPortableUrl(url);
     console.log("get " + entry.attributes.title + " as " + url + ", enc " + enc.path + "  / " + enc.url);
-    apps = devicetype != null ? devicetype.getAppUrls(enc.mime) : void 0;
-    if (apps == null) apps = [];
-    if (!(devicetype != null) || (devicetype != null ? devicetype.attributes.term : void 0) === 'other') {
-      apps.push('');
-    }
     baseurl = nocache && (entry.attributes.baseurl != null) ? entry.attributes.baseurl : window.location.href;
     hix = baseurl.indexOf('#');
     baseurl = hix >= 0 ? baseurl.substring(0, hix) : baseurl;
     ix = baseurl.lastIndexOf('/');
     baseurl = ix >= 0 ? baseurl.substring(0, ix + 1) : '';
-    getscript = nocache ? 'get.php' : 'get.html';
+    getscript = nocache ? 'get.php' : 'get';
     url = kiosk.getPortableUrl(baseurl + getscript) + '?' + 'u=' + encodeURIComponent(url) + '&t=' + encodeURIComponent(entry.attributes.title);
-    if (devicetype != null) {
-      url = url + '&d=' + encodeURIComponent(devicetype.attributes.term);
-    }
     if (enc.mime != null) url = url + '&m=' + encodeURIComponent(enc.mime);
-    for (_i = 0, _len = apps.length; _i < _len; _i++) {
-      app = apps[_i];
-      url = url + '&a=' + encodeURIComponent(kiosk.getPortableUrl(app));
-    }
     if (kiosk.isKiosk() && !nocache) {
       ssid = kiosk.getWifiSsid();
       url = url + '&n=' + encodeURIComponent(ssid);
@@ -689,6 +636,12 @@
 
   module.exports.registerMimeType = function(path, mime) {
     if (window.kiosk != null) return window.kiosk.registerMimeType(path, mime);
+  };
+
+  module.exports.registerMimetypeCompat = function(mime, device, compat) {
+    if (window.kiosk != null) {
+      return window.kiosk.registerMimetypeCompat(mime, device, JSON.stringify(compat));
+    }
   };
 
   module.exports.getPort = function() {
@@ -810,11 +763,13 @@
 
 }).call(this);
 }, "loader": function(exports, require, module) {(function() {
-  var Entry, Mimetype, addEntry, addShorturls, getCacheFileMap, getCachePath, get_baseurl, kiosk, loadCache, loadEntries, loadShorturls, recorder;
+  var Devicetype, Entry, Mimetype, addDevice, addEntry, addMimetype, addShorturls, getCacheFileMap, getCachePath, get_baseurl, kiosk, loadCache, loadDevices, loadEntries, loadMimetypes, loadShorturls, recorder;
 
   Entry = require('models/Entry');
 
   Mimetype = require('models/Mimetype');
+
+  Devicetype = require('models/Devicetype');
 
   kiosk = require('kiosk');
 
@@ -936,6 +891,139 @@
     return map;
   };
 
+  addDevice = function(devicename, deviceinfo) {
+    var devicetype, _ref, _ref2, _ref3, _ref4;
+    devicetype = window.options.attributes.devicetypes.get(devicename);
+    if (!(devicetype != null)) {
+      console.log("Add device " + devicename);
+      devicetype = new Devicetype({
+        id: devicename,
+        term: devicename,
+        label: (_ref = deviceinfo.label) != null ? _ref : deviceinfo.label = devicename,
+        supportsMime: (_ref2 = deviceinfo.supportsMime) != null ? _ref2 : deviceinfo.supportsMime = [],
+        optionalSupportsMime: (_ref3 = deviceinfo.optionalSupportsMime) != null ? _ref3 : deviceinfo.optionalSupportsMime = [],
+        helpHtml: (_ref4 = deviceinfo.helpHtml) != null ? _ref4 : deviceinfo.helpHtml = "Sorry, can't tell you much about device type " + devicename + "."
+      });
+      return window.options.attributes.devicetypes.add(devicetype, {
+        at: window.options.attributes.devicetypes.length - 1
+      });
+    } else {
+      console.log("Update device " + devicename);
+      if (deviceinfo.label != null) {
+        devicetype.set({
+          label: deviceinfo.label
+        });
+      }
+      if (deviceinfo.supportsMime != null) {
+        devicetype.set({
+          supportsMime: deviceinfo.supportsMime
+        });
+      }
+      if (deviceinfo.optionalSupportsMime != null) {
+        devicetype.set({
+          optionalSupportsMime: deviceinfo.optionalSupportsMime
+        });
+      }
+      if (deviceinfo.label != null) {
+        return devicetype.set({
+          helpHtml: deviceinfo.helpHtml
+        });
+      }
+    }
+  };
+
+  loadDevices = function(entries, atomurl, prefix) {
+    var devicesurl;
+    devicesurl = prefix + 'devices.json';
+    console.log("Loading devices info from " + devicesurl);
+    return $.ajax({
+      url: devicesurl,
+      type: 'GET',
+      dataType: 'json',
+      timeout: 10000,
+      success: function(data, textStatus, xhr) {
+        var dn, dtinfo;
+        console.log("ok, got " + devicesurl);
+        for (dn in data) {
+          dtinfo = data[dn];
+          addDevice(dn, dtinfo);
+        }
+        return loadMimetypes(entries, atomurl, prefix);
+      },
+      error: function(xhr, textStatus, errorThrown) {
+        console.log("error getting " + devicesurl + ": " + textStatus + ": " + errorThrown);
+        return loadMimetypes(entries, atomurl, prefix);
+      }
+    });
+  };
+
+  addMimetype = function(mime, mtinfo) {
+    var dt, dtcompat, mimetype, _ref, _ref2, _ref3, _ref4, _ref5, _ref6, _results, _results2;
+    mimetype = window.mimetypes.get(mime);
+    if (!(mimetype != null)) {
+      console.log("Add mimetype " + mime);
+      mimetype = new Mimetype({
+        id: mime,
+        icon: (_ref = mtinfo.icon) != null ? _ref : mtinfo.icon = 'icons/unknown.png',
+        label: (_ref2 = mtinfo.label) != null ? _ref2 : mtinfo.label = mime,
+        mime: mime,
+        ext: (_ref3 = mtinfo.ext) != null ? _ref3 : mtinfo.ext = ((_ref4 = mtinfo.exts) != null ? _ref4.length : void 0) > 0 ? mtinfo.exts[0] : void 0,
+        compat: mtinfo.compat
+      });
+      window.mimetypes.add(mimetype);
+      if (mtinfo.compat != null) {
+        _ref5 = mtinfo.compat;
+        _results = [];
+        for (dt in _ref5) {
+          dtcompat = _ref5[dt];
+          _results.push(kiosk.registerMimetypeCompat(mime, dt, dtcompat));
+        }
+        return _results;
+      }
+    } else {
+      console.log("Update mimetype " + mime);
+      if (!(mimetype.compat != null)) mimetype.compat = {};
+      if (mtinfo.compat != null) {
+        _ref6 = mtinfo.compat;
+        _results2 = [];
+        for (dt in _ref6) {
+          dtcompat = _ref6[dt];
+          if (mimetype.compat[dt] != null) {
+            console.log("Update mimetype compatibility of " + mime + " with " + dt);
+          }
+          mimetype.compat[dt] = dtcompat;
+          _results2.push(kiosk.registerMimetypeCompat(mime, dt, dtcompat));
+        }
+        return _results2;
+      }
+    }
+  };
+
+  loadMimetypes = function(entries, atomurl, prefix) {
+    var mimetypesurl;
+    mimetypesurl = prefix + 'mimetypes.json';
+    console.log("Loading devices info from " + mimetypesurl);
+    return $.ajax({
+      url: mimetypesurl,
+      type: 'GET',
+      dataType: 'json',
+      timeout: 10000,
+      success: function(data, textStatus, xhr) {
+        var mt, mtinfo;
+        console.log("ok, got " + mimetypesurl);
+        for (mt in data) {
+          mtinfo = data[mt];
+          addMimetype(mt, mtinfo);
+        }
+        return loadCache(entries, atomurl, prefix);
+      },
+      error: function(xhr, textStatus, errorThrown) {
+        console.log("error getting " + mimetypesurl + ": " + textStatus + ": " + errorThrown);
+        return loadCache(entries, atomurl, prefix);
+      }
+    });
+  };
+
   loadCache = function(entries, atomurl, prefix) {
     var cacheurl;
     cacheurl = prefix + 'cache.json';
@@ -1054,7 +1142,7 @@
     }
     si = atomurl.lastIndexOf('/');
     prefix = si < 0 ? '' : atomurl.substring(0, si + 1);
-    return loadCache(entries, atomurl, prefix);
+    return loadDevices(entries, atomurl, prefix);
   };
 
 }).call(this);
@@ -1072,7 +1160,8 @@
 
     Devicetype.prototype.defaults = {
       label: 'Default device type',
-      supportsMime: []
+      supportsMime: [],
+      optionalSupportsMime: []
     };
 
     Devicetype.prototype.supportsEntry = function(entry) {
@@ -1168,6 +1257,7 @@
     __extends(Entry, Backbone.Model);
 
     function Entry() {
+      this.checkDeviceCompatibility = __bind(this.checkDeviceCompatibility, this);
       this.checkMimetypeIcon = __bind(this.checkMimetypeIcon, this);
       Entry.__super__.constructor.apply(this, arguments);
     }
@@ -1203,6 +1293,50 @@
         console.log("cannot find mimetype " + enc.mime);
       }
       return;
+    };
+
+    Entry.prototype.checkDeviceCompatibility = function() {
+      var appsComplete, compat, dt, dtcompat, enc, mimetype, _i, _len, _ref, _ref2, _ref3;
+      if (this.attributes.compat != null) return this.attributes.compat;
+      compat = {};
+      appsComplete = false;
+      _ref = this.attributes.enclosures;
+      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+        enc = _ref[_i];
+        if (!(enc.mime != null)) continue;
+        console.log("Check device compat for type " + enc.mime);
+        mimetype = window.mimetypes.get(enc.mime);
+        if ((mimetype != null) && (mimetype.attributes.compat != null)) {
+          _ref2 = mimetype.attributes.compat;
+          for (dt in _ref2) {
+            dtcompat = _ref2[dt];
+            if (dtcompat.appsComplete === true) appsComplete = true;
+            if (dtcompat.builtin === true) {
+              compat[dt] = 'builtin';
+            } else if (((_ref3 = dtcompat.apps) != null ? _ref3.length : void 0) > 0) {
+              compat[dt] = 'app';
+            } else if (!(dtcompat.builtin != null)) {
+              compat[dt] = 'optional';
+            }
+          }
+        } else {
+          console.log("- could not find " + enc.mime + " compatibility, mimetype=" + (JSON.stringify(mimetype)));
+        }
+      }
+      window.options.attributes.devicetypes.forEach(function(dt) {
+        if (!(compat[dt.attributes.term] != null)) {
+          if (appsComplete) {
+            return compat[dt.attributes.term] = 'none';
+          } else {
+            return compat[dt.attributes.term] = 'unknown';
+          }
+        }
+      });
+      console.log("Initialise compatibility for " + this.attributes.title + " to " + (JSON.stringify(compat)));
+      this.set({
+        compat: compat
+      });
+      return this.attributes.compat;
     };
 
     return Entry;
@@ -1594,7 +1728,7 @@
   }
   (function() {
     (function() {
-      var _ref;
+      var compat, dt, _base, _ref, _ref2, _ref3, _ref4, _ref5, _ref6;
     
       __out.push('\n<div class="entry-in-list-button clickable">\n<a href="#" class="open">\n<div class="entry-in-list-title-holder"><h4 class="entry-in-list-title">');
     
@@ -1606,7 +1740,21 @@
     
       __out.push(__sanitize((_ref = this.iconpath) != null ? _ref : this.iconurl));
     
-      __out.push('" class="entry-icon-image">\n  ');
+      __out.push('" class="entry-icon-image">\n  <div class="entry-in-list-compats">\n  ');
+    
+      _ref3 = ((_ref2 = this.compat) != null ? _ref2 : this.compat = {});
+      for (dt in _ref3) {
+        compat = _ref3[dt];
+        __out.push('<!--\n    --><div class="entry-in-list-compat');
+        __out.push(__sanitize(((_ref4 = window.options.attributes.devicetype) != null ? _ref4.attributes.term : void 0) === dt ? '-current' : ''));
+        __out.push('"><!--\n      --><p>');
+        __out.push(__sanitize((_ref5 = window.options.attributes.devicetypes.get(dt)) != null ? (_ref6 = (_base = _ref5.attributes).label) != null ? _ref6 : _base.label = dt : void 0));
+        __out.push('</p><!--\n      --><img src="icons/');
+        __out.push(__sanitize(compat === 'builtin' ? 'tick.png' : compat === 'optional' ? 'query.png' : compat === 'app' ? 'tick app.png' : compat === 'none' ? 'cross.png' : 'query app.png'));
+        __out.push('"><!--\n    --></div><!--\n  -->');
+      }
+    
+      __out.push('\n  </div>\n  ');
     
       if (this.mimetypeicon != null) {
         __out.push('\n    <div class="entry-in-list-mimetype">\n      <img src="');
@@ -1660,13 +1808,27 @@
   }
   (function() {
     (function() {
-      var _ref;
+      var compat, dt, _base, _base2, _ref, _ref2, _ref3, _ref4, _ref5, _ref6;
     
       __out.push('\n<div class="small-12 large-12 columns">\n  <h1>');
     
       __out.push(__sanitize(this.entry.title));
     
-      __out.push('</h1>\n</div>\n<div class="small-12 medium-6 large-6 columns">\n  <p>');
+      __out.push('</h1>\n');
+    
+      if (window.options.attributes.devicetype != null) {
+        __out.push('\n');
+        compat = this.entry.compat != null ? this.entry.compat[window.options.attributes.devicetype.attributes.term] : null;
+        __out.push('\n');
+        if (compat !== 'builtin') {
+          __out.push('\n<div data-alert class="alert-box warning">\n  ');
+          __out.push(__sanitize(compat === 'optional' ? 'This content may be supported on your device, or you may need to find and download an app to view it' : compat === 'app' ? 'You may need to download an app to view this content' : compat === 'none' ? 'This content is not probably not compatible with your device (see top of screen)' : 'This content may not be supported on your device, or you may need to find and download an app to view it'));
+          __out.push('\n</div>\n');
+        }
+        __out.push('\n');
+      }
+    
+      __out.push('\n</div>\n<div class="small-12 medium-6 large-6 columns">\n  <p>');
     
       __out.push(__sanitize(this.entry.summary));
     
@@ -1676,7 +1838,21 @@
     
       __out.push(__sanitize((_ref = this.entry.iconpath) != null ? _ref : this.entry.iconurl));
     
-      __out.push('"  class="entry-icon-image">\n    ');
+      __out.push('"  class="entry-icon-image">\n  <div class="entry-in-list-compats">\n  ');
+    
+      _ref3 = ((_ref2 = (_base = this.entry).compat) != null ? _ref2 : _base.compat = {});
+      for (dt in _ref3) {
+        compat = _ref3[dt];
+        __out.push('<!--\n    --><div class="entry-in-list-compat');
+        __out.push(__sanitize(((_ref4 = window.options.attributes.devicetype) != null ? _ref4.attributes.term : void 0) === dt ? '-current' : ''));
+        __out.push('"><!--\n      --><p>');
+        __out.push(__sanitize((_ref5 = window.options.attributes.devicetypes.get(dt)) != null ? (_ref6 = (_base2 = _ref5.attributes).label) != null ? _ref6 : _base2.label = dt : void 0));
+        __out.push('</p><!--\n      --><img src="icons/');
+        __out.push(__sanitize(compat === 'builtin' ? 'tick.png' : compat === 'optional' ? 'query.png' : compat === 'app' ? 'tick app.png' : compat === 'none' ? 'cross.png' : 'query app.png'));
+        __out.push('"><!--\n    --></div><!--\n  -->');
+      }
+    
+      __out.push('\n  </div>\n    ');
     
       if (this.entry.mimetypeicon != null) {
         __out.push('\n      <div class="entry-in-list-mimetype">\n        <img src="');
@@ -1873,12 +2049,28 @@
     };
   }
   (function() {
+    (function() {
+      var compat;
     
       __out.push('<div class="small-12 large-12 columns">\n  <h1>');
     
       __out.push(__sanitize(this.entry.title));
     
-      __out.push('</h1>\n  <div class="row" help-section="join wifi">\n    <div class="small-12 medium-7 large-7 columns">\n      <p class="option-info"><span class="option-step">1</span>\n        <img src="icons/help.png" class="entry-option-step-help-button entry-option-step-show">\n        <img src="icons/help-right.png" class="entry-option-step-help-button entry-option-step-hide hide">\n        Join this Wifi Network:\n        <div class="clear-both"></div>\n      </p>\n      <p class="option-url">');
+      __out.push('</h1>\n');
+    
+      if (window.options.attributes.devicetype != null) {
+        __out.push('\n');
+        compat = this.entry.compat != null ? this.entry.compat[window.options.attributes.devicetype.attributes.term] : null;
+        __out.push('\n');
+        if (compat !== 'builtin') {
+          __out.push('\n<div data-alert class="alert-box warning">\n  ');
+          __out.push(__sanitize(compat === 'optional' ? 'This content may be supported on your device, or you may need to find and download an app to view it' : compat === 'app' ? 'You may need to download an app to view this content' : compat === 'none' ? 'This content is not probably not compatible with your device (see top of screen)' : 'This content may not be supported on your device, or you may need to find and download an app to view it'));
+          __out.push('\n</div>\n');
+        }
+        __out.push('\n');
+      }
+    
+      __out.push('\n  <div class="row" help-section="join wifi">\n    <div class="small-12 medium-7 large-7 columns">\n      <p class="option-info"><span class="option-step">1</span>\n        <img src="icons/help.png" class="entry-option-step-help-button entry-option-step-show">\n        <img src="icons/help-right.png" class="entry-option-step-help-button entry-option-step-hide hide">\n        Join this Wifi Network:\n        <div class="clear-both"></div>\n      </p>\n      <p class="option-url">');
     
       __out.push(__sanitize(this.ssid));
     
@@ -1886,7 +2078,7 @@
     
       __out.push(__sanitize(this.ssid));
     
-      __out.push('</span> and join it. Within about 10 seconds you should have joined the network.</p>\n        <p>If you are unable to find or join this WiFi network then you will have to try downloading over the Internet - go back and choose that option.</p>\n      </div>\n    </div>\n  </div>    \n\n  <div class="row" help-section="enter url">\n    <div class="small-12 medium-7 large-7 columns">\n      <p class="option-info"><span class="option-step">2</span>\n        <img src="icons/help.png" class="entry-option-step-help-button entry-option-step-show">\n        <img src="icons/help-right.png" class="entry-option-step-help-button entry-option-step-hide hide">\n        Either (a) enter this URL in your web browser:\n        <div class="clear-both"></div>\n      </p>\n      <p class="option-url">');
+      __out.push('</span> and join it. Within about 10 seconds you should have joined the network.</p>\n        <p>If you are unable to find or join this WiFi network then you will have to try downloading over the Internet - go back and choose that option.</p>\n      </div>\n    </div>\n  </div>    \n\n  <div class="row" help-section="enter url">\n    <div class="small-12 medium-7 large-7 columns">\n      <p class="option-info"><span class="option-step">2</span>\n        <img src="icons/help.png" class="entry-option-step-help-button entry-option-step-show">\n        <img src="icons/help-right.png" class="entry-option-step-help-button entry-option-step-hide hide">\n        Either (a) enter this URL in your web browser, all on one line:\n        <div class="clear-both"></div>\n      </p>\n      <p class="option-url">');
     
       __out.push(__sanitize(this.geturl));
     
@@ -1899,6 +2091,8 @@
       __out.push(this.templateQRCodeHelp(this));
     
       __out.push('\n        <p>Note that you CANNOT access the app store or download new apps while you are connected to this device\'s WiFi network. You will have to disconnect from it and connect to the Internet.\n      </div>\n    </div>\n  </div>    \n\n  <div class="row" help-section="wait">\n    <div class="small-12 medium-7 large-7 columns">\n      <p class="option-info"><span class="option-step">3</span>\n        In a few seconds you should see a simple web page with a link to this content.\n      </p>\n    </div>\n  </div>\n\n  <div class="row" help-section="disconnect wifi">\n    <div class="small-12 medium-7 large-7 columns">\n      <p class="option-info">\n        <img src="icons/help.png" class="entry-option-step-help-button entry-option-step-show">\n        <img src="icons/help-right.png" class="entry-option-step-help-button entry-option-step-hide hide">\n        <span class="option-step">4</span>\n        Disconnect from this device\'s WiFi network when you have the content you want.\n      </p>\n    </div>\n    <div class="small-12 medium-5 large-5 columns">\n      <div class="panel hide entry-option-step-panel">\n        <p>This may be called "forgetting" or deleting this network on your phone\'s WiFi settings.</p>\n        <p>If you don\'t do this then your phone may keep connecting to this WiFi network and you will not able to access the Internet while you are near this device.</p>\n      </div>\n    </div>\n  </div>\n</div>\n\n');
+    
+    }).call(this);
     
   }).call(__obj);
   __obj.safe = __objSafe, __obj.escape = __escape;
@@ -1941,12 +2135,28 @@
     };
   }
   (function() {
+    (function() {
+      var compat;
     
       __out.push('\n<div class="small-12 large-12 columns">\n  <h1>');
     
       __out.push(__sanitize(this.entry.title));
     
-      __out.push('</h1>\n  <div class="row" help-section="enable internet">\n    <div class="small-12 medium-7 large-7 columns">\n      <p class="option-info"><span class="option-step">1</span>\n        <img src="icons/help.png" class="entry-option-step-help-button entry-option-step-show">\n        <img src="icons/help-right.png" class="entry-option-step-help-button entry-option-step-hide hide">\n        Enable internet access\n        <div class="clear-both"></div>\n      </p>\n    </div>\n    <div class="small-12 medium-5 large-5 columns">\n      <div class="panel hide entry-option-step-panel">\n        <p>If you can access the internet on your phone or tablet at the moment then move to the next step.</p>\n        <p>If your phone or tablet has WiFi and you know and trust a network here then connect to that now.</p>\n        <p>If you have a data contract that you are happy to use (and a SIM, if you are using a tablet) then check that the signal strength is OK. If you cannot get a signal here then you may not be able to use the Internet - try WiFi instead.</p>\n      </div>\n    </div>\n  </div>    \n\n  <div class="row" help-section="enter url">\n    <div class="small-12 medium-7 large-7 columns">\n      <p class="option-info"><span class="option-step">2</span>\n        <img src="icons/help.png" class="entry-option-step-help-button entry-option-step-show">\n        <img src="icons/help-right.png" class="entry-option-step-help-button entry-option-step-hide hide">\n        Either (a) enter this URL in your web browser:\n        <div class="clear-both"></div>\n      </p>\n      <p class="option-url">');
+      __out.push('</h1>\n');
+    
+      if (window.options.attributes.devicetype != null) {
+        __out.push('\n');
+        compat = this.entry.compat != null ? this.entry.compat[window.options.attributes.devicetype.attributes.term] : null;
+        __out.push('\n');
+        if (compat !== 'builtin') {
+          __out.push('\n<div data-alert class="alert-box warning">\n  ');
+          __out.push(__sanitize(compat === 'optional' ? 'This content may be supported on your device, or you may need to find and download an app to view it' : compat === 'app' ? 'You may need to download an app to view this content' : compat === 'none' ? 'This content is not probably not compatible with your device (see top of screen)' : 'This content may not be supported on your device, or you may need to find and download an app to view it'));
+          __out.push('\n</div>\n');
+        }
+        __out.push('\n');
+      }
+    
+      __out.push('\n  <div class="row" help-section="enable internet">\n    <div class="small-12 medium-7 large-7 columns">\n      <p class="option-info"><span class="option-step">1</span>\n        <img src="icons/help.png" class="entry-option-step-help-button entry-option-step-show">\n        <img src="icons/help-right.png" class="entry-option-step-help-button entry-option-step-hide hide">\n        Enable internet access\n        <div class="clear-both"></div>\n      </p>\n    </div>\n    <div class="small-12 medium-5 large-5 columns">\n      <div class="panel hide entry-option-step-panel">\n        <p>If you can access the internet on your phone or tablet at the moment then move to the next step.</p>\n        <p>If your phone or tablet has WiFi and you know and trust a network here then connect to that now.</p>\n        <p>If you have a data contract that you are happy to use (and a SIM, if you are using a tablet) then check that the signal strength is OK. If you cannot get a signal here then you may not be able to use the Internet - try WiFi instead.</p>\n      </div>\n    </div>\n  </div>    \n\n  <div class="row" help-section="enter url">\n    <div class="small-12 medium-7 large-7 columns">\n      <p class="option-info"><span class="option-step">2</span>\n        <img src="icons/help.png" class="entry-option-step-help-button entry-option-step-show">\n        <img src="icons/help-right.png" class="entry-option-step-help-button entry-option-step-hide hide">\n        Either (a) enter this URL in your web browser, all on one line:\n        <div class="clear-both"></div>\n      </p>\n      <p class="option-url">');
     
       __out.push(__sanitize(this.geturl));
     
@@ -1959,6 +2169,8 @@
       __out.push(this.templateQRCodeHelp(this));
     
       __out.push('\n      </div>\n    </div>\n  </div>    \n\n  <div class="row" help-section="wait">\n    <div class="small-12 medium-7 large-7 columns">\n      <p class="option-info"><span class="option-step">3</span>\n        In a few seconds you should see a simple web page with a link to this content.\n      </p>\n    </div>\n  </div>\n</div>\n\n');
+    
+    }).call(this);
     
   }).call(__obj);
   __obj.safe = __objSafe, __obj.escape = __escape;
@@ -2358,6 +2570,7 @@
     DevicetypeChoiceView.prototype.className = 'devicetype-list';
 
     DevicetypeChoiceView.prototype.initialize = function() {
+      this.model.attributes.devicetypes.bind('add', this.render);
       this.model.bind('change', this.render);
       return this.render();
     };
@@ -2475,6 +2688,9 @@
       if (!(this.model.attributes.mimetypeicon != null)) {
         this.model.checkMimetypeIcon();
       }
+      if (!(this.model.attributes.compat != null)) {
+        this.model.checkDeviceCompatibility();
+      }
       console.log("render EntryInList " + this.model.attributes.title);
       this.$el.html(this.template(this.model.attributes));
       return this;
@@ -2541,6 +2757,7 @@
 
     EntryInfoView.prototype.initialize = function() {
       this.model.bind('change', this.render);
+      window.options.on('change:devicetype', this.render);
       return this.render();
     };
 
@@ -2645,42 +2862,24 @@
 
     EntryInfoView.prototype.optionSendInternet = function() {
       attract.active();
-      if (!(window.options.attributes.devicetype != null)) {
-        recorder.i('user.option.sendInternet.noDevicetype', {
-          id: this.model.id
-        });
-        window.delayedNavigate = "sendInternet/" + (encodeURIComponent(this.model.id));
-        $('#chooseDeviceModal').foundation('reveal', 'open');
-        return recorder.w('view.modal.chooseDevice');
-      } else {
-        recorder.i('user.option.sendInternet', {
-          id: this.model.id
-        });
-        console.log("option:send(internet) entry " + this.model.id);
-        return window.router.navigate("sendInternet/" + (encodeURIComponent(this.model.id)), {
-          trigger: true
-        });
-      }
+      recorder.i('user.option.sendInternet', {
+        id: this.model.id
+      });
+      console.log("option:send(internet) entry " + this.model.id);
+      return window.router.navigate("sendInternet/" + (encodeURIComponent(this.model.id)), {
+        trigger: true
+      });
     };
 
     EntryInfoView.prototype.optionSendCache = function() {
       attract.active();
-      if (!(window.options.attributes.devicetype != null)) {
-        recorder.i('user.option.sendCache.noDevicetype', {
-          id: this.model.id
-        });
-        window.delayedNavigate = "sendCache/" + (encodeURIComponent(this.model.id));
-        $('#chooseDeviceModal').foundation('reveal', 'open');
-        return recorder.w('view.modal.chooseDevice');
-      } else {
-        recorder.i('user.option.sendCache', {
-          id: this.model.id
-        });
-        console.log("option:send(cache) entry " + this.model.id);
-        return window.router.navigate("sendCache/" + (encodeURIComponent(this.model.id)), {
-          trigger: true
-        });
-      }
+      recorder.i('user.option.sendCache', {
+        id: this.model.id
+      });
+      console.log("option:send(cache) entry " + this.model.id);
+      return window.router.navigate("sendCache/" + (encodeURIComponent(this.model.id)), {
+        trigger: true
+      });
     };
 
     return EntryInfoView;

@@ -79,7 +79,7 @@ if (empty($mimetype) || empty($mimetype['compat'])) {
     }
   }
   if (empty($compat))
-    echo '<p>Warning: this content may not be supported on your device! (As far as I can tell your device type is '.$devicetype.' but I cannot find any compatibility information for MIME type '.$m.')</p>';
+    echo '<p>Warning: this content may not be supported on your device! (I cannot find any compatibility information for MIME type '.$m.')</p>';
   else {
     if (!empty($compat['apps'])) {
       foreach ($compat['apps'] as $app) {

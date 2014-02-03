@@ -212,53 +212,20 @@ App =
 
     # default mime types
     mimetypes = new MimetypeList()
-    mimetypes.add new Mimetype
-      mime: "application/pdf"
-      ext: "pdf"
-      icon: "icons/pdf.png"
-      label: "PDF"
-    mimetypes.add new Mimetype
-      mime: "text/html"
-      ext: "html"
-      icon: "icons/html.png"
-      label: "HTML"
-    mimetypes.add new Mimetype
-      mime: "application/vnd.android.package-archive"
-      ext: "apk",
-      icon: "icons/get_it_on_google_play.png"
-      label: "Android app"
-    # not a real mime type (or indeed a file as such), but we can pretend...
-    mimetypes.add new Mimetype
-      mime: "application/x-itunes-app"
-      icon: "icons/available_on_the_app_store.png"
-      label: "iPhone app"
+    # should be loaded by loader from mimetypes.json
     window.mimetypes = mimetypes
 
     # default device types
     devicetypes = new DevicetypeList()
 
-    devicetypes.add new Devicetype
-      term: "ios"
-      label: "iPhone"
-      userAgentPattern: '(iPhone)|(iPod)|(iPad)'
-      supportsMime: [ "text/html", "application/x-itunes-app" ]
-      helpHtml: '<p><img class="devicetype-help-image" src="icons/example_ios.png">There are several different models of iPhone, all sold by Apple, but they are all broadly compatible. You should also use this option if you have an iPad, iPad mini or iPod Touch.</p>'
-    devicetypes.add new Devicetype
-      term: "windowsphone"
-      label: "Windows Phone"
-      supportsMime: [ "text/html" ]
-      helpHtml: '<p><img class="devicetype-help-image" src="icons/example_windowsphone.png">Windows phones include newer Nokia smart phones, and also specific phones made by HTC, Samsung and others. Windows Phones have a distinctive square tile-based interface.</p>'
-    devicetypes.add new Devicetype
-      term: "android"
-      label: "Android"
-      userAgentPattern: 'Android'
-      supportsMime: [ "text/html", "application/vnd.android.package-archive" ]
-      helpHtml: '<p><img class="devicetype-help-image" src="icons/example_android.png">There are many different Android phones and tablets, including devices made by Google, Samsung, Motorola, HTC, Sony Ericsson and Asus (some Nexus).</p>'
+    # should be loaded by loader from devices.json
     # there MUST be a devicetype 'other' to use as default
     devicetypes.add new Devicetype
+      id: "other"
       term: "other"
       label: "Other Device"
-      supportsMime: [ "text/html" ]
+      supportsMime: [ ]
+      optionalSupportsMime: [ "text/html" ]
       helpHtml: '<p>If you have another sort of smart phone or tablet to the ones listed then some of the content here may work, but unfortunately we can\'t make any guarantees. If you just aren\'t sure what sort of phone it is then make guess!</p>'
 
     # general options

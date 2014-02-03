@@ -20,6 +20,8 @@ module.exports = class EntryInListView extends Backbone.View
     # TODO
     if not @model.attributes.mimetypeicon?
       @model.checkMimetypeIcon()
+    if not @model.attributes.compat?
+      @model.checkDeviceCompatibility()
     console.log "render EntryInList #{ @model.attributes.title }"
     @$el.html @template @model.attributes
     @

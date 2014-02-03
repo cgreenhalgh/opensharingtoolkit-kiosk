@@ -12,6 +12,7 @@ import java.util.Map;
 
 import org.opensharingtoolkit.httpserver.HttpContinuation;
 import org.opensharingtoolkit.httpserver.HttpError;
+import org.opensharingtoolkit.httpserver.HttpUtils;
 
 import android.graphics.Bitmap;
 import android.graphics.Bitmap.CompressFormat;
@@ -39,28 +40,11 @@ public class QRCodeServer {
 	 * @throws HttpError */
 	public static void handleRequest(String path,
 			HttpContinuation httpContinuation) throws HttpError {
-		int ix = path.indexOf("?");
-		if (ix<0) {
+		Hashtable<String,String> params = HttpUtils.getParams(path);
+		if (params==null) {
 			Log.w(TAG,"request qr code without parameters: "+path);
 			throw HttpError.badRequest("QRCodeServer expected URL-encoded parameters");
 		}
-		String paramStrings[] = path.substring(ix+1).split("&");
-		Hashtable<String,String> params = new Hashtable<String,String>();
-		for (String p : paramStrings) {
-			int eix = p.indexOf("=");
-			if (eix<0)
-				params.put(p, p);
-			else if (eix==0) {
-				Log.w(TAG,"parameter name missing: "+path);
-				throw HttpError.badRequest("parameter name missing ("+p+")");
-			} else
-				try {
-					params.put(p.substring(0,eix), URLDecoder.decode(p.substring(eix+1), "UTF-8"));
-				} catch (UnsupportedEncodingException e) {
-			    	throw new HttpError(500,"Problem decoding parameters: "+e.getMessage());
-				}
-		}
-		
 		if (params.containsKey(PARAM_URL)) {
 			String url = params.get(PARAM_URL);
 			int size = 0;

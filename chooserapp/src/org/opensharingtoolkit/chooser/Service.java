@@ -254,9 +254,11 @@ public class Service extends android.app.Service {
 		}
 	}
 	
-	public void postRequest(String path, String requestBody,
+	public void postRequest(String path, Map<String,String> headers, String requestBody,
 			HttpContinuation httpContinuation) throws IOException, HttpError {
-		if (path.startsWith("/a/"))
+		if (path.startsWith("/a/get?")) 
+			GetServer.singleton().handleRequest(path, headers, httpContinuation);
+		else if (path.startsWith("/a/"))
 			handleAssetRequest(path.substring("/a".length()), requestBody, httpContinuation);
 		else if (path.startsWith("/f/"))
 			handleFileRequest(path.substring("/f".length()), requestBody, httpContinuation);

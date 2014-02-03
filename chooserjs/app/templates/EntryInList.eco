@@ -5,6 +5,14 @@
 <div class="entry-in-list-icon">
   <div class="dummy"></div><%# required for CSS aspect ratio - see css %>
   <img src="<%= @iconpath ? @iconurl %>" class="entry-icon-image">
+  <div class="entry-in-list-compats">
+  <% for dt,compat of (@compat ?= {}): %><!--
+    --><div class="entry-in-list-compat<%= if window.options.attributes.devicetype?.attributes.term==dt then '-current' else '' %>"><!--
+      --><p><%= window.options.attributes.devicetypes.get(dt)?.attributes.label ?= dt %></p><!--
+      --><img src="icons/<%= if compat=='builtin' then 'tick.png' else if compat=='optional' then 'query.png' else if compat=='app' then 'tick app.png' else if compat=='none' then 'cross.png' else 'query app.png' %>"><!--
+    --></div><!--
+  --><% end %>
+  </div>
   <% if @mimetypeicon?: %>
     <div class="entry-in-list-mimetype">
       <img src="<%= @mimetypeicon %>">

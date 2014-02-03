@@ -11,6 +11,7 @@ module.exports = class DevicetypeChoiceView extends Backbone.View
   # model is Options
 
   initialize: ->
+    @model.attributes.devicetypes.bind 'add', @render
     @model.bind 'change', @render
     @render() 
 

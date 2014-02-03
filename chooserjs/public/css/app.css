@@ -7852,6 +7852,88 @@ entry-in-list-button {
 }
 
 /* line 123, ../../scss/app.scss */
+.entry-in-list-compats {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  height: 1.2em;
+}
+
+/* line 129, ../../scss/app.scss */
+.entry-in-list-compat {
+  display: inline-block;
+  overflow: hidden;
+  position: relative;
+  width: 1.2em;
+  height: 1.2em;
+  padding: 0.1em;
+  background-color: rgba(192, 192, 192, 0.8);
+  z-index: 1;
+  border: solid 2px #888;
+  border-radius: 4px;
+}
+/* line 140, ../../scss/app.scss */
+.entry-in-list-compat p {
+  #background-color: rgba(255, 255, 255, 0.4);
+  position: absolute;
+  top: 5%;
+  left: 5%;
+  font-size: 40%;
+  #text-align: left;
+  z-index: 2;
+  color: #444;
+  font-weight: bold;
+  white-space: nowrap;
+}
+/* line 152, ../../scss/app.scss */
+.entry-in-list-compat img {
+  opacity: 0.5;
+  filter: alpha(opacity=50);
+  position: absolute;
+  left: 5%;
+  top: 5%;
+  width: 90%;
+  height: auto;
+}
+
+/* line 162, ../../scss/app.scss */
+.entry-in-list-compat-current {
+  display: inline-block;
+  overflow: hidden;
+  position: relative;
+  width: 1.2em;
+  height: 1.2em;
+  padding: 0.1em;
+  background-color: white;
+  z-index: 1;
+  border: solid 2px #888;
+  border-radius: 4px;
+}
+/* line 173, ../../scss/app.scss */
+.entry-in-list-compat-current p {
+  #background-color: rgba(255, 255, 255, 0.4);
+  position: absolute;
+  top: 5%;
+  left: 5%;
+  font-size: 40%;
+  #text-align: left;
+  z-index: 2;
+  color: #444;
+  font-weight: bold;
+  white-space: nowrap;
+}
+/* line 185, ../../scss/app.scss */
+.entry-in-list-compat-current img {
+  #opacity: 0.5;
+  #filter: alpha(opacity=50);
+  position: absolute;
+  left: 5%;
+  top: 5%;
+  width: 90%;
+  height: auto;
+}
+
+/* line 195, ../../scss/app.scss */
 .entry-in-list-mimetype {
   position: absolute;
   bottom: 0;
@@ -7861,25 +7943,25 @@ entry-in-list-button {
   padding: 0.1em;
   background-color: rgba(255, 255, 255, 0.5);
 }
-/* line 131, ../../scss/app.scss */
+/* line 203, ../../scss/app.scss */
 .entry-in-list-mimetype .img {
   width: 90%;
   height: auto;
   #height: 90%;
 }
 
-/* line 137, ../../scss/app.scss */
+/* line 209, ../../scss/app.scss */
 .entry-option {
   width: 100%;
   position: relative;
 }
 
-/* line 143, ../../scss/app.scss */
+/* line 215, ../../scss/app.scss */
 #chooseDeviceModal {
   top: 0.5em;
 }
 
-/* line 147, ../../scss/app.scss */
+/* line 219, ../../scss/app.scss */
 .devicetype {
   width: 100%;
   margin-top: 6px;
@@ -7890,7 +7972,7 @@ entry-in-list-button {
   position: relative;
 }
 
-/* line 162, ../../scss/app.scss */
+/* line 234, ../../scss/app.scss */
 .option-value-icon {
   display: inline-block;
   border: 4px solid;
@@ -7901,7 +7983,7 @@ entry-in-list-button {
   height: 56px;
 }
 
-/* line 171, ../../scss/app.scss */
+/* line 243, ../../scss/app.scss */
 .option-url {
   font-family: Monospace;
   font-size: 80%;
@@ -7911,20 +7993,20 @@ entry-in-list-button {
   border-radius: 10px;
 }
 
-/* line 180, ../../scss/app.scss */
+/* line 252, ../../scss/app.scss */
 .option-qrcode {
   border: solid 1px;
   border-radius: 10px;
   padding: 10px;
   text-align: center;
 }
-/* line 186, ../../scss/app.scss */
+/* line 258, ../../scss/app.scss */
 .option-qrcode img {
   width: 80%;
   height: auto;
 }
 
-/* line 191, ../../scss/app.scss */
+/* line 263, ../../scss/app.scss */
 .option-step {
   border: 2px solid #a1a1a1;
   padding: 10px 10px;
@@ -7933,13 +8015,13 @@ entry-in-list-button {
   border-radius: 10px;
 }
 
-/* line 202, ../../scss/app.scss */
+/* line 274, ../../scss/app.scss */
 span.ssid {
   font-family: monospace;
   font-weight: bold;
 }
 
-/* line 207, ../../scss/app.scss */
+/* line 279, ../../scss/app.scss */
 .floating-help-button {
   z-index: 20;
   position: fixed;
@@ -7948,19 +8030,19 @@ span.ssid {
   right: 0.2em;
   top: 0.2em;
 }
-/* line 214, ../../scss/app.scss */
+/* line 286, ../../scss/app.scss */
 .floating-help-button img {
   width: 100%;
   height: 100%;
   cursor: pointer;
 }
 
-/* line 220, ../../scss/app.scss */
+/* line 292, ../../scss/app.scss */
 .menubar-help-pad {
   width: 6em;
 }
 
-/* line 223, ../../scss/app.scss */
+/* line 295, ../../scss/app.scss */
 .entry-option-help-button {
   position: absolute;
   right: 0.5em;
@@ -7971,7 +8053,7 @@ span.ssid {
   cursor: pointer;
 }
 
-/* line 233, ../../scss/app.scss */
+/* line 305, ../../scss/app.scss */
 .entry-option-more-help-button {
   width: 3.5rem;
   height: 3.5rem;
@@ -7979,7 +8061,7 @@ span.ssid {
   cursor: pointer;
 }
 
-/* line 240, ../../scss/app.scss */
+/* line 312, ../../scss/app.scss */
 .entry-option-step-help-button {
   width: 3.5rem;
   height: 3.5rem;
@@ -7988,7 +8070,7 @@ span.ssid {
   float: right;
 }
 
-/* line 247, ../../scss/app.scss */
+/* line 319, ../../scss/app.scss */
 .devicetype-help-button {
   width: 3.5rem;
   height: 2 em;
@@ -7996,7 +8078,7 @@ span.ssid {
   cursor: pointer;
 }
 
-/* line 255, ../../scss/app.scss */
+/* line 327, ../../scss/app.scss */
 .devicetype-help-image {
   height: 6em;
   width: auto;
@@ -8004,17 +8086,17 @@ span.ssid {
   float: right;
 }
 
-/* line 261, ../../scss/app.scss */
+/* line 333, ../../scss/app.scss */
 .clear-both {
   clear: both;
 }
 
-/* line 266, ../../scss/app.scss */
+/* line 338, ../../scss/app.scss */
 .help-relative {
   position: relative;
 }
 
-/* line 269, ../../scss/app.scss */
+/* line 341, ../../scss/app.scss */
 .help-below-left-align {
   position: absolute;
   top: 1.5em;
@@ -8023,19 +8105,19 @@ span.ssid {
   text-align: left;
   z-index: 40;
 }
-/* line 277, ../../scss/app.scss */
+/* line 349, ../../scss/app.scss */
 .help-below-left-align img {
   position: relative;
   height: 1.5em;
   width: 1.5em;
 }
-/* line 282, ../../scss/app.scss */
+/* line 354, ../../scss/app.scss */
 .help-below-left-align span {
   position: relative;
   top: 0.8em;
 }
 
-/* line 287, ../../scss/app.scss */
+/* line 359, ../../scss/app.scss */
 .help-below-right-align {
   position: absolute;
   top: 1.5em;
@@ -8044,25 +8126,25 @@ span.ssid {
   text-align: right;
   z-index: 40;
 }
-/* line 295, ../../scss/app.scss */
+/* line 367, ../../scss/app.scss */
 .help-below-right-align img {
   position: relative;
   height: 1.5em;
   width: 1.5em;
 }
-/* line 300, ../../scss/app.scss */
+/* line 372, ../../scss/app.scss */
 .help-below-right-align span {
   position: relative;
   top: 0.8em;
 }
 
-/* line 305, ../../scss/app.scss */
+/* line 377, ../../scss/app.scss */
 .help-label {
   height: 1.5em;
   width: 1.5em;
 }
 
-/* line 310, ../../scss/app.scss */
+/* line 382, ../../scss/app.scss */
 .entry-list-help {
   z-index: 30;
   background-color: rgba(255, 255, 255, 0.8);
@@ -8072,23 +8154,23 @@ span.ssid {
   right: 0;
   bottom: 0;
 }
-/* line 318, ../../scss/app.scss */
+/* line 390, ../../scss/app.scss */
 .entry-list-help .entry-list-help-top {
   height: 3em;
 }
-/* line 321, ../../scss/app.scss */
+/* line 393, ../../scss/app.scss */
 .entry-list-help .help-scroll-vertical {
   width: 1.5em;
   height: 6em;
 }
-/* line 325, ../../scss/app.scss */
+/* line 397, ../../scss/app.scss */
 .entry-list-help .entry-list-help-ok {
   position: fixed;
   right: 0.2em;
   bottom: 0.2em;
   cursor: pointer;
 }
-/* line 331, ../../scss/app.scss */
+/* line 403, ../../scss/app.scss */
 .entry-list-help .entry-list-help-info {
   position: absolute;
   width: 3.5rem;
@@ -8096,23 +8178,23 @@ span.ssid {
   bottom: 1em;
   left: 1em;
 }
-/* line 337, ../../scss/app.scss */
+/* line 409, ../../scss/app.scss */
 .entry-list-help .entry-list-help-info a {
   display: block;
 }
-/* line 340, ../../scss/app.scss */
+/* line 412, ../../scss/app.scss */
 .entry-list-help .entry-list-help-info img {
   width: 100%;
   height: 100%;
   cursor: pointer;
 }
 
-/* line 347, ../../scss/app.scss */
+/* line 419, ../../scss/app.scss */
 .entry-option-step-panel p {
   font-size: 60%;
 }
 
-/* line 351, ../../scss/app.scss */
+/* line 423, ../../scss/app.scss */
 .attract-modal {
   z-index: 200;
   background-color: white;
@@ -8122,13 +8204,13 @@ span.ssid {
   right: 0;
   bottom: 0;
 }
-/* line 359, ../../scss/app.scss */
+/* line 431, ../../scss/app.scss */
 .attract-modal canvas {
   position: absolute;
   background-color: #fbfbfb;
 }
 
-/* line 365, ../../scss/app.scss */
+/* line 437, ../../scss/app.scss */
 .consent-modal {
   z-index: 190;
   background-color: white;
@@ -8138,19 +8220,19 @@ span.ssid {
   right: 0;
   bottom: 0;
 }
-/* line 373, ../../scss/app.scss */
+/* line 445, ../../scss/app.scss */
 .consent-modal .panel {
   margin-top: 1em;
 }
-/* line 376, ../../scss/app.scss */
+/* line 448, ../../scss/app.scss */
 .consent-modal .consent-button {
   width: 100%;
 }
-/* line 379, ../../scss/app.scss */
+/* line 451, ../../scss/app.scss */
 .consent-modal .consent-logo {
   float: right;
 }
-/* line 382, ../../scss/app.scss */
+/* line 454, ../../scss/app.scss */
 .consent-modal .button-row {
   position: absolute;
   bottom: 0.2em;

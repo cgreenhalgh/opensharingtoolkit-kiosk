@@ -35,15 +35,48 @@ As of 2013-10-15...
 
 ### Bootstrap
 
-The app web view loads `file:///android_asset/default.html` as specified in `res/values/stings.xml` key `default_url`, i.e. app internal file `assets/default.html` which is bundled in the APK file.
+The app web view loads `file:///android_asset/index.html` as specified in `res/values/stings.xml` key `default_url`, i.e. app internal file `assets/index.html` which is bundled in the APK file.
 
-`default.html` reads `chooser.js` (relative URL, hence also from assets). 
+`index.html` reads `application.js` (relative URL, hence also from assets). 
 
-`chooser.js` reads atom file `test/_ost.xml` and adds its entries. 
+`application.js` reads the atom file specified in app preference `pref_atomfile` (`ost.xml` by default) and adds its entries. 
 
 ### Cache configuration
 
-When loading an atom file, `chooser.js` also attempts first to read `ost/cache.json` and `ost/shorturls.json` as relative to the atom file URL.
+The cache should normally be built using the coffeescript command-line application `cache_builder/cb.coffee` from the [OST Kiosk Manager](https://github.com/cgreenhalgh/ost-kiosk-manager/) repo. This will read `devices.json` and generate `shorturls.json`, `cache.json` and `mimetypes.json`.
+
+When loading an atom file, `application.js` also attempts first to read `devices.json`, `mimetypes.json`, `cache.json` and `shorturls.json` as relative to the atom file URL.
+
+The `devices.json` file defines supported device types and gives basic information about each, esp. supported mime types. It is a map of device records such as:
+```
+{
+  "android": {
+    "label": "Android",
+    "userAgentPattern": "Android",
+    "supportsMime": [ "text/html", "application/vnd.android.package-archive" ],
+    "optionalSupportsMime": [ ],
+    "helpHtml": "There are many different Android phones and tablets, including devices made by Google, Samsung, Motorola, HTC, Sony Ericsson and Asus (some Nexus)."
+  }
+}
+```
+
+The `mimetypes.json` file defines known mimetypes (including which devices support them and which supporting apps are required). It combines standard information with app-specific information typically obtained from the cache builder pre-processing the kiosk atom file. It is a map of mimetype records such as:
+```
+{
+  "text/html": {
+    "label": "HTML"
+    "exts": [ "html" ],
+    "icon": "icons/html.png",
+    "compat": {
+      "android": {
+        "builtin": false, // could be true or undefined=unknown
+        "apps": [ { "name":APPNAME, "url":APPURL }, ... ],
+        "appsComplete": false // are these the only apps that support this mime type?
+      }
+    }
+  }
+}
+```
 
 The `cache.json` file, if present, should be a object with a `baseurl` property the value of which is the Internet-accessible URL of the directory holding the original/definitive copy of the atom file and other local assets. E.g.
 
@@ -98,9 +131,10 @@ Entry elements that are used are as follows:
 - `content`: (was summary) textual (HTML) description of item, shown on detail page.
 - `link` with attributes `rel`=`alternate` and `type`=`image/`*: icon for the item (attribute `href` is URL). (possibly Media-RSS media:thumbnail should be used instead, in which case the first thumbnail would be used, but this might conflict with use for preview noted below)
 - `link` with attribute `rel`=`enclosure`: content file for the item, attribute `href` is URL and attribute `type` is MIME type. (possibly Media-RSS media:content optionally in media:group should be used instead, e.g. to provide `expression`=`sample` versions of audio/video)
-- `category` with attribute `scheme`=`requires-device`: device with which content is compatible (attribute `term` is device type ID, currently one of `android`, `ios` or `other`)
+- `category` with attribute `scheme`=`requires-device`: device with which content is compatible (attribute `term` is device type ID, currently one of `android`, `ios`, `windowsphone` or `other`)
 - `category` with attribute `scheme`=`supports-mime-type`: item is an application which provides support for the MIME type specified by attribute `term` (readable name of MIME type given by attribute `label`)
 - `category` with attribute `scheme`=`visibility`: specifies whether item is visible to user in browser interface (hidden if attribute `term`=`hidden`) - used to hide helper applications
+- `category` with attribute `scheme`=`supports-mime-type-exclusive`, `term`=`true`: hint for an application which supports a MIME type that no other application will support that MIME type
 
 In addition media-rss media:thumbnail elements with attribute `url` should be used to provide 'preview' images (in order). This might be for documents and/or videos. Note: most recent [media-rss specification](http://www.rssboard.org/media-rss) and current namespace `media`=`http://search.yahoo.com/mrss/`. It would probably be safest if all thumbnails for a single entry were the same size (e.g. I may use the zurb orbit image viewer).
 

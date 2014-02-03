@@ -44,6 +44,10 @@ module.exports.registerMimeType = (path,mime) ->
   if window.kiosk?
     window.kiosk.registerMimeType path,mime
 
+module.exports.registerMimetypeCompat = (mime,device,compat) ->
+  if window.kiosk?
+    window.kiosk.registerMimetypeCompat mime,device,(JSON.stringify compat)
+
 module.exports.getPort = () ->
   if window.kiosk?
     window.kiosk.getPort()

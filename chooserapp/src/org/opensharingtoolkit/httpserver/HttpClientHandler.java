@@ -126,7 +126,7 @@ public class HttpClientHandler extends Thread {
 			mRecorder.i("http.request", info);
 			
 			synchronized (this) {
-				service.postRequest(path, requestBody, new HttpContinuation() {
+				service.postRequest(path, headers, requestBody, new HttpContinuation() {
 
 					public void done(int status, String message, String mimeType, long length, InputStream content, Map<String,String> extraHeaders) {
 						Log.d(TAG,"http done: status="+status+", message="+message+", length="+length);

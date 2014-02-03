@@ -1,6 +1,7 @@
 # Atom file loader
 Entry = require 'models/Entry'
 Mimetype = require 'models/Mimetype'
+Devicetype = require 'models/Devicetype'
 
 kiosk = require 'kiosk'
 recorder = require 'recorder'
@@ -90,6 +91,92 @@ getCacheFileMap = (cache) ->
     if f.url?
       map[f.url] = f
   map
+
+addDevice = (devicename,deviceinfo) ->
+  devicetype = window.options.attributes.devicetypes.get(devicename)
+  if not devicetype?
+    console.log "Add device #{devicename}"
+    devicetype = new Devicetype
+      id: devicename
+      term: devicename
+      label: deviceinfo.label ?= devicename
+      supportsMime: deviceinfo.supportsMime ?= []
+      optionalSupportsMime: deviceinfo.optionalSupportsMime ?= []
+      helpHtml: deviceinfo.helpHtml ?= "Sorry, can't tell you much about device type #{devicename}."
+    # keep other at end
+    window.options.attributes.devicetypes.add devicetype, {at:(window.options.attributes.devicetypes.length-1)}
+  else
+    console.log "Update device #{devicename}"
+    if deviceinfo.label?
+      devicetype.set label: deviceinfo.label
+    if deviceinfo.supportsMime?
+      devicetype.set supportsMime: deviceinfo.supportsMime
+    if deviceinfo.optionalSupportsMime?
+      devicetype.set optionalSupportsMime: deviceinfo.optionalSupportsMime
+    if deviceinfo.label?
+      devicetype.set helpHtml: deviceinfo.helpHtml
+
+loadDevices = (entries,atomurl,prefix) ->
+  devicesurl = prefix + 'devices.json'
+  console.log "Loading devices info from #{devicesurl}"
+  $.ajax
+    url: devicesurl
+    type: 'GET',
+    dataType: 'json',
+    timeout: 10000,
+    success: (data, textStatus, xhr) ->
+      console.log "ok, got #{devicesurl}"
+      for dn,dtinfo of data
+        addDevice dn,dtinfo
+      loadMimetypes entries, atomurl, prefix
+    error: (xhr, textStatus, errorThrown) ->
+      console.log "error getting #{devicesurl}: #{textStatus}: #{errorThrown}"
+      loadMimetypes entries, atomurl, prefix
+
+addMimetype = (mime,mtinfo) ->
+  mimetype = window.mimetypes.get(mime)
+  if not mimetype?
+    console.log "Add mimetype #{mime}"
+    mimetype = new Mimetype
+       id: mime
+       icon: mtinfo.icon ?= 'icons/unknown.png' 
+       label: mtinfo.label ?= mime
+       mime: mime
+       ext: mtinfo.ext ?= if mtinfo.exts?.length > 0 then mtinfo.exts[0] else undefined 
+       compat: mtinfo.compat
+    # keep other at end
+    window.mimetypes.add mimetype
+    if mtinfo.compat?
+      for dt,dtcompat of mtinfo.compat
+        kiosk.registerMimetypeCompat mime,dt,dtcompat
+  else
+    console.log "Update mimetype #{mime}"
+    if not mimetype.compat?
+      mimetype.compat = {}
+    if mtinfo.compat?
+      for dt,dtcompat of mtinfo.compat
+        if mimetype.compat[dt]?
+          console.log "Update mimetype compatibility of #{mime} with #{dt}"
+        #if not mimetype.compat[dt]?
+        mimetype.compat[dt] = dtcompat    
+        kiosk.registerMimetypeCompat mime,dt,dtcompat
+
+loadMimetypes = (entries,atomurl,prefix) ->
+  mimetypesurl = prefix + 'mimetypes.json'
+  console.log "Loading devices info from #{mimetypesurl}"
+  $.ajax
+    url: mimetypesurl
+    type: 'GET',
+    dataType: 'json',
+    timeout: 10000,
+    success: (data, textStatus, xhr) ->
+      console.log "ok, got #{mimetypesurl}"
+      for mt,mtinfo of data
+        addMimetype mt,mtinfo
+      loadCache entries, atomurl, prefix
+    error: (xhr, textStatus, errorThrown) ->
+      console.log "error getting #{mimetypesurl}: #{textStatus}: #{errorThrown}"
+      loadCache entries, atomurl, prefix
 
 loadCache = (entries,atomurl,prefix) ->
   cacheurl = prefix + 'cache.json'
@@ -183,5 +270,5 @@ module.exports.load = (entries, atomurl) ->
   # cache.json -> shorturls.json -> atomurl
   si = atomurl.lastIndexOf '/'
   prefix = if si<0 then '' else atomurl.substring 0,si+1
-  loadCache entries, atomurl, prefix
+  loadDevices entries, atomurl, prefix
 

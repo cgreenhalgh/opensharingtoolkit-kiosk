@@ -1,12 +1,28 @@
 <%# Entry information, takes { entry: { title:, iconurl:}, optionPreview: , ... } as data %>
 <div class="small-12 large-12 columns">
   <h1><%= @entry.title %></h1>
+<% if window.options.attributes.devicetype?: %>
+<% compat = if @entry.compat? then @entry.compat[window.options.attributes.devicetype.attributes.term] else null %>
+<% if compat!='builtin': %>
+<div data-alert class="alert-box warning">
+  <%= if compat=='optional' then 'This content may be supported on your device, or you may need to find and download an app to view it' else if compat=='app' then 'You may need to download an app to view this content' else if compat=='none' then 'This content is not probably not compatible with your device (see top of screen)' else 'This content may not be supported on your device, or you may need to find and download an app to view it' %>
+</div>
+<% end %>
+<% end %>
 </div>
 <div class="small-12 medium-6 large-6 columns">
   <p><%= @entry.summary %></p> 
   <div class="entry-in-list-icon">
     <div class="dummy"></div><%# required for CSS aspect ratio - see css %>
     <img src="<%= @entry.iconpath ? @entry.iconurl %>"  class="entry-icon-image">
+  <div class="entry-in-list-compats">
+  <% for dt,compat of (@entry.compat ?= {}): %><!--
+    --><div class="entry-in-list-compat<%=  if window.options.attributes.devicetype?.attributes.term==dt then '-current' else '' %>"><!--
+      --><p><%= window.options.attributes.devicetypes.get(dt)?.attributes.label ?= dt %></p><!--
+      --><img src="icons/<%= if compat=='builtin' then 'tick.png' else if compat=='optional' then 'query.png' else if compat=='app' then 'tick app.png' else if compat=='none' then 'cross.png' else 'query app.png' %>"><!--
+    --></div><!--
+  --><% end %>
+  </div>
     <% if @entry.mimetypeicon?: %>
       <div class="entry-in-list-mimetype">
         <img src="<%= @entry.mimetypeicon %>">

@@ -93,8 +93,9 @@
 
        <entry>
                 <title>Placebooks</title>
-                <!-- it's an app that supports a mime type -->
+                <!-- it's an app that supports a mime type (the only one) -->
                 <category scheme="supports-mime-type" term="application/x-placebook" label="Placebook"/>
+                <category scheme="supports-mime-type-exclusive" term="true"/>
                 <!-- it's for a particular os -->
                 <category scheme="requires-device" term="android"/>
                 <link rel="alternate" type="image/png" href="http://www.cs.nott.ac.uk/~cmg/AppropriateICT/JubileeCampus/placebook.png" />
