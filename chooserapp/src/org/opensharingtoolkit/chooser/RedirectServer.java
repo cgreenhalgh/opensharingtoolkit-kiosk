@@ -152,6 +152,10 @@ public class RedirectServer {
 		Log.d(TAG,"Redirect "+path+" -> "+r.toUrl);
 		Map<String,String> extraHeaders = new HashMap<String,String>();
 		extraHeaders.put("Location", r.toUrl);
+		// do not cache - at least some are changeable redirects!
+		extraHeaders.put("Cache-Control", "no-cache, no-store, must-revalidate");
+		extraHeaders.put("Pragma", "no-cache");
+		extraHeaders.put("Expires", "0");
 		String response = "See "+r.toUrl;
 		byte body [] = response.getBytes(Charset.forName("UTF-8"));
 		httpContinuation.done(307, "Moved temporarily", "text/plan", body.length, new ByteArrayInputStream(body), extraHeaders);

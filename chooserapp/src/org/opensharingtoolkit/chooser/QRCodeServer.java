@@ -7,7 +7,10 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
+import java.util.HashMap;
 import java.util.Hashtable;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 
 import org.opensharingtoolkit.httpserver.HttpContinuation;
@@ -36,6 +39,10 @@ public class QRCodeServer {
 	private static final String PARAM_URL = "url";
 	private static final String PARAM_SIZE = "size";
 
+	private static int CACHE_SIZE = 100;
+	private static Map<String,byte[]> cache = new HashMap<String,byte[]>();
+	private static List<String> codes = new LinkedList<String>();
+	
 	/** parse request and return QRCode 
 	 * @throws HttpError */
 	public static void handleRequest(String path,
@@ -55,14 +62,31 @@ public class QRCodeServer {
 			catch (Exception e) {
 				Log.w(TAG,"Erroring reading size parameteer: "+e);
 			}
-			buildQRCodeForUrl(url, size, httpContinuation);
-			return;
+			byte[] image = null;
+			synchronized (QRCodeServer.class) {
+				image = cache.get(url);
+			}
+			if (image==null) {
+				image = buildQRCodeForUrl(url, size, httpContinuation);
+				synchronized (QRCodeServer.class) {
+					cache.put(url, image);
+					codes.add(url);
+					while (codes.size()>CACHE_SIZE) {
+						String oldUrl = codes.remove(0);
+						cache.remove(oldUrl);
+						Log.d(TAG,"Discard from cache "+oldUrl);
+					}
+				}
+			} else
+				Log.d(TAG,"Server qrcode from cache: "+url);
+		    httpContinuation.done(200, "OK", "image/png", image.length, new ByteArrayInputStream(image), null);
+		    return;
 		}
 		Log.w(TAG,"no url parameter: "+path);
 		throw HttpError.badRequest("missing expected parameter(s)");
 	}
 
-	private static void buildQRCodeForUrl(String url,
+	private static byte[] buildQRCodeForUrl(String url,
 			int size, HttpContinuation httpContinuation) throws HttpError {
 		Log.i(TAG,"get qrcode: "+url);
 	    BitMatrix result;
@@ -91,6 +115,6 @@ public class QRCodeServer {
 	    bitmap.compress(CompressFormat.PNG, 100, stream);
 	    byte[] image = stream.toByteArray();
 	    Log.d(TAG,"qrcode as PNG is "+image.length+" bytes");
-	    httpContinuation.done(200, "OK", "image/png", image.length, new ByteArrayInputStream(image), null);
+	    return image;
 	}
 }

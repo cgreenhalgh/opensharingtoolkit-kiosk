@@ -136,6 +136,8 @@ public class HttpClientHandler extends Thread {
 							info.put("message", message);
 							info.put("mimeType", mimeType);
 							info.put("responseLength", length);
+							if (extraHeaders!=null && extraHeaders.containsKey("Location"))
+								info.put("redirectLocation", extraHeaders.get("Location"));
 						} catch (Exception e) {
 							Log.e(TAG,"Error marshalling request record info", e);
 						}
