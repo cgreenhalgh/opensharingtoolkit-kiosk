@@ -39,6 +39,7 @@ addView = (view,title,path) ->
         bcix++
       # done
       console.log "Re-show existing view"
+      view.remove()
       recorder.i 'view.add.existing', {title:title,path:path,level:window.views.length}
       return
 

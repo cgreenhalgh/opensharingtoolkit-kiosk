@@ -64,6 +64,9 @@ getPortOpt = () ->
   else
     ""
 
+module.exports.getUrlForPath = (path) ->
+  'http://'+kiosk.getHostAddress()+getPortOpt()+path
+
 asset_prefix = 'file:///android_asset/'
 localhost_prefix = 'http://localhost'
 localhost2_prefix = 'http://127.0.0.1'
@@ -105,6 +108,14 @@ module.exports.getTempRedirect = (url) ->
   else
     console.log "getTempRedirect when not kiosk for #{url}"
     url
+
+module.exports.registerRedirect = (path,url) ->
+  if window.kiosk?
+    kiosk = window.kiosk
+    kiosk.registerRedirect path,url,0
+  else
+    console.log "registerRedirect when not kiosk for #{url}"
+    false
 
 module.exports.getQrCode = (url) ->
   qrurl = 

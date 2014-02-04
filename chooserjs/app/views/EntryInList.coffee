@@ -9,7 +9,7 @@ module.exports = class EntryInListView extends Backbone.View
   className: 'entry-in-list'
 
   initialize: ->
-    @model.bind 'change', @render
+    @listenTo @model, 'change', @render
     @render()
 
   # syntax ok?? or (x...) -> 

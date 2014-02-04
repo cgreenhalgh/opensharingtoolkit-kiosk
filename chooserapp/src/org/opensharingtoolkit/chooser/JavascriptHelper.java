@@ -296,8 +296,27 @@ public class JavascriptHelper {
 		catch (Exception e) {
 			Log.w(TAG,"Error marshalling info for redirect", e);			
 		}
-		mRecorder.i("js.registerRedirect", jo);
+		mRecorder.i("js.registerRedirect.dynamic", jo);
 		return path;
+	}
+	/** register redirect.
+	 * 
+	 *  @return Redirect path 
+	 */
+	@JavascriptInterface
+	public boolean registerRedirect(String fromPath, String toUrl, long lifetimeMs) {
+		boolean res = RedirectServer.singleton().registerRedirect(fromPath, toUrl, lifetimeMs);
+		JSONObject jo = new JSONObject();
+		try {
+			jo.put("toUrl", toUrl);
+			jo.put("lifetime", lifetimeMs);
+			jo.put("path", fromPath);
+		}
+		catch (Exception e) {
+			Log.w(TAG,"Error marshalling info for redirect", e);			
+		}
+		mRecorder.i("js.registerRedirect.static", jo);
+		return res;
 	}
 	/** get path of configured atom file
 	 * 
@@ -352,5 +371,34 @@ public class JavascriptHelper {
 	@JavascriptInterface
 	public void record(int level, String event, String jsonInfo) {
 		Record.logJson(mContext, level, "chooser.js", event, jsonInfo);
+	}
+	/** save shared state */
+	@JavascriptInterface
+	public boolean setShared(String key, String encoding, String value) {
+		try {
+			SharedMemory.Encoding enc = SharedMemory.Encoding.valueOf(encoding);
+			SharedMemory.getInstance().put(key, enc, value);
+			return true;
+		}
+		catch (Exception e) {
+			Log.e(TAG,"Error setShared "+key+"=("+encoding+")"+value+": "+e);
+			return false;
+		}
+	}
+	/** get shared state 
+	 * @return null or 2-element array with encoding, value */
+	@JavascriptInterface
+	public String[] getShared(String key) {
+		try {
+			SharedMemory.Entry e = SharedMemory.getInstance().getEntry(key);
+			if (e==null)
+				return null;
+			String rval [] = new String[] { e.encoding.toString(), e.value };
+			return rval;
+		}
+		catch (Exception e) {
+			Log.e(TAG,"Error getShared "+key+": "+e);
+			return null;
+		}
 	}
 }

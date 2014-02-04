@@ -3,6 +3,9 @@ kiosk = require 'kiosk'
 
 module.exports.getGetUrl = (entry, devicetype, nocache) ->
   nocache ?= false
+  if not kiosk.isKiosk()
+    # with active get cannot serve from passive cache
+    nocache = true
   enc = entry.attributes.enclosures[0]
   # use cache copy if available
   url = if nocache then enc.url else (enc.path ? enc.url)

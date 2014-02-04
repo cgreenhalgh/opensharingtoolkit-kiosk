@@ -7,7 +7,7 @@ module.exports = class EntryPreviewView extends Backbone.View
   className: 'entry-preview row'
 
   initialize: ->
-    @model.bind 'change', @render
+    @listenTo @model, 'change', @render
     @render()
 
   # syntax ok?? or (x...) -> 

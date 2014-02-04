@@ -107,6 +107,7 @@
           bcix++;
         }
         console.log("Re-show existing view");
+        view.remove();
         recorder.i('view.add.existing', {
           title: title,
           path: path,
@@ -552,6 +553,7 @@
   module.exports.getGetUrl = function(entry, devicetype, nocache) {
     var baseurl, enc, getscript, hix, ix, ssid, url, _ref;
     if (nocache == null) nocache = false;
+    if (!kiosk.isKiosk()) nocache = true;
     enc = entry.attributes.enclosures[0];
     url = nocache ? enc.url : (_ref = enc.path) != null ? _ref : enc.url;
     url = kiosk.getPortableUrl(url);
@@ -666,6 +668,10 @@
     }
   };
 
+  module.exports.getUrlForPath = function(path) {
+    return 'http://' + kiosk.getHostAddress() + getPortOpt() + path;
+  };
+
   asset_prefix = 'file:///android_asset/';
 
   localhost_prefix = 'http://localhost';
@@ -713,6 +719,16 @@
     } else {
       console.log("getTempRedirect when not kiosk for " + url);
       return url;
+    }
+  };
+
+  module.exports.registerRedirect = function(path, url) {
+    if (window.kiosk != null) {
+      kiosk = window.kiosk;
+      return kiosk.registerRedirect(path, url, 0);
+    } else {
+      console.log("registerRedirect when not kiosk for " + url);
+      return false;
     }
   };
 
@@ -2570,8 +2586,8 @@
     DevicetypeChoiceView.prototype.className = 'devicetype-list';
 
     DevicetypeChoiceView.prototype.initialize = function() {
-      this.model.attributes.devicetypes.bind('add', this.render);
-      this.model.bind('change', this.render);
+      this.listenTo(this.model.attributes.devicetypes, 'add', this.render);
+      this.listenTo(this.model, 'change', this.render);
       return this.render();
     };
 
@@ -2676,7 +2692,7 @@
     EntryInListView.prototype.className = 'entry-in-list';
 
     EntryInListView.prototype.initialize = function() {
-      this.model.bind('change', this.render);
+      this.listenTo(this.model, 'change', this.render);
       return this.render();
     };
 
@@ -2756,8 +2772,8 @@
     EntryInfoView.prototype.className = 'entry-info row';
 
     EntryInfoView.prototype.initialize = function() {
-      this.model.bind('change', this.render);
-      window.options.on('change:devicetype', this.render);
+      this.listenTo(this.model, 'change', this.render);
+      this.listenTo(window.options, 'change:devicetype', this.render);
       return this.render();
     };
 
@@ -2911,8 +2927,8 @@
     EntryListView.prototype.className = 'entry-list';
 
     EntryListView.prototype.initialize = function() {
-      this.model.bind('add', this.add);
-      return window.options.on('change:devicetype', this.render);
+      this.listenTo(this.model, 'add', this.add);
+      return this.listenTo(window.options, 'change:devicetype', this.render);
     };
 
     EntryListView.prototype.render = function() {
@@ -3020,6 +3036,7 @@
 
     EntryListView.prototype.remove = function() {
       console.log('close/remove EntryListHelp');
+      Backbone.View.prototype.remove.apply(this);
       this.$el.remove();
       $('#back .help-below-left-align').remove();
       return $('#chooseDevicetype .help-below-right-align').remove();
@@ -3051,7 +3068,7 @@
     EntryPreviewView.prototype.className = 'entry-preview row';
 
     EntryPreviewView.prototype.initialize = function() {
-      this.model.bind('change', this.render);
+      this.listenTo(this.model, 'change', this.render);
       return this.render();
     };
 
@@ -3109,8 +3126,8 @@
     EntrySendCacheView.prototype.className = 'entry-send-cache row';
 
     EntrySendCacheView.prototype.initialize = function() {
-      this.model.bind('change', this.render);
-      window.options.on('change:devicetype', this.render);
+      this.listenTo(this.model, 'change', this.render);
+      this.listenTo(window.options, 'change:devicetype', this.render);
       return this.render();
     };
 
@@ -3119,10 +3136,15 @@
     };
 
     EntrySendCacheView.prototype.render = function() {
-      var data, fullurl, geturl, qrurl, _ref;
+      var data, fullurl, geturl, path, qrurl, _ref;
       console.log("render EntrySendCache " + this.model.id + " " + this.model.attributes.title);
       fullurl = getter.getGetUrl(this.model, window.options.attributes.devicetype, false);
-      geturl = kiosk.getTempRedirect(fullurl);
+      path = '/';
+      if (kiosk.registerRedirect(path, fullurl)) {
+        geturl = kiosk.getUrlForPath(path);
+      } else {
+        geturl = kiosk.getTempRedirect(fullurl);
+      }
       qrurl = kiosk.getQrCode(geturl);
       data = {
         templateQRCodeHelp: templateQRCodeHelp,
@@ -3208,8 +3230,8 @@
     EntrySendInternetView.prototype.className = 'entry-send-internet row';
 
     EntrySendInternetView.prototype.initialize = function() {
-      this.model.bind('change', this.render);
-      window.options.on('change:devicetype', this.render);
+      this.listenTo(this.model, 'change', this.render);
+      this.listenTo(window.options, 'change:devicetype', this.render);
       return this.render();
     };
 
@@ -3287,7 +3309,7 @@
     }
 
     OptionsDevicetypeLabelView.prototype.initialize = function() {
-      this.model.bind('change', this.render);
+      this.listenTo(this.model, 'change', this.render);
       return this.render();
     };
 

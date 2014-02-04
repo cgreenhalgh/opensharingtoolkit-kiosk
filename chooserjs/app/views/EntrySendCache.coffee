@@ -13,9 +13,9 @@ module.exports = class EntrySendCacheView extends Backbone.View
   className: 'entry-send-cache row'
 
   initialize: ->
-    @model.bind 'change', @render
+    @listenTo @model, 'change', @render
     # link/QRcode depends on device type
-    window.options.on 'change:devicetype',@render
+    @listenTo window.options,'change:devicetype',@render
     @render()
 
   template: (d) ->
@@ -27,8 +27,13 @@ module.exports = class EntrySendCacheView extends Backbone.View
     # determine get/helper URL (cache); ensure any kiosk-internal paths are external
     fullurl = getter.getGetUrl @model, window.options.attributes.devicetype, false
 
-    # create shorturl (if provided)
-    geturl = kiosk.getTempRedirect fullurl
+    # default redirect
+    path = '/'
+    if kiosk.registerRedirect path,fullurl
+      geturl = kiosk.getUrlForPath path
+    else
+      # create shorturl (if provided)
+      geturl = kiosk.getTempRedirect fullurl
 
     # determine QRCode URL
     qrurl = kiosk.getQrCode geturl

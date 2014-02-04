@@ -2,7 +2,7 @@
 module.exports = class OptionsDevicetypeLabelView extends Backbone.View
 
   initialize: ->
-    @model.bind 'change', @render
+    @listenTo @model, 'change', @render
     @render() 
 
   render: =>

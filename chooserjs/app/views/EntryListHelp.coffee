@@ -43,6 +43,7 @@ module.exports = class EntryListView extends Backbone.View
 
   remove: =>
     console.log 'close/remove EntryListHelp'
+    Backbone.View.prototype.remove.apply this
     @$el.remove()
     $( '#back .help-below-left-align' ).remove()
     $( '#chooseDevicetype .help-below-right-align' ).remove()

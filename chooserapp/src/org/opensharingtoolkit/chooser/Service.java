@@ -266,8 +266,9 @@ public class Service extends android.app.Service {
 			QRCodeServer.handleRequest(path, httpContinuation);
 		else if (path.startsWith("/r/")) 
 			RedirectServer.singleton().handleRequest(path, httpContinuation);
-		else
-			httpContinuation.done(404, "File not found", "text/plain", -1, null, null);		
+		else 
+			// any other redirects??
+			RedirectServer.singleton().handleRequest(path, httpContinuation);
 	}
 	private String checkPath(String path) {
 		if (path.startsWith("/"))

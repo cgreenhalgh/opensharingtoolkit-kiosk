@@ -10,8 +10,8 @@ module.exports = class EntryListView extends Backbone.View
 
   initialize: ->
     #@model.bind 'change', @render
-    @model.bind 'add', @add
-    window.options.on 'change:devicetype',@render
+    @listenTo @model, 'add', @add
+    @listenTo window.options, 'change:devicetype',@render
     #@$el.append '<div class="floating-help-button"><img src="icons/help.png"></div>'
 
   render: =>

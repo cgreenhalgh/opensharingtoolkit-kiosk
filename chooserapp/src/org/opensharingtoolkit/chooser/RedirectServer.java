@@ -26,6 +26,7 @@ public class RedirectServer {
 	/** temporary redirect entry */
 	private static class Redirect {
 		String fromPath;
+		//TODO String host;
 		String toUrl;
 		long createdTime;
 		long expiresTime;
@@ -69,6 +70,33 @@ public class RedirectServer {
 		redirectsByTime.add(r);
 		Log.d(TAG,"Registered temp redirect "+r.fromPath+" -> "+toUrl);
 		return r.fromPath;	
+	}
+
+	/** add redirect.
+	 * 
+	 *  @return unique temporary path for redirect
+	 */
+	public synchronized boolean registerRedirect(String fromPath, String toUrl, long lifetimeMs) {
+		if (toUrl==null) {
+			// clear
+			Redirect r = redirects.remove(fromPath);
+			if (r!=null) {
+				redirectsByTime.remove(r);
+			}
+			return false;
+		}
+		// NB we are synchronized to avoid race to getTempPath and add
+		Redirect r = new Redirect();
+		r.toUrl = toUrl;
+		r.createdTime = System.currentTimeMillis();
+		if (lifetimeMs!=0)
+			r.expiresTime = r.createdTime + lifetimeMs;
+		r.fromPath = fromPath;
+		redirects.put(r.fromPath, r);
+		if (lifetimeMs!=0)
+			redirectsByTime.add(r);
+		Log.d(TAG,"Registered redirect "+r.fromPath+" -> "+toUrl);
+		return true;	
 	}
 
 	private synchronized String getTempPath() {

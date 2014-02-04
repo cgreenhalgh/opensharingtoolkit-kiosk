@@ -12,8 +12,8 @@ module.exports = class EntryInfoView extends Backbone.View
   className: 'entry-info row'
 
   initialize: ->
-    @model.bind 'change', @render
-    window.options.on 'change:devicetype',@render
+    @listenTo @model,'change', @render
+    @listenTo window.options,'change:devicetype',@render
     @render()
 
   # syntax ok?? or (x...) -> 

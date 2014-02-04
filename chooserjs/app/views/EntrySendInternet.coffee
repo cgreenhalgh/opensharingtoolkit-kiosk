@@ -13,9 +13,9 @@ module.exports = class EntrySendInternetView extends Backbone.View
   className: 'entry-send-internet row'
 
   initialize: ->
-    @model.bind 'change', @render
+    @listenTo @model, 'change', @render
     # link/QRcode depends on device type
-    window.options.on 'change:devicetype',@render
+    @listenTo window.options, 'change:devicetype',@render
     @render()
 
   # syntax ok?? or (x...) -> 
