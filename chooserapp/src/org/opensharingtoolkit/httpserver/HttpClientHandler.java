@@ -65,7 +65,7 @@ public class HttpClientHandler extends Thread {
 				String header = readLine(bis);
 				if (header.length()==0)
 					break;
-				Log.d(TAG,"Header line: "+header);
+				//Log.d(TAG,"Header line: "+header);
 				int ix = header.indexOf(":");
 				if (ix<0) 
 					throw HttpError.badRequest("Mal-formed header line ("+header+")");
@@ -83,7 +83,7 @@ public class HttpClientHandler extends Thread {
 				catch (NumberFormatException nfe) {
 					throw HttpError.badRequest("Invalid content-length ("+contentLength+")");
 				}
-			Log.d(TAG,"Read request body "+length+" bytes");
+			//Log.d(TAG,"Read request body "+length+" bytes");
 			byte buf[] = new byte[length>=0 ? length : 1000];
 			int count = 0;
 			// no length => no content?!
@@ -104,7 +104,6 @@ public class HttpClientHandler extends Thread {
 				}
 			}
 			String requestBody = new String(buf,0,count,"UTF-8");
-			Log.d(TAG,"get "+path+" with "+requestBody);
 			
 			String userAgent = headers.get("user-agent");
 			String referer = headers.get("referer");

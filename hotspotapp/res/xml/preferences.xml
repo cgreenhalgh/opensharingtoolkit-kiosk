@@ -9,4 +9,31 @@
 		android:selectable="true" 
 		android:inputType="textPassword"/>
 
+   <CheckBoxPreference android:enabled="true"
+       android:title="@string/pref_hotspot_title"
+       android:summary="@string/pref_hotspot_summary"
+       android:key="pref_hotspot"
+       android:defaultValue="true" />
+   
+   <CheckBoxPreference android:enabled="true"
+       android:title="@string/pref_captiveportal_title"
+       android:summary="@string/pref_captiveportal_summary"
+       android:key="pref_captiveportal"
+       android:defaultValue="true" />
+ 
+   <EditTextPreference android:enabled="true" 
+    	android:title="@string/pref_hostname_title"
+		android:summary="@string/pref_hostname_summary"
+		android:key="pref_hostname" 
+		android:defaultValue="@string/pref_hostname_default" 
+		android:selectable="true" />
+
+   <EditTextPreference android:enabled="true" 
+    	android:title="@string/pref_ssid_title"
+		android:summary="@string/pref_ssid_summary"
+		android:key="pref_ssid" 
+		android:defaultValue="@string/pref_ssid_default" 
+		android:selectable="true" />
+
+   
 </PreferenceScreen>

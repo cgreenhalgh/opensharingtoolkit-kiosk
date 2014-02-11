@@ -18,6 +18,31 @@ import android.util.Log;
 public class TaskKiller {
 	private static final String TAG = "taskkiller";
 
+	public static boolean findTask(String processName) {
+		ExecResult ps = ExecTask.exec("ps");
+		if (!ps.isSuccess()) {
+			Log.e(TAG,"findTask "+processName+" ps failed :-(");
+			return false;
+		}
+		String lines[] = ps.getStdout().split("\n");
+		for (String line : lines) {
+			List<String> words = Arrays.asList(line.split("\\s+"));
+			int ix = words.indexOf(processName);
+			if (ix>0) {
+				// Status should be just before process 
+				String status = words.get(ix-1);
+				if ("Z".equals(status)) {
+					Log.w(TAG,"Consider zombie process as dead for "+processName);
+					return false;
+				}
+				Log.d(TAG,"Found process "+processName+", status "+status);
+				return true;
+			}
+		}
+		Log.d(TAG,"Did not find process "+processName);
+		return false;
+	}
+	
 	public static void killTask(String processName, boolean asRoot) {
 		Log.d(TAG,"killTask "+processName+" "+(asRoot ? "as root" : ""));
 		ExecResult ps = ExecTask.exec("ps");

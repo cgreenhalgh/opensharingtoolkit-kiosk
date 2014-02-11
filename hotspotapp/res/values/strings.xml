@@ -7,5 +7,15 @@
     <string name="pref_hashkey_title">Hash Key</string>
     <string name="pref_hashkey_summary">Key to hash MAC Addresses in log file</string>
     <string name="pref_hashkey_default">9wLNYWbZ</string>
+    <string name="pref_hostname_title">Hotspot Host name</string>
+    <string name="pref_hostname_summary">In hotspot mode, human-readable device name</string>
+    <string name="pref_hostname_default">Leaflets</string>
+    <string name="pref_hotspot_title">Hotspot Mode</string>
+    <string name="pref_hotspot_summary">Run as a WiFi hotspot/access point</string>
+    <string name="pref_captiveportal_title">Captive Portal Mode</string>
+    <string name="pref_captiveportal_summary">In hotspot mode, intercept all web accesses attempted by clients</string>
+    <string name="pref_ssid_title">Hotspot Wifi network</string>
+    <string name="pref_ssid_summary">In hotspot mode, Wifi network name</string>
+    <string name="pref_ssid_default">Leaflets</string>
     
 </resources>

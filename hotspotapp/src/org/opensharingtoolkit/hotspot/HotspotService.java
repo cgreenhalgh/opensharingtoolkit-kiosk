@@ -72,6 +72,7 @@ public class HotspotService extends Service {
 	private ArpMonitor mArpMonitor;
 	private ArpPoll mArpPoll = new ArpPoll();
 	private WifiMonitor mWifiMonitor;
+	private WifiHotspot mWifiHotspot;
 	
 	@Override
 	public void onCreate() {
@@ -80,6 +81,7 @@ public class HotspotService extends Service {
 		mArpMonitor = new ArpMonitor(this);
 		mDelayHandler.postDelayed(mArpPoll, ARP_INTERVAL);
 		mWifiMonitor = new WifiMonitor(this);
+		mWifiHotspot = new WifiHotspot(this);		
 	}
 
 	private class ArpPoll implements Runnable {
@@ -97,6 +99,7 @@ public class HotspotService extends Service {
 		Log.d(TAG,"Destroy HotspotService");
 		mDelayHandler.removeCallbacks(mArpPoll);
 		mWifiMonitor.close();
+		mWifiHotspot.close();
 	}
 
 	/*@Override
