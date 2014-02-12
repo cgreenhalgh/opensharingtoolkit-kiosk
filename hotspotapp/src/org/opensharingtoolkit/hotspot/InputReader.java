@@ -11,13 +11,17 @@ import java.io.Reader;
 
 import android.util.Log;
 
-/**
+/** Note: when debugging threads look like memory leaks (see http://developer.android.com/tools/debugging/index.html)
+ * so i spent a while trying belt and braces to release to no avail... But hopefully it is a false
+ * positive.
+ * 
  * @author pszcmg
  * 
  */
 public class InputReader extends Thread {
 
 	private static final String TAG = "ost-hotspot";
+	private static final long JOIN_TIMEOUT = 2000;
 	private Reader bir;
 	private StringBuilder sb = new StringBuilder();
 	private String res;
@@ -27,22 +31,37 @@ public class InputReader extends Thread {
 	 * call getInput() to get the result.
 	 */
 	public InputReader(InputStream is) {
-		bir = new InputStreamReader(new BufferedInputStream(is));
+		//Log.d(TAG,"Create and start InputReader");
+		try {
+			bir = new InputStreamReader(new BufferedInputStream(is));
+		}
+		catch (Exception e) {
+			Log.w(TAG,"Error creating InputReader input", e);
+			cancel();
+		}
 		start();
 	}
 	
 	/** cancel input */
 	public void cancel() {
+		//Log.d(TAG,"cancel InputReader done="+(res!=null)+", cancelled="+cancelled);
 		synchronized (this) {
 			cancelled = true;
 			this.notifyAll();
 			this.interrupt();
 		}
 		try {
-			bir.close();
+			if (bir!=null)
+				bir.close();
 		}
 		catch (Exception e) {
 			/* ignore - already recovering from a problem */
+		}
+		try {
+			this.join(JOIN_TIMEOUT);
+		}
+		catch (Exception e) { /* ignore */ 
+			Log.d(TAG,"cancel join timeout");
 		}
 	}
 	
@@ -50,6 +69,7 @@ public class InputReader extends Thread {
 	 * @return all input (String), else null, e.g. if cancelled
 	 */
 	public String getInput() {
+		String rval = null;
 		synchronized (this) {
 			while (!cancelled && res==null)
 				try {
@@ -59,8 +79,16 @@ public class InputReader extends Thread {
 				}
 			if (cancelled)
 				return null;
-			return res;
+			// try join?!
+			rval = res;
 		}
+		try {
+			this.join(JOIN_TIMEOUT);
+		}
+		catch (Exception e) { /* ignore */ 
+			Log.d(TAG,"getInput join timeout");
+		}
+		return rval;
 	}
 	
 	public void run() {
@@ -82,11 +110,15 @@ public class InputReader extends Thread {
 			Log.d(TAG,"InputReader error: "+e, e);
 			done();
 		}
+		finally {
+			//Log.d(TAG,"InputRead run() complete");
+		}
 	}
 	
 	private void done() {
 		try {
-			bir.close();
+			if (bir!=null)
+				bir.close();
 		}
 		catch (Exception e) {
 			/* ignore */
