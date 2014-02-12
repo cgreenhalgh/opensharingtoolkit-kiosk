@@ -5,10 +5,12 @@ package org.opensharingtoolkit.hotspot;
 
 import android.app.Service;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
 import android.os.Messenger;
+import android.preference.PreferenceManager;
 import android.util.Log;
 import org.opensharingtoolkit.common.Hotspot;
 
@@ -22,7 +24,8 @@ import org.opensharingtoolkit.common.Hotspot;
 public class HotspotService extends Service {
 
 	private static final String TAG = "ost-hotspot";
-	private static final long ARP_INTERVAL = 2000;
+	private static final int DEFAULT_ARP_INTERVAL_S = 2;
+	private static final int MIN_ARP_INTERVAL_S = 2;
 
     /**
      * Handler of incoming messages from clients.
@@ -65,7 +68,8 @@ public class HotspotService extends Service {
     /** attempt port redirect */
 	protected boolean handleRedirectPort(int fromPort, int toPort) {
 		Log.d(TAG,"redirectPort "+fromPort+" -> "+toPort);
-		return Iptables.redirectPort(fromPort, toPort);
+		// TCP only
+		return Iptables.redirectPort(fromPort, toPort, false);
 	}
 
 	private Handler mDelayHandler = new Handler();
@@ -79,17 +83,35 @@ public class HotspotService extends Service {
 		super.onCreate();
 		Log.d(TAG,"Created HotspotService");
 		mArpMonitor = new ArpMonitor(this);
-		mDelayHandler.postDelayed(mArpPoll, ARP_INTERVAL);
 		mWifiMonitor = new WifiMonitor(this);
-		mWifiHotspot = new WifiHotspot(this);		
+		mWifiHotspot = new WifiHotspot(this);	
+		postPoll();
 	}
 
+	private void postPoll() {
+		SharedPreferences spref = PreferenceManager.getDefaultSharedPreferences(this);
+		int arpInterval = DEFAULT_ARP_INTERVAL_S;
+		try {
+			arpInterval = Integer.valueOf(spref.getString("pref_arppollinterval", Integer.toString(arpInterval)));
+		}
+		catch (Exception e){
+			Log.w(TAG,"Error parsing arppollinterval", e);
+		}
+		if (arpInterval<MIN_ARP_INTERVAL_S)
+			arpInterval = MIN_ARP_INTERVAL_S;
+		mDelayHandler.postDelayed(mArpPoll, arpInterval*1000);
+	}
 	private class ArpPoll implements Runnable {
 		@Override
 		public void run() {
-			Log.d(TAG,"ArpPoll...");
-			mArpMonitor.poll();
-			mDelayHandler.postDelayed(this, ARP_INTERVAL);
+			SharedPreferences spref = PreferenceManager.getDefaultSharedPreferences(HotspotService.this);
+			if (spref.getBoolean("pref_arppoll", true)) {
+				Log.d(TAG,"ArpPoll...");
+				mArpMonitor.poll();
+			}
+			else 
+				Log.d(TAG,"Skip ArpPoll");
+			postPoll();
 		}		
 	}
 	

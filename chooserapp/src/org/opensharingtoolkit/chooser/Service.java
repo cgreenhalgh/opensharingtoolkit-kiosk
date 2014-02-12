@@ -18,6 +18,7 @@ import org.opensharingtoolkit.httpserver.HttpError;
 import org.opensharingtoolkit.httpserver.HttpListener;
 import org.opensharingtoolkit.chooser.R;
 import org.opensharingtoolkit.common.Hotspot;
+import org.opensharingtoolkit.common.WifiUtils;
 
 import android.app.Notification;
 import android.app.PendingIntent;
@@ -25,6 +26,7 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.content.SharedPreferences;
 import android.content.res.AssetFileDescriptor;
 import android.content.res.AssetManager;
 import android.os.Handler;
@@ -32,6 +34,7 @@ import android.os.IBinder;
 import android.os.Message;
 import android.os.Messenger;
 import android.os.RemoteException;
+import android.preference.PreferenceManager;
 import android.util.Log;
 
 /**
@@ -254,22 +257,43 @@ public class Service extends android.app.Service {
 		}
 	}
 	
-	public void postRequest(String path, Map<String,String> headers, String requestBody,
+	public void postRequest(String method, String host, String path, Map<String,String> headers, String requestBody,
 			HttpContinuation httpContinuation) throws IOException, HttpError {
-		if (path.startsWith("/a/get?")) 
-			GetServer.singleton().handleRequest(path, headers, httpContinuation);
-		else if (path.startsWith("/a/"))
-			handleAssetRequest(path.substring("/a".length()), requestBody, httpContinuation);
-		else if (path.startsWith("/f/"))
-			handleFileRequest(path.substring("/f".length()), requestBody, httpContinuation);
-		else if (path.startsWith("/qr?"))
-			QRCodeServer.handleRequest(path, httpContinuation);
-		else if (path.startsWith("/r/")) 
-			RedirectServer.singleton().handleRequest(path, httpContinuation);
-		else 
-			// any other redirects??
-			RedirectServer.singleton().handleRequest(path, httpContinuation);
+		if (hostIsPrimaryServer(host)) {
+			if (!"GET".equals(method))
+				throw HttpError.badRequest("Unsupported operation ("+method+")");
+		
+			if (path.startsWith("/a/get?")) 
+				GetServer.singleton().handleRequest(path, headers, httpContinuation);
+			else if (path.startsWith("/a/"))
+				handleAssetRequest(path.substring("/a".length()), requestBody, httpContinuation);
+			else if (path.startsWith("/f/"))
+				handleFileRequest(path.substring("/f".length()), requestBody, httpContinuation);
+			else if (path.startsWith("/qr?"))
+				QRCodeServer.handleRequest(path, httpContinuation);
+			else if (path.startsWith("/r/")) 
+				RedirectServer.singleton().handleRequest(path, httpContinuation);
+			else 
+				// any other redirects??
+				RedirectServer.singleton().handleRequest(path, httpContinuation);
+		}
+		else {
+			throw HttpError.serverError("This is not the internet");
+		}
 	}
+	private boolean hostIsPrimaryServer(String host) {
+		if ("127.0.0.1".equals(host) || "localhost".equals(host))
+			return true;
+		String ip = WifiUtils.getHostAddress();
+		if (ip.equals(host))
+			return true;
+		SharedPreferences spref = PreferenceManager.getDefaultSharedPreferences(this);
+		String hostname = spref.getString("pref_hostname", "leaflets");
+		if (hostname.equals(host))
+			return true;
+		return false;
+	}
+
 	private String checkPath(String path) {
 		if (path.startsWith("/"))
 			path = path.substring(1);

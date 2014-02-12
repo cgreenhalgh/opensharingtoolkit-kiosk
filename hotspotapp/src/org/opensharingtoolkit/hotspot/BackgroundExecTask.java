@@ -3,6 +3,8 @@
  */
 package org.opensharingtoolkit.hotspot;
 
+import java.util.Arrays;
+
 import android.util.Log;
 
 /** Long-running background process, calling on line(s).
@@ -19,6 +21,7 @@ public class BackgroundExecTask {
 	public BackgroundExecTask(LineInputReader.LineListener stdoutListener, LineInputReader.LineListener stderrListener, String... params) {
 		ProcessBuilder pbuilder = new ProcessBuilder (params);
 		try {
+			Log.d(TAG,"Start background task: "+Arrays.toString(params));
 			mProcess = pbuilder.start();
 			try {
 				mProcess.getOutputStream().close();

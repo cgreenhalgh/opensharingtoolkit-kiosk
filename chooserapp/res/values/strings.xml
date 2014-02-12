@@ -10,5 +10,8 @@
     <string name="pref_atomfile">Chooser Content File</string>
     <string name="pref_atomfile_default">ost.xml</string>
     <string name="add_settings_name">Chooser Settings</string>
+    <string name="pref_hostname_title">Device name</string>
+    <string name="pref_hostname_summary">Name of device to use in captive portal mode</string>
+    <string name="pref_hostname_default">leaflets</string>
 
 </resources>

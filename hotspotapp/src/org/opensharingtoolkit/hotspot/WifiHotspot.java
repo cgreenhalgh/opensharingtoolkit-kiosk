@@ -31,9 +31,11 @@ public class WifiHotspot implements OnSharedPreferenceChangeListener {
 	private static final String WIFI_AP_STATE_CHANGED_ACTION = "android.net.wifi.WIFI_AP_STATE_CHANGED";
 	private static final String PREF_HOTSPOT = "pref_hotspot";
 	private static final String PREF_CAPTIVEPORTAL = "pref_captiveportal";
-	private static final String PREF_HOSTNAME = "pref_hostname";
 	private static final String PREF_SSID = "pref_ssid";
 	private static final String DNSMASQ = "/system/bin/dnsmasq";
+	private static final int DHCP_POOL_SIZE = 60;
+	private static final int DHCP_LIFETIME = 600;
+	private static final int DNS_PORT = 53;
 	private Context mContext;
 	private boolean mOurDnsmasq = false;
 	private BackgroundExecTask mDnsmasq;
@@ -59,9 +61,22 @@ public class WifiHotspot implements OnSharedPreferenceChangeListener {
 		intentFilter.addAction(WifiManager.WIFI_STATE_CHANGED_ACTION);
 		intentFilter.addAction(WIFI_AP_STATE_CHANGED_ACTION);
 		context.registerReceiver(mWifiReceiver, intentFilter);
-		checkPreferences();
+		init();
 	}
 
+	private void init() {
+		// we might have dnsmasq still running, or not...
+		int state = WifiUtils.getWifiState(mContext);
+		if (state==WifiUtils.WIFI_AP_STATE_ENABLED) {
+			// toggle Wifi AP state to get things nice...
+			SharedPreferences spref = PreferenceManager.getDefaultSharedPreferences(mContext);
+			String ssid = spref.getString(PREF_SSID, "Leaflets0");
+			Log.d(TAG,"Diabling AP on startup to clean up");
+			WifiUtils.setWifiApEnabled(mContext, ssid, false);				
+		}
+		else
+			checkState();
+	}
 	private void checkPreferences() {
 		checkState();
 	}
@@ -74,8 +89,6 @@ public class WifiHotspot implements OnSharedPreferenceChangeListener {
 		boolean hotspot = spref.getBoolean(PREF_HOTSPOT, false);
 		boolean captiveportal = spref.getBoolean(PREF_CAPTIVEPORTAL, false);
 		String ssid = spref.getString(PREF_SSID, "Leaflets0");
-		// TODO Auto-generated method stub
-
 		
 		if (state==WifiManager.WIFI_STATE_DISABLED) {
 			// chance to tidy up?!
@@ -83,6 +96,8 @@ public class WifiHotspot implements OnSharedPreferenceChangeListener {
 				Log.w(TAG,"Found dnsmasq with WiFi disabled; try to kill it");
 				TaskKiller.killTask(DNSMASQ, true);
 			}
+			Iptables.removeRedirect(DNS_PORT, false);
+			Iptables.removeRedirect(DNS_PORT, true);
 			
 			if (hotspot) {
 				Log.d(TAG,"Try to enable AP");
@@ -135,6 +150,8 @@ public class WifiHotspot implements OnSharedPreferenceChangeListener {
 					Log.d(TAG,"Found our dnsmasq still alive; try to kill it");
 					TaskKiller.killTask(DNSMASQ, true);
 				}
+				Iptables.removeRedirect(DNS_PORT, false);
+				Iptables.removeRedirect(DNS_PORT, true);
 			}
 			else
 				Log.d(TAG,"Wifi state "+state+" - ignored/waiting");
@@ -155,13 +172,44 @@ public class WifiHotspot implements OnSharedPreferenceChangeListener {
 			TaskKiller.killTask(DNSMASQ, true);
 		}
 		// start our own...
-		synchronized (this) {
-			// TODO need local IP address for --address and DHCP range
-			mDnsmasq = new BackgroundExecTask(null, null, "su", "-c", "/system/bin/dnsmasq", "--keep-in-foreground", "--no-poll","--dhcp-option-force=43,ANDROID_METERED", "--pid-file", "" /*, "--dhcp-range=%s,%s,%d", "--address=/#/LOCALIP"*/);
-			if (!mDnsmasq.started()) {
-				Toast.makeText(mContext, "Could not run dnsmasq", Toast.LENGTH_LONG).show();
-				Log.e(TAG,"Could not run dnsmasq");
+		String ip = WifiUtils.getHostAddress();
+		String parts[] = ip.split("\\.");
+		if ("127.0.0.1".equals(ip) || parts.length!=4) {
+			Log.w(TAG,"Local address = "+ip+"; not starting dnsmasq");
+		} else {
+			try {
+				int last = Integer.valueOf(parts[parts.length-1]);
+				String fromIp = parts[0]+"."+parts[1]+"."+parts[2]+"."+(last+1);
+				String toIp = parts[0]+"."+parts[1]+"."+parts[2]+"."+(last+DHCP_POOL_SIZE+1);
+				synchronized (this) {
+					// TODO need local IP address for --address and DHCP range
+					mDnsmasq = new BackgroundExecTask(null, null, "su", "-c", "/system/bin/dnsmasq",
+							"--keep-in-foreground", 
+							"--no-hosts",
+							"--no-poll",
+							"--no-resolv",
+							"--log-queries",
+							// avoid long-term poisining; not supported on built-in dnsmaq
+							//"--max-ttl=0", 
+							"--local-ttl=0", 
+							"--dhcp-option-force=43,ANDROID_METERED", 
+							"--pid-file", "",
+							"--dhcp-range="+fromIp+","+toIp+","+DHCP_LIFETIME,
+							// respond to everything with our own IP!
+							"--address=/#/"+ip);
+					if (!mDnsmasq.started()) {
+						Toast.makeText(mContext, "Could not run dnsmasq", Toast.LENGTH_LONG).show();
+						Log.e(TAG,"Could not run dnsmasq");
+					}
+				}
 			}
+			catch (Exception e) {
+				Log.e(TAG,"Error starting dnsmasq for ip "+ip,e);
+			}
+			// redirect DNS traffic
+			Log.i(TAG,"Redirecting DNS traffic to this host");
+			Iptables.redirectPort(DNS_PORT, DNS_PORT, false);
+			Iptables.redirectPort(DNS_PORT, DNS_PORT, true);
 		}
 	}
 

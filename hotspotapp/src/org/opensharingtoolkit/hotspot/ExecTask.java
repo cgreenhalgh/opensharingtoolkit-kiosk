@@ -34,11 +34,15 @@ public class ExecTask extends AsyncTask<String, Float, ExecResult> {
 							exitCode,
 							stdin.getInput(),
 							stderr.getInput());
-				} catch (InterruptedException e) {
+				} catch (Exception e) {
 					Log.w(TAG,"Error waiting for process "+params[0]+": "+e);
 					// tidy up
 					stderr.cancel();
 					stdin.cancel();
+				}
+				catch (Error err) {
+					Log.w(TAG,"Non-exception error for process "+params[0]+": "+err);
+					throw err;
 				}
 			}				
 			finally {

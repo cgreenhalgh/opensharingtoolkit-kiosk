@@ -22,18 +22,25 @@
        android:defaultValue="true" />
  
    <EditTextPreference android:enabled="true" 
-    	android:title="@string/pref_hostname_title"
-		android:summary="@string/pref_hostname_summary"
-		android:key="pref_hostname" 
-		android:defaultValue="@string/pref_hostname_default" 
-		android:selectable="true" />
-
-   <EditTextPreference android:enabled="true" 
     	android:title="@string/pref_ssid_title"
 		android:summary="@string/pref_ssid_summary"
 		android:key="pref_ssid" 
 		android:defaultValue="@string/pref_ssid_default" 
 		android:selectable="true" />
 
+    <CheckBoxPreference android:enabled="true"
+       android:title="@string/pref_arppoll_title"
+       android:summary="@string/pref_arppoll_summary"
+       android:key="pref_arppoll"
+       android:defaultValue="true" />
    
+   <EditTextPreference android:enabled="true" 
+    	android:title="@string/pref_arppollinterval_title"
+		android:summary="@string/pref_arppollinterval_summary"
+		android:key="pref_arppollinterval" 
+		android:inputType="number"
+		android:defaultValue="5" 
+		android:selectable="true" />
+
+    
 </PreferenceScreen>

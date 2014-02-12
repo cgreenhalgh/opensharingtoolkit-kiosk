@@ -38,6 +38,12 @@ public class InputReader extends Thread {
 			this.notifyAll();
 			this.interrupt();
 		}
+		try {
+			bir.close();
+		}
+		catch (Exception e) {
+			/* ignore - already recovering from a problem */
+		}
 	}
 	
 	/** wait for input - blocking.

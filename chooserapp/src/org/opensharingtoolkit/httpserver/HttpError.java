@@ -40,5 +40,8 @@ public class HttpError extends Exception {
 	public static HttpError badRequest(String msg) {
 		return new HttpError(300, msg);
 	}
+	public static HttpError serverError(String msg) {
+		return new HttpError(500, msg);
+	}
 	
 }

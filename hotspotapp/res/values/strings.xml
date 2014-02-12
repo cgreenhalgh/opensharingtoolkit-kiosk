@@ -17,5 +17,9 @@
     <string name="pref_ssid_title">Hotspot Wifi network</string>
     <string name="pref_ssid_summary">In hotspot mode, Wifi network name</string>
     <string name="pref_ssid_default">Leaflets</string>
+    <string name="pref_arppoll_title">Poll ARP table</string>
+    <string name="pref_arppoll_summary">Check and log devices communicating with this device</string>
+    <string name="pref_arppollinterval_title">ARP Poll Interval</string>
+    <string name="pref_arppollinterval_summary">How often device should poll ARP table (seconds)</string>
     
 </resources>

@@ -19,6 +19,7 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 import org.opensharingtoolkit.common.Record;
 import org.opensharingtoolkit.common.Recorder;
+import org.opensharingtoolkit.common.WifiUtils;
 
 import android.content.Context;
 import android.content.Intent;
@@ -59,54 +60,22 @@ public class JavascriptHelper {
 	 */
 	@JavascriptInterface
 	public String getHostAddress() {
-		Enumeration<NetworkInterface> nis;
-		try {
-			nis = NetworkInterface.getNetworkInterfaces();
-		} catch (SocketException e) {
-			Log.e(TAG,"getHostAddress could not getNetworkInterfaces: "+e.getMessage(), e);
+		NetworkInterface ni = WifiUtils.getWifiInterface();
+		if (ni==null) {
 			mRecorder.w("js.query.host.failed", null);
 			return "127.0.0.1";
 		}
-		LinkedList<NetworkInterface> bestnis = new LinkedList<NetworkInterface>();
-		// order best?!
-		while (nis.hasMoreElements()) {
-			NetworkInterface ni = nis.nextElement();
-			String name = ni.getName().toLowerCase(Locale.US);
-			if (name.startsWith("lo")) {
-				Log.d(TAG, "skip loopback interface "+name);
-				continue;
-			}
-			if (name.startsWith("w")) 
-				bestnis.addFirst(ni);
-			else
-				bestnis.addLast(ni);
+		String ip = WifiUtils.getHostAddress(ni);
+		JSONObject jo = new JSONObject();
+		try {
+			jo.put("addr", ip);
+			jo.put("if", ni.getName());
 		}
-		for (NetworkInterface ni : bestnis) {
-			// IPv4 only for now?!
-			List<InterfaceAddress> ias = ni.getInterfaceAddresses();
-			for (InterfaceAddress ia : ias) {
-				InetAddress addr = ia.getAddress();
-				if (addr.isLoopbackAddress())
-					continue;
-				if (addr.isMulticastAddress())
-					continue;
-				if (addr instanceof Inet4Address) {
-					JSONObject jo = new JSONObject();
-					try {
-						jo.put("addr", addr.getHostAddress());
-						jo.put("if", ni.getName());
-					}
-					catch (Exception e) {
-						Log.e(TAG,"marshalling networkinterface for recorder", e);
-					}
-					mRecorder.d("js.query.host.success", jo);
-					return addr.getHostAddress();
-				}
-			}
-			Log.d(TAG,"Could not find useful address for interface "+ni.getName());
+		catch (Exception e) {
+			Log.e(TAG,"marshalling networkinterface for recorder", e);
 		}
-		Log.w(TAG,"Could not find useful local IP address - using loopback");
-		return "127.0.0.1";
+		mRecorder.d("js.query.host.success", jo);
+		return ip;
 	}
 	@JavascriptInterface
 	public int getPort() {

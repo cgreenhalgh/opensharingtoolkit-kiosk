@@ -52,12 +52,11 @@ public class HttpClientHandler extends Thread {
 			//InputStreamReader isr = new InputStreamReader(bis, "US-ASCII");
 			// request line
 			String request = readLine(bis);
-			Log.d(TAG,"Request: "+request);
+			//Log.d(TAG,"Request: "+request);
 			String requestEls[] = request.split(" ");
 			if (requestEls.length!=3) 
 				throw HttpError.badRequest("Mal-formatted request line ("+requestEls.length+" elements)");
-			if (!"GET".equals(requestEls[0]) && !"POST".equals(requestEls[0]))
-				throw HttpError.badRequest("Unsupported operation ("+requestEls[0]+")");
+			String method = requestEls[0];
 			String path = requestEls[1];
 			// header lines
 			HashMap<String,String> headers = new HashMap<String,String>();
@@ -73,6 +72,15 @@ public class HttpClientHandler extends Thread {
 				String value = header.substring(ix+1).trim();
 				headers.put(name, value);
 			}
+			String host = headers.get("host");
+			if (host==null) 
+				throw HttpError.badRequest("Host not specified");
+			// DNS is case-insensitive
+			host = host.toLowerCase(Locale.US);
+			
+			//if (!"GET".equals(requestEls[0]) && !"POST".equals(requestEls[0]))
+			//	throw HttpError.badRequest("Unsupported operation ("+requestEls[0]+")");
+			Log.d(TAG,"Request: host "+host+" "+request);
 			// content body
 			int length = -1;
 			String contentLength = headers.get("content-length");
@@ -107,10 +115,9 @@ public class HttpClientHandler extends Thread {
 			
 			String userAgent = headers.get("user-agent");
 			String referer = headers.get("referer");
-			String host = headers.get("host");
 			JSONObject info = new JSONObject();
 			try {
-				info.put("method", requestEls[0]);
+				info.put("method", method);
 				info.put("userAgent", userAgent);
 				info.put("referer", referer);
 				info.put("path", path);
@@ -125,46 +132,59 @@ public class HttpClientHandler extends Thread {
 			mRecorder.i("http.request", info);
 			
 			synchronized (this) {
-				service.postRequest(path, headers, requestBody, new HttpContinuation() {
-
-					public void done(int status, String message, String mimeType, long length, InputStream content, Map<String,String> extraHeaders) {
-						Log.d(TAG,"http done: status="+status+", message="+message+", length="+length);
-						JSONObject info = new JSONObject();
-						try {
-							info.put("status", status);
-							info.put("message", message);
-							info.put("mimeType", mimeType);
-							info.put("responseLength", length);
-							if (extraHeaders!=null && extraHeaders.containsKey("Location"))
-								info.put("redirectLocation", extraHeaders.get("Location"));
-						} catch (Exception e) {
-							Log.e(TAG,"Error marshalling request record info", e);
-						}
-						mRecorder.i("http.response", info);
-
-						mStatus = status;
-						mMimeType = mimeType;
-						mMessage = message;
-						mResponseLength = length;
-						mResponseContent = content;
-						mExtraHeaders = extraHeaders;
-						synchronized (HttpClientHandler.this) {
-							HttpClientHandler.this.notify();
-						}
-					}
-					
-				});
-				// timeout 10s?!
 				try {
-					if (mStatus==0)
-						wait(10000);
-				} 
-				catch (InterruptedException ie) {
-					throw HttpError.badRequest("Handle request interrupted");
+					service.postRequest(method, host, path, headers, requestBody, new HttpContinuation() {
+	
+						public void done(int status, String message, String mimeType, long length, InputStream content, Map<String,String> extraHeaders) {
+							Log.d(TAG,"http done: status="+status+", message="+message+", length="+length);
+							JSONObject info = new JSONObject();
+							try {
+								info.put("status", status);
+								info.put("message", message);
+								info.put("mimeType", mimeType);
+								info.put("responseLength", length);
+								if (extraHeaders!=null && extraHeaders.containsKey("Location"))
+									info.put("redirectLocation", extraHeaders.get("Location"));
+							} catch (Exception e) {
+								Log.e(TAG,"Error marshalling request record info", e);
+							}
+							mRecorder.i("http.response", info);
+	
+							mStatus = status;
+							mMimeType = mimeType;
+							mMessage = message;
+							mResponseLength = length;
+							mResponseContent = content;
+							mExtraHeaders = extraHeaders;
+							synchronized (HttpClientHandler.this) {
+								HttpClientHandler.this.notify();
+							}
+						}
+						
+					});
+					// timeout 10s?!
+					try {
+						if (mStatus==0)
+							wait(10000);
+					} 
+					catch (InterruptedException ie) {
+						throw HttpError.serverError("Handle request interrupted");
+					}
+				}
+				catch (HttpError http) {
+					throw http;
+				}
+				catch (Exception e) {
+					Log.w(TAG,"Error handling request "+method+" "+path, e);
+					throw HttpError.serverError("Internal server error");
+				}
+				catch (Error e) {
+					Log.w(TAG,"Error handling request "+method+" "+path, e);
+					throw HttpError.serverError("Internal server error");
 				}
 			}
 			if (mStatus==0)
-				throw HttpError.badRequest("Handle request timed out");
+				throw HttpError.serverError("Handle request timed out");
 
 			BufferedOutputStream bos = new BufferedOutputStream(s.getOutputStream());
 			OutputStreamWriter osw = new OutputStreamWriter(bos, "US-ASCII");
