@@ -118,6 +118,7 @@ The atom file is (currently) assumed to be a feed, i.e. have a `feed` (namespace
         <link rel="self" href="file:///android_asset/test.xml" />
         <id>tag:cmg@cs.nott.ac.uk,2013-09-26:atom/test/1</id>
         <updated>2013-09-26T12:32:00Z</updated>
+        <category scheme="campaign" term="test" label="Example campaign called test"/>
 
 	<!-- entries go here... -->
 </feed>

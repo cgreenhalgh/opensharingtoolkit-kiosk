@@ -164,6 +164,13 @@ make_mimetypes = (feed,mimetypes) ->
 make_shorturls = (feed,shorturls) ->
   console.log 'make_shorturls...'
 
+  # campaignids...
+  campaignids = for cat in feed.category ? [] when cat.$.scheme == 'campaign' and cat.$.term?
+    cat.$.term
+  campaignsuffix = for cid in campaignids
+    '&c='+encodeURIComponent(cid)
+  campaignsuffix.push ''
+
   # atom url -> get url
   baseurl = get_baseurl feed
   # .html?? .php for now!
@@ -174,9 +181,11 @@ make_shorturls = (feed,shorturls) ->
   kioskurl = baseurl+'index.html?f='+encodeURIComponent(feedurl)
   url = geturl+'?u='+encodeURIComponent(kioskurl)+'&t='+encodeURIComponent("Kiosk View")  
   mimeparam = '&m='+encodeURIComponent('text/html')
-  add_shorturl shorturls,url+mimeparam
-  for device in ['other', 'android', 'ios', 'windowsphone']
-    add_shorturl shorturls,url+'&d='+encodeURIComponent(device)+mimeparam+(if device=='other' then '&a=' else '')
+  for cs in campaignsuffix
+    add_shorturl shorturls,url+mimeparam+cs
+    # qr flag
+    add_shorturl shorturls,url+mimeparam+cs+'&qr'
+    # device is now sniffed from agent only
 
 
   # work out URLs to be shortened
@@ -192,7 +201,11 @@ make_shorturls = (feed,shorturls) ->
       url = geturl+'?u='+encodeURIComponent(fileurl)+'&t='+encodeURIComponent(title) 
 
       mimeparam = if mime? then '&m='+encodeURIComponent(mime) else ''
-      add_shorturl shorturls,url+mimeparam
+      for cs in campaignsuffix
+        add_shorturl shorturls,url+mimeparam+cs
+        # qr flag
+        add_shorturl shorturls,url+mimeparam+cs+'&qr'
+        # device is now sniffed from agent only
 
 add_fileurl = (url, fileurls) ->
     #console.log "check #{url}"
@@ -243,17 +256,23 @@ make_cache = (feed,cache) ->
 
   for fileurl in fileurls
     file = { url: fileurl }  
-    oldfile = for file in oldfiles when file.url == fileurl
-      file
+    oldfile = for f in oldfiles when f.url == fileurl
+      f
     if oldfile.length > 0
       file = oldfile[0]
     
     file.needed = true
     cache.files.push file
+    #console.log "Add to cache #{file.url}"
 
   # un-needed files in cache?
   for oldfile in oldfiles when oldfile.path? and not oldfile.needed 
-    cache.files.push oldfile
+    present = for f in cache.files when f.url == oldfile.url
+      f
+    if present.length==0
+      cache.files.push oldfile
+    else
+      console.log "Discard duplicate file cache entry #{oldfile.url}" 
 
 get_filename_for_component = (h) ->
   if h=='' 
@@ -388,6 +407,10 @@ parser.parseString data,(err,result) ->
         check_file_modified cache,ix,file
       else if file.needed
         get_cache_file cache,ix,file
+      else
+        check_appcache cache,file
+        # not needed!
+        fix_cache cache,ix+1
 
   check_file_modified = (cache,ix,file) ->        
     # if the local file exists and we have size and server last-modified,
@@ -411,6 +434,7 @@ parser.parseString data,(err,result) ->
           ; # no op
         if res.statusCode == 304 
           console.log 'Not modified: '+file.url
+          check_appcache cache,file
           fix_cache cache,ix+1
         else
           console.log 'Check returned '+res.statusCode+'; assume modified'
@@ -517,7 +541,12 @@ parser.parseString data,(err,result) ->
           catch e
             console.log 'Error renaming new cache file '+tmppath+' to '+path+': '+e
 
+          # new/updated html file? check for manifest!
+          # note, not needed old files should all appear after 'needed' files; this should include previously downloaded manifest, etc.
+          check_html_file cache,ix,file
+
           # next...
+          check_appcache cache,file
           fix_cache cache,ix+1
 
     req.on 'error',(e) ->
@@ -526,6 +555,102 @@ parser.parseString data,(err,result) ->
 
   fix_cache cache,0
 
+fix_relative_url = (url,path) ->
+  if path.indexOf( ':' ) >=0 
+    return path
+
+  hi = url.indexOf '//'
+  if hi>=0  
+    pi = url.indexOf '/',hi+2
+    if pi<0
+      pi = url.length
+      url = url+'/'
+  else
+    pi = 0
+    console.log "warning: url without host: #{url}"
+    return path
+
+  fi = url.lastIndexOf '/'
+  url = url.substring 0,fi+1
+
+  while path.indexOf( '../' ) == 0
+    si = url.lastIndexOf '/',url.length-2
+    if si>pi
+      path = path.substring 3
+      url = url.substring 0,si+1
+    else
+      console.log "warning: relative URL out of scope: #{path} vs #{url}"      
+
+  if path.indexOf( '/' ) == 0
+    return url.substring( 0,pi ) + path
+  return url+path
+
+check_html_file = (cache,ix,file) ->
+  si = file.path.lastIndexOf '/'
+  ei = file.path.lastIndexOf '.'
+  extn = if ei<0 or ei<si then '' else file.path.substring(ei+1)
+  if extn=='htm' or extn=='html' or extn=='xhtml'
+    try 
+      html = fs.readFileSync file.path,{encoding:'utf8'}
+      hi = html.indexOf '<html '
+      hi2 = html.indexOf '>',hi
+      mi = html.indexOf ' manifest="', hi
+      mi2 = html.indexOf '"', mi+11
+      if mi>=0 and mi2>=mi and mi2<hi2
+        manifest = decodeURI(html.substring mi+11,mi2)
+        # make absolute, schedule for download and check
+        manifesturl = fix_relative_url file.url,manifest
+        console.log "Found html manifest #{manifest} in #{file.url} -> #{manifesturl}" 
+        # set appcache flag
+        add_cache_url cache,manifesturl,true
+
+    catch err
+      console.log "Error checking html file: #{err}"
+
+check_appcache = (cache,file) ->
+  if not file.path?
+    return
+  si = file.path.lastIndexOf '/'
+  ei = file.path.lastIndexOf '.'
+  extn = if ei<0 or ei<si then '' else file.path.substring(ei+1)
+  if extn=='appcache' 
+    console.log "check appcache file #{file.url}"  
+    try 
+      appcache = fs.readFileSync file.path,{encoding:'utf8'}
+      lines = appcache.split '\n'
+      lines = for l in lines when l.trim().indexOf('#')!=0 and l.trim().length>0
+        l.trim()
+      if lines.length<=0
+        console.log "Empty appcache manifest #{file.url}"
+        return
+      if lines[0]!='CACHE MANIFEST'
+        console.log "Bad appcache manifest #{file.url}; first line #{lines[0]}"
+      section = "CACHE:"
+      for l,i in lines when i>0
+        if l=="CACHE:" or l=="SETTINGS:" or l=="NETWORK:"
+          section = l
+        else if section=="CACHE:"
+          url = fix_relative_url file.url,l
+          console.log "Found manifest entry #{l} -> #{url}"
+          add_cache_url cache,url
+
+    catch err
+      console.log "Error checking appcache file #{file.path}: #{err}"
+
+# may be present unneeded, or not
+add_cache_url = (cache,url,appcache) ->
+  for f in cache.files when f.url == url
+    if appcache?
+      f.appcache = true
+    if f.needed
+      console.log "URL already needed: #{url}"
+      return
+    console.log "URL present, now needed: #{url}"
+    f.needed = true
+    return
+  file = { url: url, needed: true }
+  console.log "Add url #{url}"
+  cache.files.push file
 
 
 # TODO download icons and non-hidden files
