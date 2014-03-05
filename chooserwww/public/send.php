@@ -31,7 +31,9 @@ if (empty($file) || empty($mime)) {
     $json = json_encode($jo);
     file_put_contents('php.log',PHP_EOL.$json,FILE_APPEND|LOCK_EX);
     $fname = substr($path, strrpos($path,"/")+1);
-    header('Content-Disposition: attachment; filename="'.$fname.'"');
+    # not for html - breaks offline, etc.
+    if ($mime != 'text/html')
+      header('Content-Disposition: attachment; filename="'.$fname.'"');
     header('Content-type: '.$mime);
     readfile($path);
     //echo 'send '.$path.' as '.$mime;

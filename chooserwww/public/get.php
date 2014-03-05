@@ -79,7 +79,7 @@ if (empty($mimetype) || empty($mimetype['compat'])) {
     }
   }
   if (empty($compat))
-    echo '<p>Warning: this content may not be supported on your device! (I cannot find any compatibility information for MIME type '.$m.')</p>';
+    echo '<p>Warning: this content may not be supported on your device! (As far as I can tell your device type is '.$devicetype.' but I cannot find any compatibility information for MIME type '.$m.')</p>';
   else {
     if (!empty($compat['apps'])) {
       foreach ($compat['apps'] as $app) {
@@ -98,9 +98,10 @@ if (empty($mimetype) || empty($mimetype['compat'])) {
 $url = $_GET['u'];
 if (!empty($url)) {
   // special-case using send? only local files and mime type given!
-  // nothing with query parameters, at least for now
+  // nothing with query parameters, at least for now, and not html - 
+  // breaks appcache, etc.
   $m = $_GET['m'];
-  if (!empty($m) && strpos($url,'?')===FALSE) {
+  if (!empty($m) && $m != 'text/html' && strpos($url,'?')===FALSE) {
     //echo '<p>send '.$url.' - strpos='.strpos($url,'%3F');
     $requestUri =$_SERVER['REQUEST_URI'];
     // must be called get.php ?!
