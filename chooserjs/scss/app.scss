@@ -77,8 +77,8 @@ body {
 .entry-in-list {
   @extend .columns;
   @extend .large-4;
-  @extend .medium-4;
-  @extend .small-6;
+  @extend .medium-6;
+  @extend .small-12;
   //margin-top: 0.5em;
   padding: 0.2em;
 };
@@ -208,6 +208,7 @@ entry-in-list-button {
 };
 .entry-option {
   @extend .button;
+  text-align: left;
   width: 100%;
   // for help button
   position: relative;
