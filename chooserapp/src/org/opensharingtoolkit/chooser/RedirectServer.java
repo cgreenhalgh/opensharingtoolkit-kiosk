@@ -49,9 +49,25 @@ public class RedirectServer {
 			_singleton = new RedirectServer();
 		return _singleton;
 	}
+	private static Map<String,RedirectServer> mServers = new HashMap<String,RedirectServer>();
+	public static synchronized RedirectServer forHost(String host) {
+		RedirectServer s = mServers.get(host);
+		if (s==null) {
+			s = new RedirectServer(host);
+			mServers.put(host, s);
+		}
+		return s;
+	}
+	public static synchronized RedirectServer forHostOpt(String host) {
+		return mServers.get(host);
+	}
 	
-	public RedirectServer() {
+	private RedirectServer() {
 		Log.d(TAG,"Created RedirectServer");
+		nextPathId = new Random(System.currentTimeMillis()).nextInt(MAX_PATH_ID);
+	}
+	private RedirectServer(String host) {
+		Log.d(TAG,"Created RedirectServer for "+host);
 		nextPathId = new Random(System.currentTimeMillis()).nextInt(MAX_PATH_ID);
 	}
 	

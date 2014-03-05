@@ -198,6 +198,10 @@ addShorturls = (sus,map) ->
   for su in sus
     if su.url? and su.shorturl?
       map[su.url] = su.shorturl
+      if su.shorturl.indexOf('http://')==0
+        ix = su.shorturl.indexOf('/',7)
+        if ix>7
+          kiosk.registerExternalRedirect su.shorturl.substring(7,ix), su.shorturl.substring(ix), su.url
 
 loadShorturls = (entries, atomurl, prefix, baseurl, cacheFiles) ->
   shorturlsurl = prefix + 'shorturls.json'

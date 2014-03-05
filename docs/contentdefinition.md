@@ -122,6 +122,7 @@ The atom file is (currently) assumed to be a feed, i.e. have a `feed` (namespace
 	<!-- entries go here... -->
 </feed>
 '''
+Optionally, the feed may include `category` elements with attribute `scheme`=`campaign` where the required attribute `term` is a campaign ID and the optional attribute `label` is a human-readable name for the campaign. Campaign IDs may be included in entry request URLs in order to distinguish different triggers for downloads (e.g. poster, different kiosk(s)).
 
 Each content item is specified by a single Atom `entry`. Currently of the mandatory entry elements only `title` is used (`id` and `updated` are not; `author` is also mandatory if not provided by feed, but unused at present). The self link is used to determine the baseurl when using a cache (e.g. by the cache builder).
 

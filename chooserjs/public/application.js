@@ -493,6 +493,7 @@
       window.options.set({
         devicetype: null
       });
+      if (window.views.length > 0) window.views[0].scrollTop = 0;
       return window.router.navigate("entries", {
         trigger: true
       });
@@ -551,7 +552,7 @@
   kiosk = require('kiosk');
 
   module.exports.getGetUrl = function(entry, devicetype, nocache) {
-    var baseurl, enc, getscript, hix, ix, ssid, url, _ref;
+    var baseurl, campaignid, enc, getscript, hix, ix, ssid, url, _ref;
     if (nocache == null) nocache = false;
     if (!kiosk.isKiosk()) nocache = true;
     enc = entry.attributes.enclosures[0];
@@ -569,8 +570,10 @@
     if (kiosk.isKiosk() && !nocache) {
       ssid = kiosk.getWifiSsid();
       url = url + '&n=' + encodeURIComponent(ssid);
-    } else {
-
+    }
+    campaignid = kiosk.getCampaignId();
+    if ((campaignid != null) && campaignid !== '') {
+      url = url + '&c=' + encodeURIComponent(campaignid);
     }
     console.log("Using helper page url " + url);
     return url;
@@ -578,7 +581,7 @@
 
 }).call(this);
 }, "kiosk": function(exports, require, module) {(function() {
-  var Entry, REDIRECT_LIFETIME_MS, asset_prefix, getParameter, getPortOpt, kiosk, localhost2_prefix, localhost_prefix, urlParams;
+  var Entry, REDIRECT_LIFETIME_MS, asset_prefix, getParameter, getPortOpt, getPortableUrl, kiosk, localhost2_prefix, localhost_prefix, urlParams;
 
   Entry = require('models/Entry');
 
@@ -612,6 +615,11 @@
   module.exports.getLocalFilePrefix = function() {
     var _ref;
     return (_ref = window.kiosk) != null ? _ref.getLocalFilePrefix() : void 0;
+  };
+
+  module.exports.getCampaignId = function() {
+    var _ref;
+    return (_ref = window.kiosk) != null ? _ref.getCampaignId() : void 0;
   };
 
   module.exports.getAtomFile = function() {
@@ -678,7 +686,7 @@
 
   localhost2_prefix = 'http://127.0.0.1';
 
-  module.exports.getPortableUrl = function(url) {
+  module.exports.getPortableUrl = getPortableUrl = function(url) {
     var file_prefix;
     if (window.kiosk != null) {
       kiosk = window.kiosk;
@@ -732,6 +740,16 @@
     }
   };
 
+  module.exports.registerExternalRedirect = function(host, path, url) {
+    if (window.kiosk != null) {
+      kiosk = window.kiosk;
+      return kiosk.registerExternalRedirect(host, path, url, 0);
+    } else {
+      console.log("registerExternalRedirect when not kiosk for " + url);
+      return false;
+    }
+  };
+
   module.exports.getQrCode = function(url) {
     var qrurl;
     return qrurl = window.kiosk != null ? 'http://localhost:8080/qr?url=' + encodeURIComponent(url) + '&size=150' : window.location.pathname === '/a/index.html' ? 'http://' + window.location.host + '/qr?url=' + encodeURIComponent(url) + '&size=150' : 'http://chart.apis.google.com/chart?cht=qr&chs=150x150&choe=UTF-8&chl=' + encodeURIComponent(url);
@@ -762,7 +780,7 @@
       entry.baseurl = inetbaseurl;
       url = inetbaseurl + "index.html?f=" + encodeURIComponent(ineturl);
     }
-    path = baseurl + "index.html?f=" + encodeURIComponent(kiosk.getPortableUrl(atomurl));
+    path = baseurl + "index.html?f=" + encodeURIComponent(getPortableUrl(atomurl));
     console.log("- kiosk entry expanded to " + url + " / " + path);
     enc = {
       url: url,
@@ -1061,12 +1079,22 @@
   };
 
   addShorturls = function(sus, map) {
-    var su, _i, _len, _results;
+    var ix, su, _i, _len, _results;
     _results = [];
     for (_i = 0, _len = sus.length; _i < _len; _i++) {
       su = sus[_i];
       if ((su.url != null) && (su.shorturl != null)) {
-        _results.push(map[su.url] = su.shorturl);
+        map[su.url] = su.shorturl;
+        if (su.shorturl.indexOf('http://') === 0) {
+          ix = su.shorturl.indexOf('/', 7);
+          if (ix > 7) {
+            _results.push(kiosk.registerExternalRedirect(su.shorturl.substring(7, ix), su.shorturl.substring(ix), su.url));
+          } else {
+            _results.push(void 0);
+          }
+        } else {
+          _results.push(void 0);
+        }
       } else {
         _results.push(void 0);
       }
@@ -3136,7 +3164,7 @@
     };
 
     EntrySendCacheView.prototype.render = function() {
-      var data, fullurl, geturl, path, qrurl, _ref;
+      var data, fullurl, geturl, path, qrfullurl, qrgeturl, qrpath, qrurl, _ref;
       console.log("render EntrySendCache " + this.model.id + " " + this.model.attributes.title);
       fullurl = getter.getGetUrl(this.model, window.options.attributes.devicetype, false);
       path = '/';
@@ -3145,7 +3173,14 @@
       } else {
         geturl = kiosk.getTempRedirect(fullurl);
       }
-      qrurl = kiosk.getQrCode(geturl);
+      qrpath = '/qr';
+      qrfullurl = fullurl + '&qr';
+      if (kiosk.registerRedirect(qrpath, qrfullurl)) {
+        qrgeturl = kiosk.getUrlForPath(qrpath);
+      } else {
+        qrgeturl = kiosk.getTempRedirect(qrfullurl);
+      }
+      qrurl = kiosk.getQrCode(qrgeturl);
       data = {
         templateQRCodeHelp: templateQRCodeHelp,
         entry: this.model.attributes,
@@ -3240,11 +3275,13 @@
     };
 
     EntrySendInternetView.prototype.render = function() {
-      var data, fullurl, geturl, qrurl, _ref;
+      var data, fullurl, geturl, qrfullurl, qrgeturl, qrurl, _ref, _ref2;
       console.log("render EntrySendInternet " + this.model.id + " " + this.model.attributes.title);
       fullurl = getter.getGetUrl(this.model, window.options.attributes.devicetype, true);
       geturl = (_ref = window.entries.shorturls[fullurl]) != null ? _ref : fullurl;
-      qrurl = kiosk.getQrCode(geturl);
+      qrfullurl = fullurl + '&qr';
+      qrgeturl = (_ref2 = window.entries.shorturls[qrfullurl]) != null ? _ref2 : qrfullurl;
+      qrurl = kiosk.getQrCode(qrgeturl);
       data = {
         templateQRCodeHelp: templateQRCodeHelp,
         entry: this.model.attributes,

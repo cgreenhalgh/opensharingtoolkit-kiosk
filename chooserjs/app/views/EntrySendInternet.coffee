@@ -30,8 +30,12 @@ module.exports = class EntrySendInternetView extends Backbone.View
     # look up shorturl (if provided)
     geturl = window.entries.shorturls[fullurl] ? fullurl 
 
+    # look up shorturl (if provided)
+    qrfullurl = fullurl+'&qr'
+    qrgeturl = window.entries.shorturls[qrfullurl] ? qrfullurl 
+
     # determine QRCode URL
-    qrurl = kiosk.getQrCode geturl
+    qrurl = kiosk.getQrCode qrgeturl
     data = 
       templateQRCodeHelp: templateQRCodeHelp
       entry: @model.attributes

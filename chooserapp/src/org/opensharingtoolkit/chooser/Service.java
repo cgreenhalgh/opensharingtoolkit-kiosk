@@ -7,6 +7,8 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -278,10 +280,33 @@ public class Service extends android.app.Service {
 				RedirectServer.singleton().handleRequest(path, httpContinuation);
 		}
 		else {
+			if ("GET".equals(method)) {
+				// try serving cache content
+				File file = CacheServer.singleton().checkCache(this, host, path);
+				if (file!=null) {
+					sendFile(file, httpContinuation);
+					return;
+				}
+				// any other redirects??
+				RedirectServer rs = RedirectServer.forHostOpt(host);
+				if (rs!=null) {
+					try {
+						rs.handleRequest(path, httpContinuation);
+						return;
+					}
+  					catch (HttpError err) {
+  						Log.d(TAG,"Ignoring external redirect error for "+host+" "+path+": "+ err);
+  					}
+  				}
+			}
 			throw HttpError.serverError("This is not the internet");
 		}
 	}
 	private boolean hostIsPrimaryServer(String host) {
+		// ignore port?
+		int ix = host.indexOf(":");
+		if (ix>=0)
+			host = host.substring(0, ix);
 		if ("127.0.0.1".equals(host) || "localhost".equals(host))
 			return true;
 		String ip = WifiUtils.getHostAddress();
@@ -300,6 +325,12 @@ public class Service extends android.app.Service {
 		int qix = path.indexOf("?");
 		if (qix>=0)
 			path = path.substring(0,qix);
+		// guess encoding?!!
+		try {
+			path = URLDecoder.decode(path, "UTF-8");
+		} catch (UnsupportedEncodingException e) {
+			Log.e(TAG,"Error decoding URL path "+path, e);
+		}
 		return path;
 	}
 	private static Map<String,String> extensionMimeTypes = new HashMap<String,String>();
@@ -340,6 +371,8 @@ public class Service extends android.app.Service {
 				mimeType = "image/gif";
 			else if (extension.equals("pdf"))
 				mimeType = "application/pdf";
+			else if (extension.equals("appcache"))
+				mimeType = "text/cache-manifest";
 			else {
 				if (extensionMimeTypes.containsKey(extension))
 					mimeType = extensionMimeTypes.get(extension);
@@ -407,13 +440,16 @@ public class Service extends android.app.Service {
 		if (path.contains(".."))
 			throw new HttpError(403, "Access denied");
 			
-		String mimeType = guessMimeType(path);
 		File dir = getExternalFilesDir(null);
 		if (dir==null) {
 			Log.w(TAG, "handleFileRequest with external storage not available");
 			throw new HttpError(404, "File not found");
 		}
 		File file = new File(dir, path);
+		sendFile(file, httpContinuation);
+	}
+	public void sendFile(File file,	HttpContinuation httpContinuation) throws IOException, HttpError {
+		String mimeType = guessMimeType(file.getName());
 		// 0 if doesn't exist
 		long length = file.length();
 		InputStream content = null;

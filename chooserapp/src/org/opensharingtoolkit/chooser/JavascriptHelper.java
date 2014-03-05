@@ -287,6 +287,26 @@ public class JavascriptHelper {
 		mRecorder.i("js.registerRedirect.static", jo);
 		return res;
 	}
+	/** register redirect for host
+	 * 
+	 *  @return Redirect path 
+	 */
+	@JavascriptInterface
+	public boolean registerExternalRedirect(String fromHost, String fromPath, String toUrl, long lifetimeMs) {
+		boolean res = RedirectServer.forHost(fromHost).registerRedirect(fromPath, toUrl, lifetimeMs);
+		JSONObject jo = new JSONObject();
+		try {
+			jo.put("toUrl", toUrl);
+			jo.put("lifetime", lifetimeMs);
+			jo.put("path", fromPath);
+			jo.put("host", fromHost);
+		}
+		catch (Exception e) {
+			Log.w(TAG,"Error marshalling info for redirect", e);			
+		}
+		mRecorder.i("js.registerExternalRedirect.static", jo);
+		return res;
+	}
 	/** get path of configured atom file
 	 * 
 	 * @return path
@@ -304,6 +324,16 @@ public class JavascriptHelper {
 		}
 		mRecorder.i("js.query.atomFile", jo);
 		return atomfile;
+	}
+	/** get current campaignid (from preferences)
+	 * 
+	 * @return path
+	 */
+	@JavascriptInterface
+	public String getCampaignId() {
+		SharedPreferences spref = PreferenceManager.getDefaultSharedPreferences(mContext);
+		String campaignid = spref.getString("pref_campaignid", "");
+		return campaignid;
 	}
 	/** get path prefix for local files
 	 * 

@@ -15,9 +15,10 @@
   },
   "windowsphone": {
     "label": "Windows Phone",
+    "userAgentPattern": "Windows Phone",
     "supportsMime": [ "text/html" ],
     "optionalSupportsMime": [ "application/pdf" ],
-    "helpHtml": "Windows phones include newer Nokia smart phones, and also specific phones made by HTC, Samsung and others. Windows Phones have a distinctive square tile-based interface."
+    "helpHtml": "Windows phones include newer Nokia smart phones, and also specific phones made by HTC, Samsung and others. Windows Phones have a touch user interface with brightly coloured squares."
   },
   "other": {
     "label": "Other Device",

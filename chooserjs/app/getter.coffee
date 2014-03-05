@@ -29,7 +29,10 @@ module.exports.getGetUrl = (entry, devicetype, nocache) ->
   if kiosk.isKiosk() and not nocache
     ssid = kiosk.getWifiSsid()
     url = url+'&n='+encodeURIComponent(ssid);
-  else
+
+  campaignid = kiosk.getCampaignId()
+  if campaignid? and campaignid isnt ''
+    url = url+'&c='+encodeURIComponent(campaignid)
 
   console.log "Using helper page url #{url}"	
   url

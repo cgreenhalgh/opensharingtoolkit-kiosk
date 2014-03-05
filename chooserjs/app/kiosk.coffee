@@ -25,6 +25,9 @@ module.exports.getParameter = getParameter
 module.exports.getLocalFilePrefix = () ->
   window.kiosk?.getLocalFilePrefix()
 
+module.exports.getCampaignId = () ->
+  window.kiosk?.getCampaignId()
+
 module.exports.getAtomFile = () ->
   if window.kiosk?
     window.kiosk?.getLocalFilePrefix()+'/'+window.kiosk.getAtomFile()
@@ -71,7 +74,7 @@ asset_prefix = 'file:///android_asset/'
 localhost_prefix = 'http://localhost'
 localhost2_prefix = 'http://127.0.0.1'
 
-module.exports.getPortableUrl = (url) ->
+module.exports.getPortableUrl = getPortableUrl = (url) ->
   # convert any kiosk-internal URLs to externally accessible ones...
   # TODO any external portmapping?
   if window.kiosk?
@@ -117,6 +120,14 @@ module.exports.registerRedirect = (path,url) ->
     console.log "registerRedirect when not kiosk for #{url}"
     false
 
+module.exports.registerExternalRedirect = (host,path,url) ->
+  if window.kiosk?
+    kiosk = window.kiosk
+    kiosk.registerExternalRedirect host,path,url,0
+  else
+    console.log "registerExternalRedirect when not kiosk for #{url}"
+    false
+
 module.exports.getQrCode = (url) ->
   qrurl = 
       # really a kiosk? 
@@ -159,7 +170,7 @@ module.exports.addKioskEntry = (entries,atomurl,ineturl) ->
       #console.log 'Base URL = '+inetbaseurl
       url = inetbaseurl+"index.html?f="+encodeURIComponent(ineturl)
     # local
-    path = baseurl+"index.html?f="+encodeURIComponent(kiosk.getPortableUrl(atomurl))
+    path = baseurl+"index.html?f="+encodeURIComponent(getPortableUrl(atomurl))
     console.log "- kiosk entry expanded to #{url} / #{path}"
     enc = 
       url: url

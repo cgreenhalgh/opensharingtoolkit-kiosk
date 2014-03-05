@@ -17,6 +17,9 @@ reset = () ->
     console.log "!!!reset!!!"
     recorder.i 'app.reset'
     window.options.set devicetype: null
+    # fix scrollTop
+    if window.views.length>0
+      window.views[0].scrollTop = 0
     window.router.navigate "entries", trigger:true
 
 showAttract = () ->

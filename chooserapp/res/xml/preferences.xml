@@ -15,5 +15,13 @@
         android:summary="@string/pref_hostname_summary"
         android:selectable="true"/>
     
+    <EditTextPreference 
+        android:enabled="true" 
+        android:title="@string/pref_campaignid_title" 
+        android:key="pref_campaignid" 
+        android:summary="@string/pref_campaignid_summary"
+        android:defaultValue="@string/pref_campaignid_default" 
+        android:selectable="true"/>
+    
     
 </PreferenceScreen>

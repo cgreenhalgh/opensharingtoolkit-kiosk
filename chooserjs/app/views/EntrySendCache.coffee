@@ -35,8 +35,17 @@ module.exports = class EntrySendCacheView extends Backbone.View
       # create shorturl (if provided)
       geturl = kiosk.getTempRedirect fullurl
 
+    # default redirect
+    qrpath = '/qr'
+    qrfullurl = fullurl+'&qr'
+    if kiosk.registerRedirect qrpath,qrfullurl
+      qrgeturl = kiosk.getUrlForPath qrpath
+    else
+      # create shorturl (if provided)
+      qrgeturl = kiosk.getTempRedirect qrfullurl
+
     # determine QRCode URL
-    qrurl = kiosk.getQrCode geturl
+    qrurl = kiosk.getQrCode qrgeturl
     data = 
       templateQRCodeHelp: templateQRCodeHelp
       entry: @model.attributes

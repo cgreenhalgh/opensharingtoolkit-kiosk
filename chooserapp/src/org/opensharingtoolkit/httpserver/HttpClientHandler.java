@@ -266,7 +266,9 @@ public class HttpClientHandler extends Thread {
 			BufferedOutputStream bos = new BufferedOutputStream(s.getOutputStream());
 			OutputStreamWriter osw = new OutputStreamWriter(bos, "US-ASCII");
 			osw.write("HTTP/1.0 "+status+" "+message+"\r\n");
+			osw.write("Content-type: text/plain\r\n");
 			osw.write("\r\n");
+			osw.write("Something went wrong: "+message+" (HTTP status code "+status+")\n");
 			osw.close();
 		} catch (Exception e) {
 			Log.d(TAG,"Error sending error: "+e.getMessage());
