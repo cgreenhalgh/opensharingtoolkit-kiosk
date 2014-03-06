@@ -788,7 +788,7 @@
 
 }).call(this);
 }, "loader": function(exports, require, module) {(function() {
-  var Devicetype, Entry, Mimetype, addDevice, addEntry, addMimetype, addShorturls, getCacheFileMap, getCachePath, get_baseurl, kiosk, loadCache, loadDevices, loadEntries, loadMimetypes, loadShorturls, recorder;
+  var Devicetype, Entry, Mimetype, addDevice, addEntry, addMimetype, addShorturls, fixMimetypeIcons, getCacheFileMap, getCachePath, get_baseurl, kiosk, loadCache, loadDevices, loadEntries, loadMimetypes, loadShorturls, recorder;
 
   Entry = require('models/Entry');
 
@@ -1064,6 +1064,19 @@
     });
   };
 
+  fixMimetypeIcons = function(cacheFiles, prefix) {
+    return window.mimetypes.forEach(function(mt) {
+      var iconpath;
+      if (mt.attributes.icon != null) {
+        iconpath = getCachePath(mt.attributes.icon, cacheFiles, prefix);
+        if (iconpath != null) {
+          console.log("Fix mimetype " + mt.attributes.mime + " icon " + mt.attributes.icon + " -> " + iconpath);
+          return mt.attributes.icon = iconpath;
+        }
+      }
+    });
+  };
+
   loadCache = function(entries, atomurl, prefix) {
     var cacheurl;
     cacheurl = prefix + 'cache.json';
@@ -1074,8 +1087,11 @@
       dataType: 'json',
       timeout: 10000,
       success: function(data, textStatus, xhr) {
+        var cacheFiles;
         console.log('ok, got cache.json');
-        return loadShorturls(entries, atomurl, prefix, data.baseurl, getCacheFileMap(data));
+        cacheFiles = getCacheFileMap(data);
+        fixMimetypeIcons(cacheFiles, prefix);
+        return loadShorturls(entries, atomurl, prefix, data.baseurl, cacheFiles);
       },
       error: function(xhr, textStatus, errorThrown) {
         console.log('error getting cache.json: ' + textStatus + ': ' + errorThrown);

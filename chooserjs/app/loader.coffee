@@ -187,6 +187,15 @@ loadMimetypes = (entries,atomurl,prefix) ->
       console.log "error getting #{mimetypesurl}: #{textStatus}: #{errorThrown}"
       loadCache entries, atomurl, prefix
 
+# mimetype icons may be from Internet; use cache if possible
+fixMimetypeIcons = (cacheFiles,prefix) ->
+  window.mimetypes.forEach (mt)->
+    if mt.attributes.icon? 
+      iconpath = getCachePath mt.attributes.icon, cacheFiles, prefix
+      if iconpath?
+        console.log "Fix mimetype #{mt.attributes.mime} icon #{mt.attributes.icon} -> #{iconpath}"
+        mt.attributes.icon = iconpath
+
 loadCache = (entries,atomurl,prefix) ->
   cacheurl = prefix + 'cache.json'
   console.log "Loading cache info from #{cacheurl}"
@@ -197,7 +206,9 @@ loadCache = (entries,atomurl,prefix) ->
     timeout: 10000,
     success: (data, textStatus, xhr) ->
       console.log 'ok, got cache.json'
-      loadShorturls entries, atomurl, prefix, data.baseurl, getCacheFileMap(data)
+      cacheFiles = getCacheFileMap(data)
+      fixMimetypeIcons cacheFiles,prefix
+      loadShorturls entries, atomurl, prefix, data.baseurl, cacheFiles
     error: (xhr, textStatus, errorThrown) ->
       console.log 'error getting cache.json: '+textStatus+': '+errorThrown
       loadShorturls entries, atomurl, prefix, null, {}
