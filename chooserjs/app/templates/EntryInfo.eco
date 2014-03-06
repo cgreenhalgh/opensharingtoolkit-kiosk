@@ -15,22 +15,22 @@
   <div class="entry-in-list-icon">
     <div class="dummy"></div><%# required for CSS aspect ratio - see css %>
     <img src="<%= @entry.iconpath ? @entry.iconurl %>"  class="entry-icon-image">
-  <div class="entry-in-list-compats">
-  <% for dt,compat of (@entry.compat ?= {}): %><!--
+  </div>
+</div>
+<div class="small-12 medium-6 large-6 columns">
+  <div class="entry-info-compats">
+    <% for dt,compat of (@entry.compat ?= {}): %><!--
     --><div class="entry-in-list-compat<%=  if window.options.attributes.devicetype?.attributes.term==dt then '-current' else '' %>"><!--
       --><p><%= window.options.attributes.devicetypes.get(dt)?.attributes.label ?= dt %></p><!--
       --><img src="icons/<%= if compat=='builtin' then 'tick.png' else if compat=='optional' then 'query.png' else if compat=='app' then 'tick app.png' else if compat=='none' then 'cross.png' else 'query app.png' %>"><!--
     --></div><!--
   --><% end %>
-  </div>
     <% if @entry.mimetypeicon?: %>
-      <div class="entry-in-list-mimetype">
+      <div class="entry-info-mimetype">
         <img src="<%= @entry.mimetypeicon %>">
       </div>
     <% end %>
   </div>
-</div>
-<div class="small-12 medium-6 large-6 columns">
 <% if @optionPreview: %>
   <div class="entry-option option-view">Preview
     <img src="icons/help.png" class="entry-option-help-button help-option-view">

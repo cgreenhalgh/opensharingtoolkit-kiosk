@@ -234,12 +234,7 @@ App =
     # best way to find options?? (NB needed before Entry view(s))
     window.options = options
 
-    if not kiosk.isKiosk()
-      # default device
-      devicetype = window.options.getBrowserDevicetype()
-      if devicetype?
-        console.log 'set non-kiosk devicetype to '+devicetype.attributes.term
-        options.set devicetype: devicetype
+    # defer device determination until devices.json is loaded
 
     # device options view/change
     devicetypeChooser = new DevicetypeChoiceView model: options

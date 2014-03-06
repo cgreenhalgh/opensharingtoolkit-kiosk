@@ -35,16 +35,24 @@ for mt,mtinfo of mimetypes
   console.log "Check default mimetype #{mt}"
   if not mtinfo.compat?
     mtinfo.compat = {}
+  exclusive = false
+  for dt,dtinfo of devices
+    if dtinfo.supportsMimeExclusive? and dtinfo.supportsMimeExclusive.indexOf(mt) >= 0 
+      exclusive = true
   for dt,dtinfo of devices
     #console.log "- against device #{dt}"
     dtcompat = {}
     if dtinfo.userAgentPattern?
       dtcompat.userAgentPattern = dtinfo.userAgentPattern
-    if dtinfo.supportsMime? and dtinfo.supportsMime.indexOf(mt) >= 0 
+    if dtinfo.supportsMimeExclusive? and dtinfo.supportsMimeExclusive.indexOf(mt) >= 0 
+      dtcompat.builtin = true
+    else if dtinfo.supportsMime? and dtinfo.supportsMime.indexOf(mt) >= 0 
       dtcompat.builtin = true
     else if not dtinfo.optionalSupportsMime? or dtinfo.optionalSupportsMime.indexOf(mt) < 0
       dtcompat.builtin = false
     # undefined = maybe / optional
+    if exclusive
+      dtcompat.appsComplete = true
     dtcompat.apps = []
     mtinfo.compat[dt] = dtcompat
 

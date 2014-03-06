@@ -3,6 +3,7 @@
     "label": "Android",
     "userAgentPattern": "Android",
     "supportsMime": [ "text/html", "application/vnd.android.package-archive" ],
+    "supportsMimeExclusive": [ "application/vnd.android.package-archive" ],
     "optionalSupportsMime": [ "application/pdf" ],
     "helpHtml": "There are many different Android phones and tablets, including devices made by Google, Samsung, Motorola, HTC, Sony Ericsson and Asus (some Nexus)."
   },
@@ -10,6 +11,7 @@
     "label": "iPhone",
     "userAgentPattern": "(iPhone)|(iPod)|(iPad)",
     "supportsMime": [ "text/html", "application/x-itunes-app" ],
+    "supportsMimeExclusive": [ "application/x-itunes-app" ],
     "optionalSupportsMime": [ "application/pdf" ],
     "helpHtml": "There are several different models of iPhone, all sold by Apple, but they are all broadly compatible. You should also use this option if you have an iPad, iPad mini or iPod Touch."
   },

@@ -54,6 +54,7 @@ The `devices.json` file defines supported device types and gives basic informati
     "label": "Android",
     "userAgentPattern": "Android",
     "supportsMime": [ "text/html", "application/vnd.android.package-archive" ],
+    "supportsMimeExclusive": [ "application/vnd.android.package-archive" ],
     "optionalSupportsMime": [ ],
     "helpHtml": "There are many different Android phones and tablets, including devices made by Google, Samsung, Motorola, HTC, Sony Ericsson and Asus (some Nexus)."
   }

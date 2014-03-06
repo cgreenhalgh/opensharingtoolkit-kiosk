@@ -103,6 +103,7 @@ addDevice = (devicename,deviceinfo) ->
       supportsMime: deviceinfo.supportsMime ?= []
       optionalSupportsMime: deviceinfo.optionalSupportsMime ?= []
       helpHtml: deviceinfo.helpHtml ?= "Sorry, can't tell you much about device type #{devicename}."
+      userAgentPattern: deviceinfo.userAgentPattern ?= null
     # keep other at end
     window.options.attributes.devicetypes.add devicetype, {at:(window.options.attributes.devicetypes.length-1)}
   else
@@ -115,6 +116,8 @@ addDevice = (devicename,deviceinfo) ->
       devicetype.set optionalSupportsMime: deviceinfo.optionalSupportsMime
     if deviceinfo.label?
       devicetype.set helpHtml: deviceinfo.helpHtml
+    if deviceinfo.userAgentPattern?
+      devicetype.set userAgentPattern: deviceinfo.userAgentPattern
 
 loadDevices = (entries,atomurl,prefix) ->
   devicesurl = prefix + 'devices.json'
@@ -128,6 +131,12 @@ loadDevices = (entries,atomurl,prefix) ->
       console.log "ok, got #{devicesurl}"
       for dn,dtinfo of data
         addDevice dn,dtinfo
+      if not kiosk.isKiosk()
+        # default device
+        devicetype = window.options.getBrowserDevicetype()
+        if devicetype?
+          console.log 'set non-kiosk devicetype to '+devicetype.attributes.term
+          options.set devicetype: devicetype
       loadMimetypes entries, atomurl, prefix
     error: (xhr, textStatus, errorThrown) ->
       console.log "error getting #{devicesurl}: #{textStatus}: #{errorThrown}"

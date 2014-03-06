@@ -326,7 +326,7 @@
 
   App = {
     init: function() {
-      var atomfile, devicetype, devicetypeChooser, devicetypeLabelView, devicetypes, entries, entryview, mimetypes, options, router;
+      var atomfile, devicetypeChooser, devicetypeLabelView, devicetypes, entries, entryview, mimetypes, options, router;
       Backbone.sync = function(method, model, success, error) {
         return success();
       };
@@ -348,15 +348,6 @@
         devicetypes: devicetypes
       });
       window.options = options;
-      if (!kiosk.isKiosk()) {
-        devicetype = window.options.getBrowserDevicetype();
-        if (devicetype != null) {
-          console.log('set non-kiosk devicetype to ' + devicetype.attributes.term);
-          options.set({
-            devicetype: devicetype
-          });
-        }
-      }
       devicetypeChooser = new DevicetypeChoiceView({
         model: options
       });
@@ -926,7 +917,7 @@
   };
 
   addDevice = function(devicename, deviceinfo) {
-    var devicetype, _ref, _ref2, _ref3, _ref4;
+    var devicetype, _ref, _ref2, _ref3, _ref4, _ref5;
     devicetype = window.options.attributes.devicetypes.get(devicename);
     if (!(devicetype != null)) {
       console.log("Add device " + devicename);
@@ -936,7 +927,8 @@
         label: (_ref = deviceinfo.label) != null ? _ref : deviceinfo.label = devicename,
         supportsMime: (_ref2 = deviceinfo.supportsMime) != null ? _ref2 : deviceinfo.supportsMime = [],
         optionalSupportsMime: (_ref3 = deviceinfo.optionalSupportsMime) != null ? _ref3 : deviceinfo.optionalSupportsMime = [],
-        helpHtml: (_ref4 = deviceinfo.helpHtml) != null ? _ref4 : deviceinfo.helpHtml = "Sorry, can't tell you much about device type " + devicename + "."
+        helpHtml: (_ref4 = deviceinfo.helpHtml) != null ? _ref4 : deviceinfo.helpHtml = "Sorry, can't tell you much about device type " + devicename + ".",
+        userAgentPattern: (_ref5 = deviceinfo.userAgentPattern) != null ? _ref5 : deviceinfo.userAgentPattern = null
       });
       return window.options.attributes.devicetypes.add(devicetype, {
         at: window.options.attributes.devicetypes.length - 1
@@ -959,8 +951,13 @@
         });
       }
       if (deviceinfo.label != null) {
-        return devicetype.set({
+        devicetype.set({
           helpHtml: deviceinfo.helpHtml
+        });
+      }
+      if (deviceinfo.userAgentPattern != null) {
+        return devicetype.set({
+          userAgentPattern: deviceinfo.userAgentPattern
         });
       }
     }
@@ -976,11 +973,20 @@
       dataType: 'json',
       timeout: 10000,
       success: function(data, textStatus, xhr) {
-        var dn, dtinfo;
+        var devicetype, dn, dtinfo;
         console.log("ok, got " + devicesurl);
         for (dn in data) {
           dtinfo = data[dn];
           addDevice(dn, dtinfo);
+        }
+        if (!kiosk.isKiosk()) {
+          devicetype = window.options.getBrowserDevicetype();
+          if (devicetype != null) {
+            console.log('set non-kiosk devicetype to ' + devicetype.attributes.term);
+            options.set({
+              devicetype: devicetype
+            });
+          }
         }
         return loadMimetypes(entries, atomurl, prefix);
       },
@@ -1882,7 +1888,7 @@
     
       __out.push(__sanitize((_ref = this.entry.iconpath) != null ? _ref : this.entry.iconurl));
     
-      __out.push('"  class="entry-icon-image">\n  <div class="entry-in-list-compats">\n  ');
+      __out.push('"  class="entry-icon-image">\n  </div>\n</div>\n<div class="small-12 medium-6 large-6 columns">\n  <div class="entry-info-compats">\n    ');
     
       _ref3 = ((_ref2 = (_base = this.entry).compat) != null ? _ref2 : _base.compat = {});
       for (dt in _ref3) {
@@ -1896,15 +1902,15 @@
         __out.push('"><!--\n    --></div><!--\n  -->');
       }
     
-      __out.push('\n  </div>\n    ');
+      __out.push('\n    ');
     
       if (this.entry.mimetypeicon != null) {
-        __out.push('\n      <div class="entry-in-list-mimetype">\n        <img src="');
+        __out.push('\n      <div class="entry-info-mimetype">\n        <img src="');
         __out.push(__sanitize(this.entry.mimetypeicon));
         __out.push('">\n      </div>\n    ');
       }
     
-      __out.push('\n  </div>\n</div>\n<div class="small-12 medium-6 large-6 columns">\n');
+      __out.push('\n  </div>\n');
     
       if (this.optionPreview) {
         __out.push('\n  <div class="entry-option option-view">Preview\n    <img src="icons/help.png" class="entry-option-help-button help-option-view">\n    <img src="icons/help-down.png" class="entry-option-help-button help-option-view hide">\n  </div>\n  <div class="panel help-option-view hide">\n    <p>Have a look before you download anything.<p>\n  </div>\n');

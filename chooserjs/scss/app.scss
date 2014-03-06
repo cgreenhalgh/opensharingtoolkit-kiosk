@@ -126,6 +126,10 @@ entry-in-list-button {
   left: 0;
   height: 1.2em;
 };
+.entry-info-compats {
+  position: relative;
+  padding-bottom: 0.3em;
+};
 .entry-in-list-compat {
   display: inline-block;
   overflow: hidden;
@@ -204,6 +208,24 @@ entry-in-list-button {
     width: 90%;
     height: auto;
     #height: 90%;
+  };
+};
+.entry-info-mimetype {
+  display: inline-block;
+  position: relative;
+  text-align: right;
+  width: 1.2em;
+  height: 1.2em;
+  padding: 0.1em;
+  background-color: rgba(255,255,255,0.5);
+  img {
+    #opacity:0.5;
+    #filter:alpha(opacity=50);
+    position: absolute;
+    left: 5%;
+    top: 5%;
+    width: 90%;
+    height: auto;
   };
 };
 .entry-option {
