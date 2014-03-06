@@ -3,6 +3,7 @@
  */
 package org.opensharingtoolkit.hotspot;
 
+import org.opensharingtoolkit.common.Hotspot;
 import org.opensharingtoolkit.common.WifiUtils;
 
 import android.content.BroadcastReceiver;
@@ -13,6 +14,8 @@ import android.content.SharedPreferences;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.net.wifi.WifiConfiguration;
 import android.net.wifi.WifiManager;
+import android.os.Message;
+import android.os.Messenger;
 import android.preference.PreferenceManager;
 import android.util.Log;
 import android.widget.Toast;
@@ -46,9 +49,11 @@ public class WifiHotspot implements OnSharedPreferenceChangeListener {
 			// TODO Auto-generated method stub
 			int state = intent.getIntExtra(WifiManager.EXTRA_WIFI_STATE, -1);
 			Log.d(TAG,"Receive "+intent.getAction()+": state="+state);
-			if (state==WifiUtils.WIFI_AP_STATE_ENABLED)
+			if (state==WifiUtils.WIFI_AP_STATE_ENABLED) {
 				// restarted system version, hopefully
 				mOurDnsmasq = false;
+				updateCaptiveportal();
+			}
 			checkState();
 		}
 	};
@@ -158,6 +163,8 @@ public class WifiHotspot implements OnSharedPreferenceChangeListener {
 		}
 		else
 			Log.d(TAG,"Wifi state "+state+" - ignored/waiting");
+
+		updateCaptiveportal();
 	}
 
 	private void restartDnsmasq() {
@@ -228,6 +235,46 @@ public class WifiHotspot implements OnSharedPreferenceChangeListener {
 			if (mDnsmasq!=null) {
 				mDnsmasq.cancel();
 				mDnsmasq = null;
+			}
+		}
+	}
+	
+    private Messenger mSubscribeCaptiveportal;
+    private boolean mSubscribeActive;
+    void handleQueryCaptiveportal(boolean subscribe, Messenger replyTo) {
+    	Log.d(TAG,"handleQueryCaptiveportal");
+    	mSubscribeCaptiveportal = subscribe ? replyTo : null;
+    	
+		int state = WifiUtils.getWifiState(mContext);
+		boolean active = state==WifiUtils.WIFI_AP_STATE_ENABLED && mOurDnsmasq;
+		if (subscribe)
+			mSubscribeActive = active;
+		
+		Message reply = Hotspot.getInformCaptiveportalMessage(active);
+		try {
+			replyTo.send(reply);
+		}
+		catch (Exception e) {
+			Log.w(TAG,"Error sending redirectedPort", e);
+		}
+	}
+    private void updateCaptiveportal() {
+    	if (mSubscribeCaptiveportal==null)
+    		return;
+		//Log.d(TAG,"updateCaptiveportal");
+    	
+		int state = WifiUtils.getWifiState(mContext);
+		boolean active = state==WifiUtils.WIFI_AP_STATE_ENABLED && mOurDnsmasq;
+
+		if (active!=mSubscribeActive) {
+			mSubscribeActive = active;
+			Log.d(TAG,"Inform captiveportal="+active);
+			Message reply = Hotspot.getInformCaptiveportalMessage(active);
+			try {
+				mSubscribeCaptiveportal.send(reply);
+			}
+			catch (Exception e) {
+				Log.w(TAG,"Error sending redirectedPort", e);
 			}
 		}
 	}

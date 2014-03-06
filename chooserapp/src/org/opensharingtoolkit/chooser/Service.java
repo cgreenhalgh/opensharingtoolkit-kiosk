@@ -19,6 +19,7 @@ import org.opensharingtoolkit.httpserver.HttpContinuation;
 import org.opensharingtoolkit.httpserver.HttpError;
 import org.opensharingtoolkit.httpserver.HttpListener;
 import org.opensharingtoolkit.chooser.R;
+import org.opensharingtoolkit.chooser.SharedMemory.Encoding;
 import org.opensharingtoolkit.common.Hotspot;
 import org.opensharingtoolkit.common.WifiUtils;
 
@@ -88,6 +89,7 @@ public class Service extends android.app.Service {
         
         // attempt to redirect port
         redirectPort(80, HTTP_PORT);
+        queryCaptiveportal();
 	}
 
 	@Override
@@ -176,6 +178,29 @@ public class Service extends android.app.Service {
 			}
         }
     }
+    private void queryCaptiveportal() {
+        Message msg = Hotspot.getQueryCaptiveportalMessage(true);
+        msg.replyTo = mHotspotMessenger;
+        synchronized (this) {
+        	if (!mBound) {
+        		Log.d(TAG,"Queue queryCaptiveportal");
+    			mPendingMessages.add(msg);
+    			msg = null;
+        	}
+        }
+        if (msg!=null) {
+			try {
+				Log.d(TAG,"Send queryCaptiveportal");
+				mService.send(msg);
+			} catch (RemoteException e) {
+				Log.w(TAG,"Error sending redirectPort", e);
+		        synchronized (this) {
+		        	// try again later?
+	    			mPendingMessages.add(msg);
+		        }
+			}
+        }
+    }
 
 
 	protected synchronized void sendPendingMessages() {
@@ -212,6 +237,10 @@ public class Service extends android.app.Service {
                 	if (msg.arg1!=0)
                 		port = msg.arg1;
                     break;
+                case Hotspot.MSG_INFORM_CAPTIVEPORTAL:
+                	Log.i(TAG,"Inform captiveportal "+(msg.arg1!=0));
+                	SharedMemory.getInstance().put("captiveportal", Encoding.JSON, msg.arg1!=0 ? "true" : "false");
+                	break;
                 default:
                     super.handleMessage(msg);
             }
@@ -266,7 +295,9 @@ public class Service extends android.app.Service {
 				throw HttpError.badRequest("Unsupported operation ("+method+")");
 		
 			if (path.startsWith("/a/get?")) 
-				GetServer.singleton().handleRequest(path, headers, httpContinuation);
+				GetServer.singleton().handleRequest(this, path, headers, httpContinuation);
+			else if (path.equals("/recent") || path.startsWith("/recent?"))
+				GetServer.singleton().handleRequestForRecent(this, path, headers, httpContinuation);
 			else if (path.startsWith("/a/"))
 				handleAssetRequest(path.substring("/a".length()), requestBody, httpContinuation);
 			else if (path.startsWith("/f/"))
@@ -286,6 +317,15 @@ public class Service extends android.app.Service {
 				if (file!=null) {
 					sendFile(file, httpContinuation);
 					return;
+				}
+				String cacheBaseurl = CacheServer.singleton().getBaseurl();
+				if (cacheBaseurl!=null) {
+					String url = "http://"+host+path;
+					if (url.startsWith(cacheBaseurl+"get.php?")) {
+						Log.i(TAG,"proxy internet get "+url);
+						GetServer.singleton().handleRequest(this, path, headers, httpContinuation);
+						return;
+					}
 				}
 				// any other redirects??
 				RedirectServer rs = RedirectServer.forHostOpt(host);

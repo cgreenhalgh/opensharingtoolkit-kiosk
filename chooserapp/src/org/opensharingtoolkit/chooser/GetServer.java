@@ -11,10 +11,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
 
+import org.json.JSONObject;
+import org.opensharingtoolkit.common.WifiUtils;
 import org.opensharingtoolkit.httpserver.HttpContinuation;
 import org.opensharingtoolkit.httpserver.HttpError;
 import org.opensharingtoolkit.httpserver.HttpUtils;
 
+import android.content.Context;
 import android.util.Log;
 
 /** Simple request handler to return download "get" page cf chooserwww/public/get.php.
@@ -84,7 +87,7 @@ public class GetServer {
 	}
 
 	// handle request - called from Service
-	public void handleRequest(String path, Map<String, String> headers, HttpContinuation httpContinuation) throws HttpError {
+	public void handleRequest(Context context, String path, Map<String, String> headers, HttpContinuation httpContinuation) throws HttpError {
 		Hashtable<String,String> params = HttpUtils.getParams(path);
 		if (params==null) {
 			Log.w(TAG,"request get without parameters: "+path);
@@ -105,8 +108,15 @@ public class GetServer {
 		String ssid = params.get("n");
 		if (ssid!=null && ssid.length()>0)
 			resp.append("right nextwork ("+ssid+")");
-		else
-			resp.append("Internet");
+		else {
+			int wifiState = WifiUtils.getWifiState(context);
+			if (wifiState==WifiUtils.WIFI_AP_STATE_ENABLED || wifiState==WifiUtils.WIFI_AP_STATE_ENABLING) {
+				ssid = "*kiosk*";
+				resp.append("kiosk network (this is not the Internet)");
+			}
+			else
+				resp.append("local network");
+		}
 		resp.append("</p>"+
 				"<h1 style=\"\">Get ");
 		String title = params.get("t");
@@ -175,6 +185,57 @@ public class GetServer {
 			data = resp.toString().getBytes("UTF-8");
 		} catch (UnsupportedEncodingException e) {
 			throw new HttpError(500, "Error converting get response to bytes");
+		}
+	    httpContinuation.done(200, "OK", "text/html", data.length, new ByteArrayInputStream(data), null);
+	}
+	// handle request - called from Service
+	public void handleRequestForRecent(Context context, String path, Map<String, String> headers, HttpContinuation httpContinuation) throws HttpError {
+		String title = null;
+		String url = null;
+		try {
+			JSONObject sendCacheItem = (JSONObject)SharedMemory.getInstance().get("sendCacheItem");
+			title = sendCacheItem.getString("title");
+			url = sendCacheItem.getString("url");
+		} catch (Exception e) {
+			Log.w(TAG,"Error reading sendCacheItem: "+e, e);
+			//throw new HttpError(500, "Error getting latest item");
+		}
+		StringBuilder resp = new StringBuilder();
+		resp.append("<!DOCTYPE html PUBLIC \"-//W3C//DTD HTML 4.01 Transitional//EN\" \"http://www.w3.org/TR/html4/loose.dtd\">\n"+
+            "<html>"+
+            "<head>"+
+            "<meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\">"+
+            "<meta name=\"viewport\" content=\"width=device-width, user-scalable=false;\">"+
+            "<title>Kiosk Recently Requested Items</title>"+
+            "</head>"+
+            "<body>"+
+            "<p>Great! You're on the ");
+		String ssid = null;
+		int wifiState = WifiUtils.getWifiState(context);
+		if (wifiState==WifiUtils.WIFI_AP_STATE_ENABLED || wifiState==WifiUtils.WIFI_AP_STATE_ENABLING) {
+			ssid = "*kiosk*";
+			resp.append("kiosk network (this is not the Internet)");
+		}
+		else {
+			resp.append("local network");
+		}
+		resp.append("</p><h1 style=\"\">Requested Items</h1>");
+		if (title!=null && url!=null) {
+			resp.append("<a href=\""+url+"\"><h2>"+title+"</h2></a>\n");
+		}
+		else {
+			resp.append("<p>There is no recent item; please select an item on the kiosk and choose 'Send Locally'.</p>");
+		}
+		resp.append("<p><a href=\"#\" onclick=\"javascript:location.reload()\">Reload this page to check for newly selected items</p></a>");
+		resp.append("</body>"+
+				"</html>");
+		
+	    Log.d(TAG,"get recent done");
+	    byte data[];
+		try {
+			data = resp.toString().getBytes("UTF-8");
+		} catch (UnsupportedEncodingException e) {
+			throw new HttpError(500, "Error converting get recent response to bytes");
 		}
 	    httpContinuation.done(200, "OK", "text/html", data.length, new ByteArrayInputStream(data), null);
 	}

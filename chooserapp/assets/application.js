@@ -741,6 +741,50 @@
     }
   };
 
+  module.exports.isCaptiveportal = function() {
+    var active;
+    if (!(window.kiosk != null)) return false;
+    active = module.exports.getShared('captiveportal');
+    if (!(active != null)) return false;
+    return active;
+  };
+
+  module.exports.setShared = function(key, value) {
+    if (!(window.kiosk != null)) {
+      console.log("ignore setShared non-kiosk " + key + "=" + value);
+      return;
+    }
+    if (!(value != null)) {
+      return window.kiosk.setShared(key, 'JSON', 'null');
+    } else if (typeof value === 'string') {
+      return window.kiosk.setShared(key, 'STRING', value);
+    } else {
+      try {
+        return window.kiosk.setShared(key, 'JSON', JSON.stringify(value));
+      } catch (err) {
+        return console.log("error setShared " + key + "=" + value + ": " + err);
+      }
+    }
+  };
+
+  module.exports.getShared = function(key) {
+    var vs;
+    if (!(window.kiosk != null)) {
+      console.log("getShared non-kiosk " + key);
+      return null;
+    }
+    vs = window.kiosk.getShared(key);
+    console.log("getShared " + key + " -> " + vs);
+    if (!(vs != null)) return null;
+    if (vs.indexOf('STRING:') === 0) return vs.substring(7);
+    try {
+      return JSON.parse(vs.substring(vs.indexOf(':') + 1));
+    } catch (err) {
+      console.log("Error parsing shared " + key + "=" + vs + ": " + err);
+    }
+    return null;
+  };
+
   module.exports.getQrCode = function(url) {
     var qrurl;
     return qrurl = window.kiosk != null ? 'http://localhost:8080/qr?url=' + encodeURIComponent(url) + '&size=150' : window.location.pathname === '/a/index.html' ? 'http://' + window.location.host + '/qr?url=' + encodeURIComponent(url) + '&size=150' : 'http://chart.apis.google.com/chart?cht=qr&chs=150x150&choe=UTF-8&chl=' + encodeURIComponent(url);
@@ -3186,21 +3230,31 @@
     };
 
     EntrySendCacheView.prototype.render = function() {
-      var data, fullurl, geturl, path, qrfullurl, qrgeturl, qrpath, qrurl, _ref;
+      var captiveportal, data, fullurl, geturl, item, nocache, path, qrgeturl, qrpath, qrrecenturl, qrurl, recentpath, recenturl, _ref;
       console.log("render EntrySendCache " + this.model.id + " " + this.model.attributes.title);
-      fullurl = getter.getGetUrl(this.model, window.options.attributes.devicetype, false);
+      captiveportal = kiosk.isCaptiveportal();
+      console.log("captiveportal (send cache) = " + captiveportal);
+      nocache = captiveportal;
+      fullurl = getter.getGetUrl(this.model, window.options.attributes.devicetype, nocache);
+      item = {
+        url: fullurl + '&recent',
+        title: this.model.attributes.title
+      };
+      kiosk.setShared('sendCacheItem', item);
       path = '/';
-      if (kiosk.registerRedirect(path, fullurl)) {
+      recentpath = '/recent';
+      recenturl = kiosk.getUrlForPath(recentpath);
+      if (kiosk.registerRedirect(path, recenturl)) {
         geturl = kiosk.getUrlForPath(path);
       } else {
-        geturl = kiosk.getTempRedirect(fullurl);
+        geturl = recenturl;
       }
       qrpath = '/qr';
-      qrfullurl = fullurl + '&qr';
-      if (kiosk.registerRedirect(qrpath, qrfullurl)) {
+      qrrecenturl = recenturl + '?qr';
+      if (kiosk.registerRedirect(qrpath, qrrecenturl)) {
         qrgeturl = kiosk.getUrlForPath(qrpath);
       } else {
-        qrgeturl = kiosk.getTempRedirect(qrfullurl);
+        qrgeturl = qrrecenturl;
       }
       qrurl = kiosk.getQrCode(qrgeturl);
       data = {

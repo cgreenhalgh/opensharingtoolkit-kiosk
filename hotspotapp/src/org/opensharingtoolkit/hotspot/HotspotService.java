@@ -45,6 +45,9 @@ public class HotspotService extends Service {
             			}
             		}
                     break;
+                case Hotspot.MSG_QUERY_CAPTIVEPORTAL:
+                	mWifiHotspot.handleQueryCaptiveportal(msg.arg1!=0, msg.replyTo);
+                    break;
                 default:
                     super.handleMessage(msg);
             }
@@ -65,7 +68,7 @@ public class HotspotService extends Service {
         return mMessenger.getBinder();
     }
     
-    /** attempt port redirect */
+	/** attempt port redirect */
 	protected boolean handleRedirectPort(int fromPort, int toPort) {
 		Log.d(TAG,"redirectPort "+fromPort+" -> "+toPort);
 		// TCP only

@@ -387,13 +387,13 @@ public class JavascriptHelper {
 	/** get shared state 
 	 * @return null or 2-element array with encoding, value */
 	@JavascriptInterface
-	public String[] getShared(String key) {
+	public String getShared(String key) {
+		Log.d(TAG,"getShared("+key+")");
 		try {
 			SharedMemory.Entry e = SharedMemory.getInstance().getEntry(key);
 			if (e==null)
 				return null;
-			String rval [] = new String[] { e.encoding.toString(), e.value };
-			return rval;
+			return e.encoding.toString()+":"+e.value;
 		}
 		catch (Exception e) {
 			Log.e(TAG,"Error getShared "+key+": "+e);

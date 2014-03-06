@@ -11,6 +11,8 @@ import org.json.JSONObject;
 import org.json.JSONStringer;
 import org.json.JSONTokener;
 
+import android.util.Log;
+
 /** Simple key-value store for browser javascript to share state with server page(s).
  * 
  * @author pszcmg
@@ -34,11 +36,22 @@ public class SharedMemory {
 			this.encoding = encoding;
 			this.value = value;
 		}
+		
+		/* (non-Javadoc)
+		 * @see java.lang.Object#toString()
+		 */
+		@Override
+		public String toString() {
+			return "Entry [key=" + key + ", encoding=" + encoding + ", value="
+					+ value + "]";
+		}
+
 		/**
 		 * 
 		 */
 		public Entry() {}
 	}
+	private static final String TAG = "sharedmemory";
 	private static SharedMemory mInstance;
 	public static synchronized SharedMemory getInstance() {
 		if (mInstance==null)
@@ -47,10 +60,13 @@ public class SharedMemory {
 	}
 	private Map<String,Entry> entries = new HashMap<String,Entry>();
 	public synchronized Entry getEntry(String key) {
-		return entries.get(key);
+		Entry e = entries.get(key);
+		Log.d(TAG,"getEntry "+key+" -> "+(e==null ? "null" : e.toString()));
+		return e;
 	}
 	public synchronized void put(String key, Encoding encoding, String value) {
 		Entry e = new Entry(key, encoding, value);
+		Log.d(TAG,"put "+e.toString());
 		entries.put(key, e);
 	}
 	public void put(String key, Object value) throws JSONException {

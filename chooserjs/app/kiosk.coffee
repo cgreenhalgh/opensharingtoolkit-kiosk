@@ -128,6 +128,45 @@ module.exports.registerExternalRedirect = (host,path,url) ->
     console.log "registerExternalRedirect when not kiosk for #{url}"
     false
 
+module.exports.isCaptiveportal = () ->
+  if not window.kiosk?
+    return false
+  active = module.exports.getShared 'captiveportal'
+  if not active?
+    return false
+  active
+
+module.exports.setShared = (key,value) ->
+  # encoding is 'STRING' or 'JSON'
+  if not window.kiosk?
+    console.log "ignore setShared non-kiosk #{key}=#{value}"
+    return
+  if not value?
+    window.kiosk.setShared key,'JSON','null' 
+  else if typeof value == 'string'
+    window.kiosk.setShared key,'STRING',value
+  else 
+    try 
+      window.kiosk.setShared key,'JSON',JSON.stringify value
+    catch err
+      console.log "error setShared #{key}=#{value}: #{err}"
+
+module.exports.getShared = (key) ->
+  if not window.kiosk?
+    console.log "getShared non-kiosk #{key}"
+    return null
+  vs = window.kiosk.getShared( key )
+  console.log "getShared #{key} -> #{vs}"
+  if not vs?
+    return null
+  if vs.indexOf('STRING:')==0
+    return vs.substring 7
+  try 
+    return JSON.parse vs.substring( vs.indexOf(':')+1 )
+  catch err
+    console.log "Error parsing shared #{key}=#{vs}: #{err}"
+  return null
+
 module.exports.getQrCode = (url) ->
   qrurl = 
       # really a kiosk? 

@@ -44,7 +44,8 @@ public class CacheServer {
     	String lastmod;
     }
     private Map<String,Entry> mEntries = new HashMap<String,Entry>();
-	
+    private String mBaseurl;
+    
     /** attempt to return result from file cache.
      * 
      * @param context
@@ -85,6 +86,14 @@ public class CacheServer {
 				String line = bfr.readLine();
 				bfr.close();
 				JSONObject obj = new JSONObject(line);
+				if (obj.has("baseurl")) {
+					mBaseurl = obj.getString("baseurl");
+					if (!mBaseurl.endsWith("/"))
+						mBaseurl = mBaseurl+"/";
+					Log.d(TAG,"Cache baseurl="+mBaseurl);
+				}
+				else 
+					mBaseurl = null;
 				JSONArray files = obj.getJSONArray("files");
 				Map<String,Entry> entries = new HashMap<String,Entry>();
 				for (int i=0; i<files.length(); i++)
@@ -116,5 +125,7 @@ public class CacheServer {
 			}
 		}
 	}
-
+	public synchronized String getBaseurl() {
+		return mBaseurl;
+	}
 }

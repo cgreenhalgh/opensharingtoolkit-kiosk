@@ -25,24 +25,34 @@ module.exports = class EntrySendCacheView extends Backbone.View
     console.log "render EntrySendCache #{ @model.id } #{ @model.attributes.title }"
 
     # determine get/helper URL (cache); ensure any kiosk-internal paths are external
-    fullurl = getter.getGetUrl @model, window.options.attributes.devicetype, false
+    captiveportal = kiosk.isCaptiveportal()
+    console.log "captiveportal (send cache) = #{captiveportal}"
+    # if we are a captive portal then we can serve internet URLs, which is good for
+    # html offline, bookmarks, etc.
+    nocache = captiveportal
+    fullurl = getter.getGetUrl @model, window.options.attributes.devicetype, nocache
+    item = 
+      url: fullurl+'&recent'
+      title: @model.attributes.title
+
+    kiosk.setShared 'sendCacheItem',item
 
     # default redirect
     path = '/'
-    if kiosk.registerRedirect path,fullurl
+    recentpath = '/recent'
+    recenturl = kiosk.getUrlForPath recentpath
+    if kiosk.registerRedirect path,recenturl
       geturl = kiosk.getUrlForPath path
     else
-      # create shorturl (if provided)
-      geturl = kiosk.getTempRedirect fullurl
+      geturl = recenturl
 
     # default redirect
     qrpath = '/qr'
-    qrfullurl = fullurl+'&qr'
-    if kiosk.registerRedirect qrpath,qrfullurl
+    qrrecenturl = recenturl+'?qr'
+    if kiosk.registerRedirect qrpath,qrrecenturl
       qrgeturl = kiosk.getUrlForPath qrpath
     else
-      # create shorturl (if provided)
-      qrgeturl = kiosk.getTempRedirect qrfullurl
+      qrgeturl = qrrecenturl
 
     # determine QRCode URL
     qrurl = kiosk.getQrCode qrgeturl
