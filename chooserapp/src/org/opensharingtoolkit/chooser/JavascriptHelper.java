@@ -90,6 +90,12 @@ public class JavascriptHelper {
 			i.setType(mimeTypeHint);
 		return i;
 	}
+	/** get hostname - probably only useful in captive portal mode */
+	@JavascriptInterface
+	public String getCaptiveportalHostname() {
+		SharedPreferences spref = PreferenceManager.getDefaultSharedPreferences(mContext);
+		return spref.getString("pref_hostname", "leaflets");
+	}
 	/** open/handle entry enclosure
 	 * 
 	 * @return true if handled

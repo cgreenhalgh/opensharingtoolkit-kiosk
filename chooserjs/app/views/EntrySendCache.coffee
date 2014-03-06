@@ -42,7 +42,11 @@ module.exports = class EntrySendCacheView extends Backbone.View
     recentpath = '/recent'
     recenturl = kiosk.getUrlForPath recentpath
     if kiosk.registerRedirect path,recenturl
-      geturl = kiosk.getUrlForPath path
+      if captiveportal
+        capiveportalHostname = kiosk.getCaptiveportalHostname()
+        geturl = "http://#{capiveportalHostname}#{path}"
+      else
+        geturl = kiosk.getUrlForPath path
     else
       geturl = recenturl
 

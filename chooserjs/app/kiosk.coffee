@@ -167,6 +167,11 @@ module.exports.getShared = (key) ->
     console.log "Error parsing shared #{key}=#{vs}: #{err}"
   return null
 
+module.exports.getCaptiveportalHostname = () ->
+  if not window.kiosk?
+    return null
+  return window.kiosk.getCaptiveportalHostname()
+
 module.exports.getQrCode = (url) ->
   qrurl = 
       # really a kiosk? 

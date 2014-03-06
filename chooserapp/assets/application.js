@@ -785,6 +785,11 @@
     return null;
   };
 
+  module.exports.getCaptiveportalHostname = function() {
+    if (!(window.kiosk != null)) return null;
+    return window.kiosk.getCaptiveportalHostname();
+  };
+
   module.exports.getQrCode = function(url) {
     var qrurl;
     return qrurl = window.kiosk != null ? 'http://localhost:8080/qr?url=' + encodeURIComponent(url) + '&size=150' : window.location.pathname === '/a/index.html' ? 'http://' + window.location.host + '/qr?url=' + encodeURIComponent(url) + '&size=150' : 'http://chart.apis.google.com/chart?cht=qr&chs=150x150&choe=UTF-8&chl=' + encodeURIComponent(url);
@@ -3230,7 +3235,7 @@
     };
 
     EntrySendCacheView.prototype.render = function() {
-      var captiveportal, data, fullurl, geturl, item, nocache, path, qrgeturl, qrpath, qrrecenturl, qrurl, recentpath, recenturl, _ref;
+      var capiveportalHostname, captiveportal, data, fullurl, geturl, item, nocache, path, qrgeturl, qrpath, qrrecenturl, qrurl, recentpath, recenturl, _ref;
       console.log("render EntrySendCache " + this.model.id + " " + this.model.attributes.title);
       captiveportal = kiosk.isCaptiveportal();
       console.log("captiveportal (send cache) = " + captiveportal);
@@ -3245,7 +3250,12 @@
       recentpath = '/recent';
       recenturl = kiosk.getUrlForPath(recentpath);
       if (kiosk.registerRedirect(path, recenturl)) {
-        geturl = kiosk.getUrlForPath(path);
+        if (captiveportal) {
+          capiveportalHostname = kiosk.getCaptiveportalHostname();
+          geturl = "http://" + capiveportalHostname + path;
+        } else {
+          geturl = kiosk.getUrlForPath(path);
+        }
       } else {
         geturl = recenturl;
       }
