@@ -204,6 +204,7 @@ module.exports.addKioskEntry = (entries,atomurl,ineturl) ->
       thumbnails: []
       requiresDevice: []
       supportsMime: []
+      isKiosk: true
     # index: index
     # internet
     url = null

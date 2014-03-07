@@ -811,7 +811,8 @@
       baseurl: baseurl,
       thumbnails: [],
       requiresDevice: [],
-      supportsMime: []
+      supportsMime: [],
+      isKiosk: true
     };
     url = null;
     if (ineturl != null) {
@@ -3235,11 +3236,11 @@
     };
 
     EntrySendCacheView.prototype.render = function() {
-      var capiveportalHostname, captiveportal, data, fullurl, geturl, item, nocache, path, qrgeturl, qrpath, qrrecenturl, qrurl, recentpath, recenturl, _ref;
+      var capiveportalHostname, captiveportal, data, fullurl, geturl, item, nocache, path, qrgeturl, qrpath, qrrecenturl, qrurl, recentpath, recenturl, _base, _ref, _ref2;
       console.log("render EntrySendCache " + this.model.id + " " + this.model.attributes.title);
       captiveportal = kiosk.isCaptiveportal();
       console.log("captiveportal (send cache) = " + captiveportal);
-      nocache = captiveportal;
+      nocache = captiveportal && !((_ref = (_base = this.model.attributes).isKiosk) != null ? _ref : _base.isKiosk = false);
       fullurl = getter.getGetUrl(this.model, window.options.attributes.devicetype, nocache);
       item = {
         url: fullurl + '&recent',
@@ -3273,7 +3274,7 @@
         geturl: geturl,
         qrurl: qrurl,
         devicetype: window.options.attributes.devicetype,
-        ssid: (_ref = kiosk.getWifiSsid()) != null ? _ref : "??"
+        ssid: (_ref2 = kiosk.getWifiSsid()) != null ? _ref2 : "??"
       };
       this.$el.html(this.template(data));
       return this;

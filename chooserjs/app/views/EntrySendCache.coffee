@@ -28,8 +28,8 @@ module.exports = class EntrySendCacheView extends Backbone.View
     captiveportal = kiosk.isCaptiveportal()
     console.log "captiveportal (send cache) = #{captiveportal}"
     # if we are a captive portal then we can serve internet URLs, which is good for
-    # html offline, bookmarks, etc.
-    nocache = captiveportal
+    # html offline, bookmarks, etc. (But NOT the kiosk's own view)
+    nocache = captiveportal && not (@model.attributes.isKiosk ?= false)
     fullurl = getter.getGetUrl @model, window.options.attributes.devicetype, nocache
     item = 
       url: fullurl+'&recent'
