@@ -444,6 +444,8 @@ public class Service extends android.app.Service {
 				QRCodeServer.handleRequest(path, httpContinuation);
 			else if (path.startsWith("/r/")) 
 				RedirectServer.singleton().handleRequest(path, httpContinuation);
+			else if (path.startsWith("/zero/"))
+				handleZeroRequest(path.substring("/zero/".length()), requestBody, httpContinuation);
 			else 
 				// any other redirects??
 				RedirectServer.singleton().handleRequest(path, httpContinuation);
@@ -480,6 +482,19 @@ public class Service extends android.app.Service {
 			throw HttpError.serverError("This is not the internet");
 		}
 	}
+	private void handleZeroRequest(String size, String requestBody,
+			HttpContinuation httpContinuation) throws HttpError {
+		long length = 0;
+		try {
+			length = Long.valueOf(size);
+		}
+		catch (Exception e) {
+			throw HttpError.badRequest("invalid size: "+size);
+		}
+		ZeroInputStream zis = new ZeroInputStream();
+		httpContinuation.done(200, "OK", "application/binary", length, zis, null);
+	}
+
 	private boolean hostIsPrimaryServer(String host) {
 		// ignore port?
 		int ix = host.indexOf(":");
