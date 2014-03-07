@@ -16,6 +16,7 @@ import java.util.List;
 import java.util.Locale;
 
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 import org.opensharingtoolkit.common.Record;
 import org.opensharingtoolkit.common.Recorder;
@@ -60,22 +61,16 @@ public class JavascriptHelper {
 	 */
 	@JavascriptInterface
 	public String getHostAddress() {
-		NetworkInterface ni = WifiUtils.getWifiInterface();
-		if (ni==null) {
-			mRecorder.w("js.query.host.failed", null);
-			return "127.0.0.1";
-		}
-		String ip = WifiUtils.getHostAddress(ni);
-		JSONObject jo = new JSONObject();
 		try {
-			jo.put("addr", ip);
-			jo.put("if", ni.getName());
+			String address = SharedMemory.getInstance().getString("hostaddress");
+			if (address!=null)
+				return address;
+			mRecorder.w("js.query.host.failed.notset", null);
+		} catch (Exception e1) {
+			Log.w(TAG,"Error getting hostaddress: "+e1, e1);
+			mRecorder.w("js.query.host.failed.exception", null);
 		}
-		catch (Exception e) {
-			Log.e(TAG,"marshalling networkinterface for recorder", e);
-		}
-		mRecorder.d("js.query.host.success", jo);
-		return ip;
+		return "127.0.0.1";
 	}
 	@JavascriptInterface
 	public int getPort() {
@@ -162,72 +157,17 @@ public class JavascriptHelper {
 	 */
 	@JavascriptInterface
 	public String getWifiSsid() {
-		JSONObject jo = new JSONObject();
-		WifiManager wifiManager = (WifiManager) mContext.getSystemService(Context.WIFI_SERVICE);
-		int state = wifiManager.getWifiState();
-		if (state==WifiManager.WIFI_STATE_ENABLED || state==WifiManager.WIFI_STATE_ENABLING) {
-			WifiInfo connectionInfo = wifiManager.getConnectionInfo();
-			String ssid = connectionInfo.getSSID();
-			// remove quotes (=> UTF-8 encodable)
-			if (ssid.startsWith("\"") && ssid.endsWith("\""))
-				ssid = ssid.substring(1, ssid.length()-1);
-			SupplicantState ss = connectionInfo.getSupplicantState();
-			Log.d(TAG,"Wifi is "+ssid+" ("+ss.name()+")"+(state==WifiManager.WIFI_STATE_ENABLING ? " enabling...":""));
-			try {
-				jo.put("type","client");
-				jo.put("ssid", ssid);
-				jo.put("name", ss.name());
-				jo.put("state", state);
-			}
-			catch (Exception e) {
-				Log.e(TAG,"Error marshalling getWifiSsid info", e);
-			}
-			mRecorder.i("js.query.wifiSsid.success", jo);
-			return ssid;
-		}
-		else
-			Log.d(TAG,"Wifi state="+state);
-		// are we a hotspot? need non-documented methods...
-		// http://stackoverflow.com/questions/6394599/android-turn-on-off-wifi-hotspot-programmatically
-		//wifiControlMethod = mWifiManager.getClass().getMethod("setWifiApEnabled", WifiConfiguration.class,boolean.class);
-		int apstate = -1;
 		try {
-		    Method wifiApConfigurationMethod = wifiManager.getClass().getMethod("getWifiApConfiguration");
-			Method wifiApState = wifiManager.getClass().getMethod("getWifiApState");
-			apstate = (Integer)wifiApState.invoke(wifiManager);
-			//if (apstate==WifiManager.WIFI_STATE_ENABLED || apstate==WifiManager.WIFI_STATE_ENABLING) {
-			WifiConfiguration configInfo = (WifiConfiguration)wifiApConfigurationMethod.invoke(wifiManager);
-			String ssid = configInfo!=null ? configInfo.SSID : null;
-			Log.d(TAG,"WifiAp is "+ssid+" (apstate="+apstate+")");
-			// apstate 13 seen when running hotspot...; 11 when not running
-			// cf 3 normal wifi enabled?
-			if (apstate==13 || apstate==12) {
-				try {
-					jo.put("type","hotspot");
-					jo.put("ssid", ssid);
-					jo.put("apstate", apstate);
-				}
-				catch (Exception e) {
-					Log.e(TAG,"Error marshalling getWifiSsid info", e);
-				}
-				mRecorder.i("js.query.wifiSsid.success", jo);
+			String ssid = SharedMemory.getInstance().getString("ssid");
+			if (ssid!=null)
 				return ssid;
-			}
-		} catch (Exception e) {
-			Log.w(TAG,"Unable to find WifiAp methods: "+e);
+			mRecorder.w("js.query.wifiSsid.failed.notset", null);
+		} catch (Exception e1) {
+			Log.w(TAG,"Error getting wifiSsid: "+e1, e1);
+			mRecorder.w("js.query.wifiSsid.failed.exception", null);
 		}
-		try {
-			if (apstate>=0)
-				jo.put("apstate", apstate);
-			jo.put("state", state);
-		}
-		catch (Exception e) {
-			Log.e(TAG,"Error marshalling getWifiSsid error info", e);
-		}
-		mRecorder.i("js.query.wifiSsid.error", jo);
-	    return null;
+		return "";
 	}
-
 	@JavascriptInterface
 	public void registerMimeType(String path, String mimeType) {
 		Service.registerExtension(path, mimeType);

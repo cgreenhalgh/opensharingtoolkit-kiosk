@@ -8,6 +8,8 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
+import java.lang.reflect.Method;
+import java.net.NetworkInterface;
 import java.net.URLDecoder;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -15,23 +17,32 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.opensharingtoolkit.httpserver.HttpContinuation;
 import org.opensharingtoolkit.httpserver.HttpError;
 import org.opensharingtoolkit.httpserver.HttpListener;
 import org.opensharingtoolkit.chooser.R;
 import org.opensharingtoolkit.chooser.SharedMemory.Encoding;
 import org.opensharingtoolkit.common.Hotspot;
+import org.opensharingtoolkit.common.Recorder;
 import org.opensharingtoolkit.common.WifiUtils;
 
 import android.app.Notification;
 import android.app.PendingIntent;
+import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 import android.content.res.AssetFileDescriptor;
 import android.content.res.AssetManager;
+import android.net.wifi.SupplicantState;
+import android.net.wifi.WifiConfiguration;
+import android.net.wifi.WifiInfo;
+import android.net.wifi.WifiManager;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
@@ -53,6 +64,7 @@ public class Service extends android.app.Service {
 	private HttpListener httpListener = null;
 	public static final int HTTP_PORT = 8080;
 	private static int port = HTTP_PORT;
+	private Recorder mRecorder = new Recorder(this, "chooser.service");
 	
 	@Override
 	public void onCreate() {
@@ -90,6 +102,14 @@ public class Service extends android.app.Service {
         // attempt to redirect port
         redirectPort(80, HTTP_PORT);
         queryCaptiveportal();
+        
+        // monitor network state to cache
+		IntentFilter intentFilter = new IntentFilter();
+		//intentFilter.addAction(WifiManager.NETWORK_STATE_CHANGED_ACTION);
+		intentFilter.addAction(WifiManager.WIFI_STATE_CHANGED_ACTION);
+		intentFilter.addAction(WifiUtils.WIFI_AP_STATE_CHANGED_ACTION);
+		registerReceiver(mWifiReceiver, intentFilter);
+		updateNetworkState();
 	}
 
 	@Override
@@ -97,6 +117,8 @@ public class Service extends android.app.Service {
 		Log.d(TAG,"service onDestroy");
 		super.onDestroy();
 		
+		unregisterReceiver(mWifiReceiver);
+
 		// Unbind from the Hotspot service
         if (mBound) {
             unbindService(mConnection);
@@ -225,6 +247,7 @@ public class Service extends android.app.Service {
 			}
 		}
 	}
+	private boolean mIsCaptiveportal = false;
     /**
      * Handler of incoming messages from clients.
      */
@@ -239,6 +262,7 @@ public class Service extends android.app.Service {
                     break;
                 case Hotspot.MSG_INFORM_CAPTIVEPORTAL:
                 	Log.i(TAG,"Inform captiveportal "+(msg.arg1!=0));
+                	mIsCaptiveportal = msg.arg1!=0;
                 	SharedMemory.getInstance().put("captiveportal", Encoding.JSON, msg.arg1!=0 ? "true" : "false");
                 	break;
                 default:
@@ -252,10 +276,124 @@ public class Service extends android.app.Service {
      */
     final Messenger mHotspotMessenger = new Messenger(new HotspotHandler());
 
+    /** wifi broadcast handler - update cached network state
+     */
+	private BroadcastReceiver mWifiReceiver = new BroadcastReceiver() {
+		@Override
+		public void onReceive(Context context, Intent intent) {
+			updateNetworkState();
+		}
+	};
+
+	private String mHostaddress = "127.0.0.1";
+	protected void updateNetworkState() {
+		int state = WifiUtils.getWifiState(this);
+		if (state==WifiManager.WIFI_STATE_ENABLED || state==WifiUtils.WIFI_AP_STATE_ENABLED) {
+			String hostaddress = getHostAddress();
+			String ssid = getWifiSsid();
+			Log.d(TAG,"updateNetworkState hostaddress="+hostaddress+" ssid="+ssid);
+			mHostaddress = hostaddress; 
+			try {
+				SharedMemory.getInstance().put("hostaddress", hostaddress);
+				SharedMemory.getInstance().put("ssid", ssid!=null ? ssid : "");
+			} catch (JSONException e1) {
+				Log.e(TAG,"Error updating host info in sharedmemory: "+e1, e1);
+			}
+			JSONObject jo = new JSONObject();
+			try {
+				jo.put("addr", hostaddress);
+				jo.put("if", ssid);
+			}
+			catch (Exception e) {
+				Log.e(TAG,"marshalling networkinterface for recorder", e);
+			}
+			mRecorder.d("service.host.update", jo);
+		} else {
+			Log.d(TAG,"updateNetworkState ignored: state="+state);
+		}
+	}
+	private String getHostAddress() {
+		NetworkInterface ni = WifiUtils.getWifiInterface();
+		if (ni==null) {
+			mRecorder.w("service.host.query.failed", null);
+			return "127.0.0.1";
+		}
+		String ip = WifiUtils.getHostAddress(ni);
+		return ip;
+	}	
+	private String getWifiSsid() {
+		JSONObject jo = new JSONObject();
+		WifiManager wifiManager = (WifiManager) getSystemService(Context.WIFI_SERVICE);
+		int state = wifiManager.getWifiState();
+		if (state==WifiManager.WIFI_STATE_ENABLED || state==WifiManager.WIFI_STATE_ENABLING) {
+			WifiInfo connectionInfo = wifiManager.getConnectionInfo();
+			String ssid = connectionInfo.getSSID();
+			// remove quotes (=> UTF-8 encodable)
+			if (ssid.startsWith("\"") && ssid.endsWith("\""))
+				ssid = ssid.substring(1, ssid.length()-1);
+			SupplicantState ss = connectionInfo.getSupplicantState();
+			Log.d(TAG,"Wifi is "+ssid+" ("+ss.name()+")"+(state==WifiManager.WIFI_STATE_ENABLING ? " enabling...":""));
+			try {
+				jo.put("type","client");
+				jo.put("ssid", ssid);
+				jo.put("name", ss.name());
+				jo.put("state", state);
+			}
+			catch (Exception e) {
+				Log.e(TAG,"Error marshalling getWifiSsid info", e);
+			}
+			mRecorder.i("service.host.wifiSsid.success", jo);
+			return ssid;
+		}
+		else
+			Log.d(TAG,"Wifi state="+state);
+		// are we a hotspot? need non-documented methods...
+		// http://stackoverflow.com/questions/6394599/android-turn-on-off-wifi-hotspot-programmatically
+		//wifiControlMethod = mWifiManager.getClass().getMethod("setWifiApEnabled", WifiConfiguration.class,boolean.class);
+		int apstate = -1;
+		try {
+		    Method wifiApConfigurationMethod = wifiManager.getClass().getMethod("getWifiApConfiguration");
+			Method wifiApState = wifiManager.getClass().getMethod("getWifiApState");
+			apstate = (Integer)wifiApState.invoke(wifiManager);
+			//if (apstate==WifiManager.WIFI_STATE_ENABLED || apstate==WifiManager.WIFI_STATE_ENABLING) {
+			WifiConfiguration configInfo = (WifiConfiguration)wifiApConfigurationMethod.invoke(wifiManager);
+			String ssid = configInfo!=null ? configInfo.SSID : null;
+			Log.d(TAG,"WifiAp is "+ssid+" (apstate="+apstate+")");
+			// apstate 13 seen when running hotspot...; 11 when not running
+			// cf 3 normal wifi enabled?
+			if (apstate==13 || apstate==12) {
+				try {
+					jo.put("type","hotspot");
+					jo.put("ssid", ssid);
+					jo.put("apstate", apstate);
+				}
+				catch (Exception e) {
+					Log.e(TAG,"Error marshalling getWifiSsid info", e);
+				}
+				mRecorder.i("service.host.wifiSsid.success", jo);
+				return ssid;
+			}
+		} catch (Exception e) {
+			Log.w(TAG,"Unable to find WifiAp methods: "+e);
+		}
+		try {
+			if (apstate>=0)
+				jo.put("apstate", apstate);
+			jo.put("state", state);
+		}
+		catch (Exception e) {
+			Log.e(TAG,"Error marshalling getWifiSsid error info", e);
+		}
+		mRecorder.i("service.host.wifiSsid.error", jo);
+	    return null;
+	}
+
+
 	// starting service...
 	private void handleCommand(Intent intent) {
 		Log.d(TAG,"handleCommand "+intent.getAction());
 	}
+
 
 	// This is the old onStart method that will be called on the pre-2.0
 	// platform.  On 2.0 or later we override onStartCommand() so this
@@ -290,7 +428,7 @@ public class Service extends android.app.Service {
 	
 	public void postRequest(String method, String host, String path, Map<String,String> headers, String requestBody,
 			HttpContinuation httpContinuation) throws IOException, HttpError {
-		if (hostIsPrimaryServer(host)) {
+		if (!mIsCaptiveportal || hostIsPrimaryServer(host)) {
 			if (!"GET".equals(method))
 				throw HttpError.badRequest("Unsupported operation ("+method+")");
 		
@@ -349,8 +487,7 @@ public class Service extends android.app.Service {
 			host = host.substring(0, ix);
 		if ("127.0.0.1".equals(host) || "localhost".equals(host))
 			return true;
-		String ip = WifiUtils.getHostAddress();
-		if (ip.equals(host))
+		if (host.equals(mHostaddress))
 			return true;
 		SharedPreferences spref = PreferenceManager.getDefaultSharedPreferences(this);
 		String hostname = spref.getString("pref_hostname", "leaflets");

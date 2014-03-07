@@ -32,6 +32,7 @@ public class WifiUtils {
 	public static final int WIFI_AP_STATE_DISABLED = 11;
 	public static final int WIFI_AP_STATE_ENABLING = 12;
 	public static final int WIFI_AP_STATE_ENABLED = 13;
+	public static final String WIFI_AP_STATE_CHANGED_ACTION = "android.net.wifi.WIFI_AP_STATE_CHANGED";
 	private static final String TAG = "wifi-utils";
 	
 	/** NB gets WifiAp status if Wifi disabled */

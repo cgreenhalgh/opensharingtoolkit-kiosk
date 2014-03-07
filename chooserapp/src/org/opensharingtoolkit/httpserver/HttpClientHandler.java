@@ -11,6 +11,7 @@ import java.io.BufferedOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.net.Socket;
 import java.util.HashMap;
@@ -186,7 +187,8 @@ public class HttpClientHandler extends Thread {
 			if (mStatus==0)
 				throw HttpError.serverError("Handle request timed out");
 
-			BufferedOutputStream bos = new BufferedOutputStream(s.getOutputStream());
+			OutputStream os = s.getOutputStream();
+			BufferedOutputStream bos = new BufferedOutputStream(os);
 			OutputStreamWriter osw = new OutputStreamWriter(bos, "US-ASCII");
 			osw.write("HTTP/1.0 "+mStatus+" "+mMessage+"\r\n");
 			if (mResponseLength>=0)
@@ -200,14 +202,14 @@ public class HttpClientHandler extends Thread {
 			}
 			osw.write("\r\n");
 			osw.flush();
-			byte rbuf[] = new byte[100000];
+			byte rbuf[] = new byte[250000];
 			int rcnt = 0;
 			if (mResponseLength!=0 && mResponseContent!=null) {
 				while (true) {
 					rcnt = mResponseContent.read(rbuf);
 					if (rcnt<=0)
 						break;
-					bos.write(rbuf, 0, rcnt);
+					os.write(rbuf, 0, rcnt);
 				}
 			}
 			if (mResponseContent!=null){
@@ -219,7 +221,7 @@ public class HttpClientHandler extends Thread {
 				}
 			}
 			//bos.write(resp);
-			bos.close();
+			os.close();
 			Log.d(TAG,"Sent "+mStatus+" "+mMessage+" ("+mResponseLength+" bytes)");
 			mRecorder.i("http.response.complete", info);
 		}
