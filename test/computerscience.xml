@@ -30,6 +30,17 @@
      <link rel="alternate" type="image/png" href="http://www.cs.nott.ac.uk/~cmg/AppropriateICT/test/adobe_reader.png"/>
      <link rel="enclosure" type="application/vnd.android.package-archive" href="http://play.google.com/store/apps/details?id=com.adobe.reader"/>
    </entry> 
+    <entry>
+      <category scheme="visibility" term="hidden"/> 
+      <category scheme="requires-device" term="windowsphone"/> 
+      <category scheme="supports-mime-type" term="application/pdf"/> 
+     <id>tag:cmg@cs.nott.ac.uk,2014-03-12:/group/g1/item/i4</id>
+     <content>One of the most popular PDF file viewers, from Adobe, download from Windows Store.</content>
+     <title>Adobe Reader</title>
+     <updated>2014-03-12T21:42:00Z</updated>
+     <link rel="alternate" type="image/png" href="http://www.cs.nott.ac.uk/~cmg/AppropriateICT/test/adobe_reader.png"/>
+     <link rel="enclosure" type="application/x-windowsmobile-app" href="http://www.windowsphone.com/en-gb/store/app/adobe-reader/134e363e-8811-44be-b1e3-d8a0c60d4692"/>
+   </entry> 
 
 
    <entry>     

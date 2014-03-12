@@ -18,5 +18,10 @@
     "comment": "This is NOT a real MimeType - just a placeholder within the sytem",
     "icon": "icons/available_on_the_app_store.png",
     "label": "iPhone app"
+  },
+  "application/x-windowsmobile-app" : {
+    "comment": "This is NOT a real MimeType - just a placeholder within the sytem",
+    "icon": "icons/download_from_windows_store.png",
+    "label": "WindowsPhone app"
   }
 }
