@@ -88,11 +88,11 @@ asset_prefix = 'file:///android_asset/'
 localhost_prefix = 'http://localhost'
 localhost2_prefix = 'http://127.0.0.1'
 
-module.exports.getPortableUrl = getPortableUrl = (url,nativePort) ->
+module.exports.getPortableUrl = getPortableUrl = (url) ->
   # convert any kiosk-internal URLs to externally accessible ones...
   # TODO any external portmapping?
   if window.kiosk?
-    portOpt = if (nativePort?=false) then getPortOpt() else module.exports.getPort()  
+    portOpt = getPortOpt()  
     kiosk = window.kiosk
     if url.indexOf(asset_prefix)==0
       console.log "getPortableUrl for asset #{url}"

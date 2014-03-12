@@ -724,10 +724,10 @@
 
   localhost2_prefix = 'http://127.0.0.1';
 
-  module.exports.getPortableUrl = getPortableUrl = function(url, nativePort) {
+  module.exports.getPortableUrl = getPortableUrl = function(url) {
     var file_prefix, portOpt;
     if (window.kiosk != null) {
-      portOpt = (nativePort != null ? nativePort : nativePort = false) ? getPortOpt() : module.exports.getPort();
+      portOpt = getPortOpt();
       kiosk = window.kiosk;
       if (url.indexOf(asset_prefix) === 0) {
         console.log("getPortableUrl for asset " + url);
