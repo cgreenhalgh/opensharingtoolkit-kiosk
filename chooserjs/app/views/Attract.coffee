@@ -163,6 +163,8 @@ module.exports = class AttractView extends Backbone.View
     false
 
   remove: =>
+    if window.clickFeedback?
+      window.clickFeedback()
     recorder.i 'view.attract.hide'
     console.log 'close/remove Attract'
     @$el.remove()
@@ -171,5 +173,5 @@ module.exports = class AttractView extends Backbone.View
     createjs.Ticker.removeEventListener("tick", @stage)
     clearInterval @timer
 
-    router.navigate("consent",{trigger:true})
+    window.router.navigate("consent",{trigger:true})
 

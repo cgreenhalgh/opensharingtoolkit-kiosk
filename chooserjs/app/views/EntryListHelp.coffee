@@ -33,10 +33,14 @@ module.exports = class EntryListView extends Backbone.View
     'click': 'close'
 
   showAttract: () ->
+    if window.clickFeedback?
+      window.clickFeedback()
     recorder.i 'user.requestHelp.info'
     attract.show()
 
   close: (ev)->
+    if window.clickFeedback?
+      window.clickFeedback()
     ev.preventDefault()
     window.router.back()
     false

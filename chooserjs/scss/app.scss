@@ -13,6 +13,7 @@ $help-icon-size: rem-calc(56);
 .button,
 //.devicetype,
 //.devicetype-help-button,
+.entry-option,
 .entry-option-step-help-button,
 .entry-option-help-button,
 //.help-label
@@ -28,13 +29,17 @@ $help-icon-size: rem-calc(56);
   border-radius: 5px;
   border-color: fade-out(#888, .25);
 
-  &.touch-active,&:hover {
+  transition: box-shadow 500ms;
+
+  &.touch-active {
     @if $experimental {
       -webkit-box-shadow: 0 0 10px fade-out($primary-color, .25);
       -moz-box-shadow: 0 0 10px fade-out($primary-color, .25);
     }
     box-shadow: 0 0 10px fade-out($primary-color, .25);
     border-color: fade-out($primary-color, .25);
+
+    transition: box-shadow 0ms;
   }
   //@include block-glowing-effect(hover,10ms);
   //@include block-glowing-effect(active,10ms);

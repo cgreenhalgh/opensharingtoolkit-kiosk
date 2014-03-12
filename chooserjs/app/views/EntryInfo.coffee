@@ -46,8 +46,12 @@ module.exports = class EntryInfoView extends Backbone.View
     #'click .more-help-option-send-internet': 'moreHelpOptionSendInternet'
     #'click .more-help-option-send-cache': 'moreHelpOptionSendCache'
 
+  click: () ->
+    if window.clickFeedback?
+      window.clickFeedback()
 
   helpOption: (name) =>
+    @click()
     attract.active()
     recorder.i 'user.requestHelp.option',{option:name}
     $( ".help-option-#{name}", @$el ).toggleClass 'hide'
@@ -72,12 +76,14 @@ module.exports = class EntryInfoView extends Backbone.View
     @helpOption 'get'
 
   optionView: =>
+    @click()
     attract.active()
     recorder.i 'user.option.view',{id:@model.id}
     console.log "option:view entry #{ @model.id }"
     window.router.navigate "preview/#{ encodeURIComponent @model.id }", trigger:true
 
   optionGet: =>
+    @click()
     attract.active()
     console.log "option:get entry #{ @model.id }"
     # non-kiosk only! (but can do this in kiosk mode)
@@ -98,12 +104,14 @@ module.exports = class EntryInfoView extends Backbone.View
     window.open(url,'get')
 
   optionSendInternet: =>
+    @click()
     attract.active()
     recorder.i 'user.option.sendInternet',{id:@model.id}
     console.log "option:send(internet) entry #{ @model.id }"
     window.router.navigate "sendInternet/#{ encodeURIComponent @model.id }", trigger:true
 
   optionSendCache: =>
+    @click()
     attract.active()
     recorder.i 'user.option.sendCache',{id:@model.id}
     console.log "option:send(cache) entry #{ @model.id }"

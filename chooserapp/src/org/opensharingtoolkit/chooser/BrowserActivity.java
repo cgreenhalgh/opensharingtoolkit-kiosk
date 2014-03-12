@@ -56,6 +56,7 @@ public class BrowserActivity extends Activity {
         webView.getSettings().setBuiltInZoomControls(false);
         webView.getSettings().setDatabasePath(getApplicationContext().getFilesDir().getPath()+"/org.opensharingtoolkit.chooser/databases/");
         webView.getSettings().setDomStorageEnabled(true);
+        webView.getSettings().setMediaPlaybackRequiresUserGesture(false);
         webView.setWebChromeClient(new WebChromeClient() {
         	public void onProgressChanged(WebView view, int progress) {
         		Log.d(TAG,"progress "+progress);

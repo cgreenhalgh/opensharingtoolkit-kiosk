@@ -27,6 +27,8 @@ module.exports = class EntryInListView extends Backbone.View
     @
 
   view: (ev) =>
+    if window.clickFeedback?
+      window.clickFeedback()
     console.log 'view '+@model.id
     recorder.i 'user.selectEntry',{id:@model.id,title:@model.attributes.title}
     window.router.navigate 'entry/'+encodeURIComponent(@model.id), trigger:true

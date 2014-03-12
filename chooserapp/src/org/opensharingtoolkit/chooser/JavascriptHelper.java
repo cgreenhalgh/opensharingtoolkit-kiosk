@@ -11,9 +11,11 @@ import java.net.InterfaceAddress;
 import java.net.NetworkInterface;
 import java.net.SocketException;
 import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -27,11 +29,19 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
+import android.content.res.AssetFileDescriptor;
+import android.content.res.AssetManager;
+import android.media.AudioManager;
+import android.media.AudioManager.OnAudioFocusChangeListener;
+import android.media.MediaPlayer;
+import android.media.MediaPlayer.OnCompletionListener;
+import android.media.MediaPlayer.OnSeekCompleteListener;
 import android.net.Uri;
 import android.net.wifi.SupplicantState;
 import android.net.wifi.WifiConfiguration;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
+import android.os.Vibrator;
 import android.preference.PreferenceManager;
 import android.util.Log;
 import android.webkit.JavascriptInterface;
@@ -41,11 +51,12 @@ import android.webkit.JavascriptInterface;
  * @author pszcmg
  *
  */
-public class JavascriptHelper {
+public class JavascriptHelper implements OnAudioFocusChangeListener {
 	private static final String TAG = "JavascriptHelper";
 	private Context mContext;
 	//private RedirectServer mRedirectServer;
 	private Recorder mRecorder;
+	private Map<String,MediaPlayer> mMediaPlayers = new HashMap<String,MediaPlayer>();
 	
 	public JavascriptHelper(Context context/*, RedirectServer redirectServer*/) {
 		super();
@@ -346,4 +357,147 @@ public class JavascriptHelper {
 			return null;
 		}
 	}
+	private static final int MIN_VIBRATE = 200;
+	@JavascriptInterface
+	public boolean vibrate(int duration) {
+		try {
+			if (duration < MIN_VIBRATE)
+				duration = MIN_VIBRATE;
+			Vibrator vib = (Vibrator) mContext.getSystemService(Context.VIBRATOR_SERVICE);
+			if (vib.hasVibrator()) {
+				Log.d(TAG,"vibrate "+duration);
+				vib.vibrate(duration);
+				return true;
+			}
+			Log.d(TAG,"no vibrator");
+			return false;
+		}
+		catch( Exception e ) {
+			Log.e(TAG,"Error vibrate "+duration+": "+e);
+			return false;
+		}
+	}
+	@JavascriptInterface
+	public boolean audioLoad(String url) {
+		synchronized (mMediaPlayers) {
+			MediaPlayer mp = mMediaPlayers.get(url);
+			if (mp==null) {
+				try {
+					mp = new MediaPlayer();
+					// not always, though
+					mp.setAudioStreamType(AudioManager.STREAM_NOTIFICATION);
+					if (url.startsWith("file:///android_asset/")) {
+						try {
+							AssetManager assets = mContext.getApplicationContext().getAssets();
+							AssetFileDescriptor fd = assets.openFd(url.substring("file:///android_asset/".length()));
+							mp.setDataSource(fd.getFileDescriptor(), fd.getStartOffset(), fd.getDeclaredLength());
+							mp.prepare();
+							fd.close();
+						}
+						catch (Exception e) {
+							Log.e(TAG,"Error getting audio asset "+url+": "+e);
+							return false;
+						}
+					}
+					else {
+						mp.setDataSource(mContext, Uri.parse(url));
+						mp.prepareAsync();
+					}
+					mMediaPlayers.put(url, mp);
+					mp.setOnSeekCompleteListener(new OnSeekCompleteListener() {
+						@Override
+						public void onSeekComplete(MediaPlayer mp) {
+							Log.d(TAG,"play on seek complete");
+							mp.start();
+						}
+					});
+					mp.setOnCompletionListener(new OnCompletionListener() {
+						@Override
+						public void onCompletion(MediaPlayer mp) {
+							Log.d(TAG,"completed audio");
+						}
+					});
+					Log.d(TAG,"Created MediaPlayer for "+url);
+					return true;
+				}
+				catch (Exception e ){
+					Log.e(TAG,"Error creating media player for "+url+": "+e);
+				}
+			}
+		}
+		return false;
+	}
+	private MediaPlayer mMediaPlayer;
+	private boolean mHasAudioFocus;
+	@JavascriptInterface
+	public boolean audioPlay(String url) {
+		audioLoad(url);
+		synchronized (mMediaPlayers) {
+			MediaPlayer mp = mMediaPlayers.get(url);
+			if (mp!=null) {
+				try {
+					AudioManager audioManager = (AudioManager) mContext.getSystemService(Context.AUDIO_SERVICE);
+					boolean hasFocus = false;
+					synchronized (this) {
+						mMediaPlayer = mp;
+						hasFocus = mHasAudioFocus;
+					}
+					if (hasFocus) {
+						audioPlayInternal(); 
+					} else {
+						int result = audioManager.requestAudioFocus(this, AudioManager.STREAM_NOTIFICATION,
+						    AudioManager.AUDIOFOCUS_GAIN);
+	
+						if (result != AudioManager.AUDIOFOCUS_REQUEST_GRANTED) {
+							Log.d(TAG,"Could not get audio focus");
+						}
+						else {
+							Log.d(TAG,"received audio focus");
+							synchronized(this) {
+								mHasAudioFocus = true;
+							}
+							audioPlayInternal();
+						}
+					}
+				}
+				catch (Exception e) {
+					Log.e(TAG,"Error getting audio focus: "+e);
+				}
+			}
+			else
+				Log.d(TAG,"Could not play audio "+url+" - could not make player");
+		}
+		return false;
+	}
+	private void audioPlayInternal() {
+		try {
+			synchronized (this) {
+				if (mMediaPlayer!=null && mMediaPlayer.isPlaying())
+					mMediaPlayer.pause();
+				if (mMediaPlayer.getCurrentPosition()==0)
+					mMediaPlayer.start();
+				else
+					mMediaPlayer.seekTo(0);
+			}
+		} catch (Exception e) {
+			Log.e(TAG,"Error playing audio (internal): "+e);
+		}
+	}
+
+	@Override
+	public void onAudioFocusChange(int focusChange) {
+		if (focusChange==AudioManager.AUDIOFOCUS_GAIN) {
+			Log.d(TAG,"audio gained focus");
+			audioPlayInternal();
+		} else {
+			Log.d(TAG,"audio lost focus ("+focusChange+")");
+			// give up
+			synchronized (this) {
+				if (mMediaPlayer!=null && mMediaPlayer.isPlaying())
+					mMediaPlayer.pause();
+				mHasAudioFocus = false;
+			}
+		}
+	}
+	
 }

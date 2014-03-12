@@ -74,7 +74,13 @@ module.exports = class EntrySendCacheView extends Backbone.View
     'click .entry-option-step-show': 'help'
     'click .entry-option-step-hide': 'helpHide'
 
+  click: () ->
+    if window.clickFeedback?
+      window.clickFeedback()
+
+
   helpHide: =>
+    @click()
     attract.active()
     $( '.entry-option-step-panel', @$el ).addClass 'hide'
     $( '.entry-option-step-show', @$el ).removeClass 'hide'
@@ -82,6 +88,7 @@ module.exports = class EntrySendCacheView extends Backbone.View
     false
 
   help: (ev) =>
+    @click()
     attract.active()
     $( '.entry-option-step-panel', @$el ).addClass 'hide'
     # need to get the position at the right time!

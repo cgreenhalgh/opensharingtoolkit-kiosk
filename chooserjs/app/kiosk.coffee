@@ -67,6 +67,20 @@ getPortOpt = () ->
   else
     ""
 
+vibrate = navigator.vibrate ?= navigator.webkitVibrate ?= navigator.mozVibrate ?= navigator.msVibrate ?= null
+
+module.exports.vibrate = (duration) ->
+  if window.kiosk?
+    window.kiosk.vibrate(duration)
+  else if vibrate?
+    try
+      vibrate duration
+    catch err
+      console.log "vibrate error: #{err}"
+    true
+  else
+    false
+
 module.exports.getUrlForPath = (path) ->
   'http://'+kiosk.getHostAddress()+getPortOpt()+path
 
@@ -74,19 +88,20 @@ asset_prefix = 'file:///android_asset/'
 localhost_prefix = 'http://localhost'
 localhost2_prefix = 'http://127.0.0.1'
 
-module.exports.getPortableUrl = getPortableUrl = (url) ->
+module.exports.getPortableUrl = getPortableUrl = (url,nativePort) ->
   # convert any kiosk-internal URLs to externally accessible ones...
   # TODO any external portmapping?
   if window.kiosk?
+    portOpt = if (nativePort?=false) then getPortOpt() else module.exports.getPort()  
     kiosk = window.kiosk
     if url.indexOf(asset_prefix)==0
       console.log "getPortableUrl for asset #{url}"
-      'http://'+kiosk.getHostAddress()+getPortOpt()+'/a/'+url.substring(asset_prefix.length)
+      'http://'+kiosk.getHostAddress()+portOpt+'/a/'+url.substring(asset_prefix.length)
     else if url.indexOf('file:')==0
       file_prefix = kiosk.getLocalFilePrefix()+'/'
       if url.indexOf(file_prefix)==0
         console.log "getPortableUrl for app file #{url}"
-        'http://'+kiosk.getHostAddress()+getPortOpt()+'/f/'+url.substring(file_prefix.length)
+        'http://'+kiosk.getHostAddress()+portOpt+'/f/'+url.substring(file_prefix.length)
       else 
         console.log "Warning: file URL which does not match local file prefix: #{url}"
         url
@@ -227,4 +242,74 @@ module.exports.addKioskEntry = (entries,atomurl,ineturl) ->
     window.entries.add e
     console.log "added kiosk entry #{e.attributes.enclosures[0].url} / #{e.attributes.enclosures[0].path}"
     e
+
+
+#http://www.javascriptkit.com/script/script2/soundlink.shtml#current
+html5_audiotypes={ # define list of audio file extensions and their associated audio types. Add to it if your specified audio file isn't on this list:
+  "mp3": "audio/mpeg",
+  "mp4": "audio/mp4",
+  "ogg": "audio/ogg",
+  "wav": "audio/wav"
+}
+
+makeaudiourl = (path) ->
+  if (path.indexOf ':') < 0 
+    #console.log 'converting local name '+atomurl+' to global...'
+    base = window.location.href;
+    hi = base.indexOf '#'
+    if (hi >= 0)
+      base = base.substring 0,hi
+    if (path.indexOf '/') == 0 
+      # absolute
+      si = base.indexOf '//'
+      si = if si<0 then 0 else si+2
+      si = base.indexOf '/', si
+      return (if si<0 then base else base.substring 0,si) + path
+    else 
+      # relative
+      si = base.lastIndexOf '/'
+      return (if si<0 then base+'/' else base.substring 0,si+1) + path
+  else
+    # full
+    return path
+
+fixaudiourl = (path) ->
+  #kiosk.getPortableUrl, _, true 
+  makeaudiourl(path)
+
+createsoundbite = (sound) ->
+  console.log "create soundeffect #{sound}"
+  html5audio=document.createElement('audio')
+  if (html5audio.canPlayType) # check support for HTML5 audio
+    for arg,i in arguments
+      sourceel=document.createElement('source')
+      url = fixaudiourl(arguments[i])
+      sourceel.setAttribute 'src', url
+      if (arguments[i].match(/\.(\w+)$/i))
+        type = html5_audiotypes[RegExp.$1]
+        sourceel.setAttribute 'type', type
+      console.log "- source #{arguments[i]} = #{url} #{type}"
+      html5audio.appendChild(sourceel)
+    html5audio.load()
+    html5audio.playclip = ()->
+      console.log "playclip #{sound} state=#{html5audio.readyState} currentTime=#{html5audio.currentTime} duration=#{html5audio.duration} paused=#{html5audio.paused}"
+      try
+        if !html5audio.paused
+          html5audio.pause()
+        html5audio.currentTime=0
+        html5audio.play()
+      catch err
+        console.log "Error playing clip: #{err}"
+    return html5audio
+  else
+    console.log "Could not create HTML5 audio"
+    return () -> false
+
+
+module.exports.audioLoad = (path) ->
+  if window.kiosk?
+    url = makeaudiourl path
+    window.kiosk.audioLoad url
+    return playclip: () -> window.kiosk.audioPlay url
+  createsoundbite path
 

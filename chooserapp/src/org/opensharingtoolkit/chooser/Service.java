@@ -565,6 +565,14 @@ public class Service extends android.app.Service {
 				mimeType = "application/pdf";
 			else if (extension.equals("appcache"))
 				mimeType = "text/cache-manifest";
+			else if (extension.equals("mp3"))
+				mimeType = "audio/mpeg";
+			else if (extension.equals("mp4"))
+				mimeType = "audio/mp4";
+			else if (extension.equals("ogg"))
+				mimeType = "audio/ogg";
+			else if (extension.equals("wav"))
+				mimeType = "audio/wav";
 			else {
 				if (extensionMimeTypes.containsKey(extension))
 					mimeType = extensionMimeTypes.get(extension);

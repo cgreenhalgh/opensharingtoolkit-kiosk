@@ -265,6 +265,8 @@ App =
 
     # anchors
     $(document).on 'click','a', (ev) ->
+      $(this).removeClass("touch-active") 
+      clickFeedback()
       attract.active()
       #alert "click"
       ev.preventDefault()
@@ -325,13 +327,51 @@ App =
           console.log "chooseDeviceModal closed cancels delayed navigate to #{url}"
 
     # http://lfhck.com/question/388518/how-to-simulate-active-css-pseudo-class-in-android-on-non-link-elements
-    if (navigator.userAgent.toLowerCase().indexOf("android") > -1) 
-      $(".clickable")
-        .on "touchstart",  () -> 
-           #$(".touch-active").removeClass()
-           $(this).addClass("touch-active") 
-        .on "touchend", () -> $(this).removeClass("touch-active") 
-        .on "touchcancel", () -> $(this).removeClass("touch-active")
-        .on "click",  () -> $(this).removeClass("touch-active") 
+    #if (navigator.userAgent.toLowerCase().indexOf("android") > -1) 
+    #.button, .entry-option-step-help-button, .entry-option-help-button, 
+    $(document).on "touchstart mousedown", ".clickable, .button, .entry-option, .entry-option-step-help-button, .entry-option-help-button", (ev) -> 
+           #$(".touch-active", ).removeClass()
+           touchFeedback()
+           el = $(ev.currentTarget)
+           el.addClass "touch-active"
+           clear = ()->
+             try 
+               el.removeClass 'touch-active'
+               console.log "clear touch-active"
+             catch err
+               console.log "error clearing touch-active #{err}"
+           setTimeout clear,500
+           true
+    #$(document).on "touchend", (ev) -> 
+    #  $(".touch-active").removeClass("touch-active")
+    #  true
+    #$(document).on "touchcancel", (ev) -> 
+    #  $(".touch-active").removeClass("touch-active")
+    #  true
+    $(document).on "click", ".clickable, .button, .entry-option, .entry-option-step-help-button, .entry-option-help-button", (ev) -> 
+           #$(this).removeClass("touch-active") 
+           clickFeedback()
+           true
+
+SHORT_VIBRATE = 50
+
+# ogg first?? mp3 first (android)
+touchsound=kiosk.audioLoad "audio/click1.ogg","audio/click1.mp3"
+#clicksound=kiosk.audioLoad "audio/click2.ogg","audio/click2.mp3"
+
+canVibrate = true
+
+touchFeedback = () ->
+  #console.log "touch..."
+  if not kiosk.vibrate SHORT_VIBRATE
+    canVibrate = false
+    touchsound.playclip()
+
+clickFeedback = () ->
+  #console.log "click..."
+  if canVibrate  
+    touchsound.playclip()
+
+window.clickFeedback = clickFeedback
 
 module.exports = App

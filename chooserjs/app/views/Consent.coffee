@@ -30,10 +30,14 @@ module.exports = class ConsentView extends Backbone.View
     false
 
   consentYes: ->
+    if window.clickFeedback?
+      window.clickFeedback()
     recorder.i 'user.consent.yes'
     @close()
 
   consentNo: ->
+    if window.clickFeedback?
+      window.clickFeedback()
     recorder.i 'user.consent.no'
     attract.show()
     

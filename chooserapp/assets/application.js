@@ -49,7 +49,7 @@
   }
   return this.require.define;
 }).call(this)({"app": function(exports, require, module) {(function() {
-  var App, ConsentView, Devicetype, DevicetypeChoiceView, DevicetypeList, Entry, EntryInfoView, EntryList, EntryListHelpView, EntryListView, EntryPreviewView, EntrySendCacheView, EntrySendInternetView, Mimetype, MimetypeList, Options, OptionsDevicetypeLabelView, Router, addView, attract, chooseDevicetype, kiosk, loader, popView, recorder, testentry1;
+  var App, ConsentView, Devicetype, DevicetypeChoiceView, DevicetypeList, Entry, EntryInfoView, EntryList, EntryListHelpView, EntryListView, EntryPreviewView, EntrySendCacheView, EntrySendInternetView, Mimetype, MimetypeList, Options, OptionsDevicetypeLabelView, Router, SHORT_VIBRATE, addView, attract, canVibrate, chooseDevicetype, clickFeedback, kiosk, loader, popView, recorder, testentry1, touchFeedback, touchsound;
   var __hasProp = Object.prototype.hasOwnProperty, __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor; child.__super__ = parent.prototype; return child; };
 
   Mimetype = require('models/Mimetype');
@@ -370,6 +370,8 @@
       });
       $(document).on('click', 'a', function(ev) {
         var href;
+        $(this).removeClass("touch-active");
+        clickFeedback();
         attract.active();
         ev.preventDefault();
         href = $(this).attr('href');
@@ -444,19 +446,47 @@
           }
         }
       });
-      if (navigator.userAgent.toLowerCase().indexOf("android") > -1) {
-        return $(".clickable").on("touchstart", function() {
-          return $(this).addClass("touch-active");
-        }).on("touchend", function() {
-          return $(this).removeClass("touch-active").on("touchcancel", function() {
-            return $(this).removeClass("touch-active").on("click", function() {
-              return $(this).removeClass("touch-active");
-            });
-          });
-        });
-      }
+      $(document).on("touchstart mousedown", ".clickable, .button, .entry-option, .entry-option-step-help-button, .entry-option-help-button", function(ev) {
+        var clear, el;
+        touchFeedback();
+        el = $(ev.currentTarget);
+        el.addClass("touch-active");
+        clear = function() {
+          try {
+            el.removeClass('touch-active');
+            return console.log("clear touch-active");
+          } catch (err) {
+            return console.log("error clearing touch-active " + err);
+          }
+        };
+        setTimeout(clear, 500);
+        return true;
+      });
+      return $(document).on("click", ".clickable, .button, .entry-option, .entry-option-step-help-button, .entry-option-help-button", function(ev) {
+        clickFeedback();
+        return true;
+      });
     }
   };
+
+  SHORT_VIBRATE = 50;
+
+  touchsound = kiosk.audioLoad("audio/click1.ogg", "audio/click1.mp3");
+
+  canVibrate = true;
+
+  touchFeedback = function() {
+    if (!kiosk.vibrate(SHORT_VIBRATE)) {
+      canVibrate = false;
+      return touchsound.playclip();
+    }
+  };
+
+  clickFeedback = function() {
+    if (canVibrate) return touchsound.playclip();
+  };
+
+  window.clickFeedback = clickFeedback;
 
   module.exports = App;
 
@@ -572,7 +602,7 @@
 
 }).call(this);
 }, "kiosk": function(exports, require, module) {(function() {
-  var Entry, REDIRECT_LIFETIME_MS, asset_prefix, getParameter, getPortOpt, getPortableUrl, kiosk, localhost2_prefix, localhost_prefix, urlParams;
+  var Entry, REDIRECT_LIFETIME_MS, asset_prefix, createsoundbite, fixaudiourl, getParameter, getPortOpt, getPortableUrl, html5_audiotypes, kiosk, localhost2_prefix, localhost_prefix, makeaudiourl, urlParams, vibrate, _ref, _ref2, _ref3, _ref4;
 
   Entry = require('models/Entry');
 
@@ -667,6 +697,23 @@
     }
   };
 
+  vibrate = (_ref = navigator.vibrate) != null ? _ref : navigator.vibrate = (_ref2 = navigator.webkitVibrate) != null ? _ref2 : navigator.webkitVibrate = (_ref3 = navigator.mozVibrate) != null ? _ref3 : navigator.mozVibrate = (_ref4 = navigator.msVibrate) != null ? _ref4 : navigator.msVibrate = null;
+
+  module.exports.vibrate = function(duration) {
+    if (window.kiosk != null) {
+      return window.kiosk.vibrate(duration);
+    } else if (vibrate != null) {
+      try {
+        vibrate(duration);
+      } catch (err) {
+        console.log("vibrate error: " + err);
+      }
+      return true;
+    } else {
+      return false;
+    }
+  };
+
   module.exports.getUrlForPath = function(path) {
     return 'http://' + kiosk.getHostAddress() + getPortOpt() + path;
   };
@@ -677,18 +724,19 @@
 
   localhost2_prefix = 'http://127.0.0.1';
 
-  module.exports.getPortableUrl = getPortableUrl = function(url) {
-    var file_prefix;
+  module.exports.getPortableUrl = getPortableUrl = function(url, nativePort) {
+    var file_prefix, portOpt;
     if (window.kiosk != null) {
+      portOpt = (nativePort != null ? nativePort : nativePort = false) ? getPortOpt() : module.exports.getPort();
       kiosk = window.kiosk;
       if (url.indexOf(asset_prefix) === 0) {
         console.log("getPortableUrl for asset " + url);
-        return 'http://' + kiosk.getHostAddress() + getPortOpt() + '/a/' + url.substring(asset_prefix.length);
+        return 'http://' + kiosk.getHostAddress() + portOpt + '/a/' + url.substring(asset_prefix.length);
       } else if (url.indexOf('file:') === 0) {
         file_prefix = kiosk.getLocalFilePrefix() + '/';
         if (url.indexOf(file_prefix) === 0) {
           console.log("getPortableUrl for app file " + url);
-          return 'http://' + kiosk.getHostAddress() + getPortOpt() + '/f/' + url.substring(file_prefix.length);
+          return 'http://' + kiosk.getHostAddress() + portOpt + '/f/' + url.substring(file_prefix.length);
         } else {
           console.log("Warning: file URL which does not match local file prefix: " + url);
           return url;
@@ -834,6 +882,88 @@
     window.entries.add(e);
     console.log("added kiosk entry " + e.attributes.enclosures[0].url + " / " + e.attributes.enclosures[0].path);
     return e;
+  };
+
+  html5_audiotypes = {
+    "mp3": "audio/mpeg",
+    "mp4": "audio/mp4",
+    "ogg": "audio/ogg",
+    "wav": "audio/wav"
+  };
+
+  makeaudiourl = function(path) {
+    var base, hi, si;
+    if ((path.indexOf(':')) < 0) {
+      base = window.location.href;
+      hi = base.indexOf('#');
+      if (hi >= 0) base = base.substring(0, hi);
+      if ((path.indexOf('/')) === 0) {
+        si = base.indexOf('//');
+        si = si < 0 ? 0 : si + 2;
+        si = base.indexOf('/', si);
+        return (si < 0 ? base : base.substring(0, si)) + path;
+      } else {
+        si = base.lastIndexOf('/');
+        return (si < 0 ? base + '/' : base.substring(0, si + 1)) + path;
+      }
+    } else {
+      return path;
+    }
+  };
+
+  fixaudiourl = function(path) {
+    return makeaudiourl(path);
+  };
+
+  createsoundbite = function(sound) {
+    var arg, html5audio, i, sourceel, type, url, _len;
+    console.log("create soundeffect " + sound);
+    html5audio = document.createElement('audio');
+    if (html5audio.canPlayType) {
+      for (i = 0, _len = arguments.length; i < _len; i++) {
+        arg = arguments[i];
+        sourceel = document.createElement('source');
+        url = fixaudiourl(arguments[i]);
+        sourceel.setAttribute('src', url);
+        if (arguments[i].match(/\.(\w+)$/i)) {
+          type = html5_audiotypes[RegExp.$1];
+          sourceel.setAttribute('type', type);
+        }
+        console.log("- source " + arguments[i] + " = " + url + " " + type);
+        html5audio.appendChild(sourceel);
+      }
+      html5audio.load();
+      html5audio.playclip = function() {
+        console.log("playclip " + sound + " state=" + html5audio.readyState + " currentTime=" + html5audio.currentTime + " duration=" + html5audio.duration + " paused=" + html5audio.paused);
+        try {
+          if (!html5audio.paused) html5audio.pause();
+          html5audio.currentTime = 0;
+          return html5audio.play();
+        } catch (err) {
+          return console.log("Error playing clip: " + err);
+        }
+      };
+      return html5audio;
+    } else {
+      console.log("Could not create HTML5 audio");
+      return function() {
+        return false;
+      };
+    }
+  };
+
+  module.exports.audioLoad = function(path) {
+    var url;
+    if (window.kiosk != null) {
+      url = makeaudiourl(path);
+      window.kiosk.audioLoad(url);
+      return {
+        playclip: function() {
+          return window.kiosk.audioPlay(url);
+        }
+      };
+    }
+    return createsoundbite(path);
   };
 
 }).call(this);
@@ -2574,6 +2704,7 @@
     };
 
     AttractView.prototype.close = function(ev) {
+      if (window.clickFeedback != null) window.clickFeedback();
       this.remove();
       return false;
     };
@@ -2586,7 +2717,7 @@
       queue.off('complete', this.initStage, this);
       createjs.Ticker.removeEventListener("tick", this.stage);
       clearInterval(this.timer);
-      return router.navigate("consent", {
+      return window.router.navigate("consent", {
         trigger: true
       });
     };
@@ -2645,11 +2776,13 @@
     };
 
     ConsentView.prototype.consentYes = function() {
+      if (window.clickFeedback != null) window.clickFeedback();
       recorder.i('user.consent.yes');
       return this.close();
     };
 
     ConsentView.prototype.consentNo = function() {
+      if (window.clickFeedback != null) window.clickFeedback();
       recorder.i('user.consent.no');
       return attract.show();
     };
@@ -2813,6 +2946,7 @@
     };
 
     EntryInListView.prototype.view = function(ev) {
+      if (window.clickFeedback != null) window.clickFeedback();
       console.log('view ' + this.model.id);
       recorder.i('user.selectEntry', {
         id: this.model.id,
@@ -2912,8 +3046,13 @@
       'click .option-send-cache': 'optionSendCache'
     };
 
+    EntryInfoView.prototype.click = function() {
+      if (window.clickFeedback != null) return window.clickFeedback();
+    };
+
     EntryInfoView.prototype.helpOption = function(name) {
       var b, offset;
+      this.click();
       attract.active();
       recorder.i('user.requestHelp.option', {
         option: name
@@ -2948,6 +3087,7 @@
     };
 
     EntryInfoView.prototype.optionView = function() {
+      this.click();
       attract.active();
       recorder.i('user.option.view', {
         id: this.model.id
@@ -2960,6 +3100,7 @@
 
     EntryInfoView.prototype.optionGet = function() {
       var devicetype, url, _ref;
+      this.click();
       attract.active();
       console.log("option:get entry " + this.model.id);
       devicetype = window.options.getBrowserDevicetype();
@@ -2977,6 +3118,7 @@
     };
 
     EntryInfoView.prototype.optionSendInternet = function() {
+      this.click();
       attract.active();
       recorder.i('user.option.sendInternet', {
         id: this.model.id
@@ -2988,6 +3130,7 @@
     };
 
     EntryInfoView.prototype.optionSendCache = function() {
+      this.click();
       attract.active();
       recorder.i('user.option.sendCache', {
         id: this.model.id
@@ -3124,11 +3267,13 @@
     };
 
     EntryListView.prototype.showAttract = function() {
+      if (window.clickFeedback != null) window.clickFeedback();
       recorder.i('user.requestHelp.info');
       return attract.show();
     };
 
     EntryListView.prototype.close = function(ev) {
+      if (window.clickFeedback != null) window.clickFeedback();
       ev.preventDefault();
       window.router.back();
       return false;
@@ -3285,7 +3430,12 @@
       'click .entry-option-step-hide': 'helpHide'
     };
 
+    EntrySendCacheView.prototype.click = function() {
+      if (window.clickFeedback != null) return window.clickFeedback();
+    };
+
     EntrySendCacheView.prototype.helpHide = function() {
+      this.click();
       attract.active();
       $('.entry-option-step-panel', this.$el).addClass('hide');
       $('.entry-option-step-show', this.$el).removeClass('hide');
@@ -3295,6 +3445,7 @@
 
     EntrySendCacheView.prototype.help = function(ev) {
       var dtel, offset;
+      this.click();
       attract.active();
       $('.entry-option-step-panel', this.$el).addClass('hide');
       offset = $(ev.target).offset();
@@ -3385,7 +3536,12 @@
       'click .entry-option-step-hide': 'helpHide'
     };
 
+    EntrySendInternetView.prototype.click = function() {
+      if (window.clickFeedback != null) return window.clickFeedback();
+    };
+
     EntrySendInternetView.prototype.helpHide = function() {
+      this.click();
       attract.active();
       $('.entry-option-step-panel', this.$el).addClass('hide');
       $('.entry-option-step-show', this.$el).removeClass('hide');
@@ -3395,6 +3551,7 @@
 
     EntrySendInternetView.prototype.help = function(ev) {
       var dtel, offset;
+      this.click();
       attract.active();
       $('.entry-option-step-panel', this.$el).addClass('hide');
       offset = $(ev.target).offset();
