@@ -93,6 +93,10 @@ if (empty($mimetype) || empty($mimetype['compat'])) {
     else
       echo '<p>This content should have built-in support on your device. (I think your device type is '.$devicetype.')</p>';
   }
+  if (!empty($devicetype) && $devicetype=='ios' && !empty($userAgent)) {
+    if (strpos($userAgent,'safari')!==FALSE || strpos($userAgent,'Safari')!==FALSE) 
+      echo '<p>Note: you may get better results if you open this page in the safari browser before downloading.</p>';
+  }
 }
 ?><p><?php
 $url = $_GET['u'];

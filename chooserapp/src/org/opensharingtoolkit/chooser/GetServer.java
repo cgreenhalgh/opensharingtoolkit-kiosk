@@ -168,6 +168,10 @@ public class GetServer {
 				}
 			}
 		}
+		if (devicetype!=null && devicetype.equals("ios") && userAgent!=null) {
+			if (userAgent.indexOf("safari")>=0  || userAgent.indexOf("Safari")>=0) 	
+				resp.append("<p>Note: you may get better results if you open this page in the safari browser before downloading.</p>");
+		}
 		resp.append("<p>");
 		String url = params.get("u");
 		if (url!=null) {
