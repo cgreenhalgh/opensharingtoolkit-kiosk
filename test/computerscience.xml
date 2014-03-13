@@ -5,7 +5,9 @@
     <link rel="self" type="application/atom+xml" href="http://www.cs.nott.ac.uk/~cmg/ComputerScience/computerscience.xml"/>
     <title>Jubilee Campus</title> 
     <updated>2014-03-11T21:10:00Z</updated> 
-    <category scheme="campaign" term="a" label="Test campaign a = kiosk"/>
+    <category scheme="campaign" term="a" label="Test campaign a = kiosk 1"/>
+    <category scheme="campaign" term="b" label="Test campaign b = kiosk 2"/>
+    <category scheme="campaign" term="m" label="Test campaign m = flyers"/>
 
     <entry>
      <link rel="alternate" type="image/png" href="http://www.cs.nott.ac.uk/~cmg/AppropriateICT/test/thing1.png"/>
