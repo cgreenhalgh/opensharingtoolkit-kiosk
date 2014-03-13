@@ -408,6 +408,7 @@ public class JavascriptHelper implements OnAudioFocusChangeListener {
 						@Override
 						public void onSeekComplete(MediaPlayer mp) {
 							Log.d(TAG,"play on seek complete");
+							mp.setVolume(1, 1);
 							mp.start();
 						}
 					});
@@ -415,6 +416,22 @@ public class JavascriptHelper implements OnAudioFocusChangeListener {
 						@Override
 						public void onCompletion(MediaPlayer mp) {
 							Log.d(TAG,"completed audio");
+							synchronized (this) {
+								if (mHasAudioFocus) {
+									mHasAudioFocus = false;
+									// Note: we'll try to release each time (and re-gain next time) 
+									// because otherwise we still lose the start of the first sound
+									// after a pause due to output device selection delay
+									try {
+										AudioManager audioManager = (AudioManager) mContext.getSystemService(Context.AUDIO_SERVICE);
+										audioManager.abandonAudioFocus(JavascriptHelper.this);
+										Log.d(TAG,"release audio focus");
+									}
+									catch (Exception e)  {
+										Log.e(TAG,"error releasing audio focus: "+e);
+									}
+								}
+							}
 						}
 					});
 					Log.d(TAG,"Created MediaPlayer for "+url);
@@ -446,7 +463,7 @@ public class JavascriptHelper implements OnAudioFocusChangeListener {
 						audioPlayInternal(); 
 					} else {
 						int result = audioManager.requestAudioFocus(this, AudioManager.STREAM_NOTIFICATION,
-						    AudioManager.AUDIOFOCUS_GAIN);
+						    AudioManager.AUDIOFOCUS_GAIN_TRANSIENT_MAY_DUCK);
 	
 						if (result != AudioManager.AUDIOFOCUS_REQUEST_GRANTED) {
 							Log.d(TAG,"Could not get audio focus");
@@ -474,10 +491,15 @@ public class JavascriptHelper implements OnAudioFocusChangeListener {
 			synchronized (this) {
 				if (mMediaPlayer!=null && mMediaPlayer.isPlaying())
 					mMediaPlayer.pause();
-				if (mMediaPlayer.getCurrentPosition()==0)
+				if (mMediaPlayer.getCurrentPosition()==0) {
+					mMediaPlayer.setVolume(1, 1);
 					mMediaPlayer.start();
-				else
+				}
+				else {
 					mMediaPlayer.seekTo(0);
+					// play in seek
+					//mMediaPlayer.start();
+				}
 			}
 		} catch (Exception e) {
 			Log.e(TAG,"Error playing audio (internal): "+e);
