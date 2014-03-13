@@ -56,7 +56,8 @@ public class Record {
 		if (info!=null)
 			i.putExtra("info", info);
 		try {
-			context.startService(i);
+			if (context.startService(i)==null) 
+				Log.e(TAG,"Could not log (no service): "+level+" "+component+" "+event+" "+info);
 		}
 		catch (Exception e) {
 			Log.e(TAG,"Could not log: "+level+" "+component+" "+event+": "+e);
@@ -73,7 +74,8 @@ public class Record {
 		if (jsoninfo!=null)
 			i.putExtra("info", jsoninfo);
 		try {
-			context.startService(i);
+			if (context.startService(i)==null) 
+				Log.e(TAG,"Could not log (no service): "+level+" "+component+" "+event+" "+jsoninfo);
 		}
 		catch (Exception e) {
 			Log.e(TAG,"Could not log: "+level+" "+component+" "+event+": "+e);

@@ -117,6 +117,7 @@ public class HttpClientHandler extends Thread {
 			String userAgent = headers.get("user-agent");
 			String referer = headers.get("referer");
 			JSONObject info = new JSONObject();
+			final String remoteAddress = s.getInetAddress().getHostAddress();
 			try {
 				info.put("method", method);
 				info.put("userAgent", userAgent);
@@ -126,7 +127,7 @@ public class HttpClientHandler extends Thread {
 				info.put("requestLength", requestBody.length());
 				info.put("localPort", s.getLocalPort());
 				info.put("remotePort", s.getPort());
-				info.put("remoteAddress", s.getInetAddress().getHostAddress());
+				info.put("remoteAddress", remoteAddress);
 			} catch (Exception e) {
 				Log.e(TAG,"Error marshalling request record info", e);
 			}
@@ -140,6 +141,8 @@ public class HttpClientHandler extends Thread {
 							Log.d(TAG,"http done: status="+status+", message="+message+", length="+length);
 							JSONObject info = new JSONObject();
 							try {
+								info.put("remotePort", s.getPort());
+								info.put("remoteAddress", remoteAddress);
 								info.put("status", status);
 								info.put("message", message);
 								info.put("mimeType", mimeType);
@@ -223,7 +226,14 @@ public class HttpClientHandler extends Thread {
 			//bos.write(resp);
 			os.close();
 			Log.d(TAG,"Sent "+mStatus+" "+mMessage+" ("+mResponseLength+" bytes)");
-			mRecorder.i("http.response.complete", info);
+			JSONObject info2 = new JSONObject();
+			try {
+				info2.put("remotePort", s.getPort());
+				info2.put("remoteAddress", remoteAddress);
+			} catch (Exception e) {
+				Log.e(TAG,"Error marshalling request record info", e);
+			}
+			mRecorder.i("http.response.complete", info2);
 		}
 		catch (IOException ie) {
 			Log.d(TAG,"Error: "+ie.getMessage());

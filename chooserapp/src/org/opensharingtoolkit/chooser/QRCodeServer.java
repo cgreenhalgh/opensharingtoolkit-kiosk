@@ -38,6 +38,7 @@ public class QRCodeServer {
 	private static String TAG = "qrcodeserver";
 	private static final String PARAM_URL = "url";
 	private static final String PARAM_SIZE = "size";
+	private static final int LONG_TIME_MS = 1000*60*60*24*10;
 
 	private static int CACHE_SIZE = 100;
 	private static Map<String,byte[]> cache = new HashMap<String,byte[]>();
@@ -79,7 +80,7 @@ public class QRCodeServer {
 				}
 			} else
 				Log.d(TAG,"Server qrcode from cache: "+url);
-		    httpContinuation.done(200, "OK", "image/png", image.length, new ByteArrayInputStream(image), null);
+		    httpContinuation.done(200, "OK", "image/png", image.length, new ByteArrayInputStream(image), HttpUtils.getHeadersExpires(LONG_TIME_MS));
 		    return;
 		}
 		Log.w(TAG,"no url parameter: "+path);

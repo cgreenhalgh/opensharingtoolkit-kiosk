@@ -22,6 +22,7 @@ import org.json.JSONObject;
 import org.opensharingtoolkit.httpserver.HttpContinuation;
 import org.opensharingtoolkit.httpserver.HttpError;
 import org.opensharingtoolkit.httpserver.HttpListener;
+import org.opensharingtoolkit.httpserver.HttpUtils;
 import org.opensharingtoolkit.chooser.R;
 import org.opensharingtoolkit.chooser.SharedMemory.Encoding;
 import org.opensharingtoolkit.common.Hotspot;
@@ -63,6 +64,11 @@ public class Service extends android.app.Service {
 	private static final int SERVICE_NOTIFICATION_ID = 1;
 	private HttpListener httpListener = null;
 	public static final int HTTP_PORT = 8080;
+
+	// 5 minutes ?!
+	private static final long CACHE_ASSET_TIME_MS = 1000*60*5;
+    // 5 minutes ?!
+	private static final long CACHE_FILE_TIME_MS = 1000*60*5;
 	private static int port = HTTP_PORT;
 	private Recorder mRecorder = new Recorder(this, "chooser.service");
 	
@@ -437,9 +443,9 @@ public class Service extends android.app.Service {
 			else if (path.equals("/recent") || path.startsWith("/recent?"))
 				GetServer.singleton().handleRequestForRecent(this, path, headers, httpContinuation);
 			else if (path.startsWith("/a/"))
-				handleAssetRequest(path.substring("/a".length()), requestBody, httpContinuation);
+				handleAssetRequest(path.substring("/a".length()), headers, requestBody, httpContinuation);
 			else if (path.startsWith("/f/"))
-				handleFileRequest(path.substring("/f".length()), requestBody, httpContinuation);
+				handleFileRequest(path.substring("/f".length()), headers, requestBody, httpContinuation);
 			else if (path.startsWith("/qr?"))
 				QRCodeServer.handleRequest(path, httpContinuation);
 			else if (path.startsWith("/r/")) 
@@ -455,7 +461,7 @@ public class Service extends android.app.Service {
 				// try serving cache content
 				File file = CacheServer.singleton().checkCache(this, host, path);
 				if (file!=null) {
-					sendFile(file, httpContinuation);
+					sendFile(file, headers, httpContinuation);
 					return;
 				}
 				String cacheBaseurl = CacheServer.singleton().getBaseurl();
@@ -583,10 +589,23 @@ public class Service extends android.app.Service {
 		Log.d(TAG,"Sending "+path+" as "+mimeType);
 		return mimeType;
 	}
-	private void handleAssetRequest(String path, String requestBody,
+	private void handleAssetRequest(String path, Map<String,String> requestHeaders, String requestBody,
 			HttpContinuation httpContinuation) throws IOException, HttpError {
 		path = checkPath(path);
-		String mimeType = guessMimeType(path);
+		Map<String,String> headers = new HashMap<String,String>();
+		long lastModified = 0;
+		try {
+			lastModified = this.getPackageManager().getPackageInfo("org.opensharingtoolkit.chooser", 0).lastUpdateTime;
+		}catch (Exception e) {
+			Log.e(TAG,"Error getting package update time for last modified: "+e, e);
+		}
+		if (lastModified!=0) {
+			HttpUtils.handleNotModifiedSince(requestHeaders, lastModified);
+			HttpUtils.setHeaderLastModified(headers, lastModified);
+		}
+		long expires = System.currentTimeMillis()+CACHE_ASSET_TIME_MS;
+		HttpUtils.setHeaderExpires(headers, expires);
+	    String mimeType = guessMimeType(path);
 		AssetManager assets = getApplicationContext().getAssets();
 		// try hard to get asset size
 		long length = -1;
@@ -627,14 +646,14 @@ public class Service extends android.app.Service {
 		}
 		if (content!=null) {
 			// guess mime type
-			httpContinuation.done(200, "OK", mimeType, length, content, null);
+			httpContinuation.done(200, "OK", mimeType, length, content, headers);
 		}
 		else {
 			Log.d(TAG,"Content not found");
 			httpContinuation.done(404, "File not found", "text/plain", 0, null, null);
 		}
 	}
-	private void handleFileRequest(String path, String requestBody,
+	private void handleFileRequest(String path, Map<String,String> requestHeaders, String requestBody,
 			HttpContinuation httpContinuation) throws IOException, HttpError {
 		path = checkPath(path);
 		if (path.contains(".."))
@@ -646,9 +665,23 @@ public class Service extends android.app.Service {
 			throw new HttpError(404, "File not found");
 		}
 		File file = new File(dir, path);
-		sendFile(file, httpContinuation);
+		sendFile(file, requestHeaders, httpContinuation);
 	}
-	public void sendFile(File file,	HttpContinuation httpContinuation) throws IOException, HttpError {
+	public void sendFile(File file,	Map<String,String> requestHeaders, HttpContinuation httpContinuation) throws IOException, HttpError {
+		Map<String,String> headers = new HashMap<String,String>();
+		long lastModified = 0;
+		try {
+			lastModified = file.lastModified();
+		}
+		catch (Exception e) {
+			Log.e(TAG,"Error getting file last modified for "+file+": "+e, e);
+		}
+		if (lastModified!=0) {
+			HttpUtils.handleNotModifiedSince(requestHeaders, lastModified);
+			HttpUtils.setHeaderLastModified(headers, lastModified);
+		}
+		long expires = System.currentTimeMillis()+CACHE_FILE_TIME_MS;
+		HttpUtils.setHeaderExpires(headers, expires);
 		String mimeType = guessMimeType(file.getName());
 		// 0 if doesn't exist
 		long length = file.length();
@@ -660,6 +693,6 @@ public class Service extends android.app.Service {
 			Log.d(TAG,"File not found: "+file);
 			throw new HttpError(403,"File not found");
 		}
-		httpContinuation.done(200, "OK", mimeType, length, content, null);
+		httpContinuation.done(200, "OK", mimeType, length, content, headers);
 	}
 }

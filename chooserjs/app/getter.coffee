@@ -7,6 +7,19 @@ module.exports.getGetUrl = (entry, devicetype, nocache) ->
     # with active get cannot serve from passive cache
     nocache = true
   enc = entry.attributes.enclosures[0]
+
+  # if port 80 forwarding is notified late then kiosk path may be wrong, and be already encoded into path parameters
+  if entry.attributes.isKiosk? and entry.attributes.isKiosk and kiosk.getPort()==80
+    # %3A is encoded :, %2F is encoded / - first %3A for scheme
+    path = enc.path
+    cix = path.indexOf '%3A'
+    cix = if cix>=0 then path.indexOf('%3A',cix+3) else -1
+    six = if cix>=0 then path.indexOf('%2F',cix+3) else -1
+    if cix>=0 && six>=0 
+      newpath = path.substring(0,cix)+path.substring(six)
+      enc.path = newpath
+      console.log "Removed explicit port from kiosk path #{path} -> #{newpath}"
+
   # use cache copy if available
   url = if nocache then enc.url else (enc.path ? enc.url)
   url = kiosk.getPortableUrl url

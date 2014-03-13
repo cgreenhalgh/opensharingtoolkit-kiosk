@@ -552,11 +552,15 @@
 
   ATTRACT_DELAY = 60000;
 
-  timer = setTimeout(showAttract, 1000);
+  if (!kiosk.isKiosk()) timer = setTimeout(showAttract, ATTRACT_DELAY);
 
   active = function() {
-    clearTimeout(timer);
-    timer = setTimeout(showAttract, ATTRACT_DELAY);
+    if (timer != null) clearTimeout(timer);
+    if (!kiosk.isKiosk()) {
+      timer = setTimeout(showAttract, ATTRACT_DELAY);
+    } else {
+      timer = null;
+    }
     if (resetTimer != null) {
       clearTimeout(resetTimer);
       return resetTimer = null;
@@ -584,10 +588,21 @@
   kiosk = require('kiosk');
 
   module.exports.getGetUrl = function(entry, devicetype, nocache) {
-    var baseurl, campaignid, enc, getscript, hix, ix, ssid, url, _ref;
+    var baseurl, campaignid, cix, enc, getscript, hix, ix, newpath, path, six, ssid, url, _ref;
     if (nocache == null) nocache = false;
     if (!kiosk.isKiosk()) nocache = true;
     enc = entry.attributes.enclosures[0];
+    if ((entry.attributes.isKiosk != null) && entry.attributes.isKiosk && kiosk.getPort() === 80) {
+      path = enc.path;
+      cix = path.indexOf('%3A');
+      cix = cix >= 0 ? path.indexOf('%3A', cix + 3) : -1;
+      six = cix >= 0 ? path.indexOf('%2F', cix + 3) : -1;
+      if (cix >= 0 && six >= 0) {
+        newpath = path.substring(0, cix) + path.substring(six);
+        enc.path = newpath;
+        console.log("Removed explicit port from kiosk path " + path + " -> " + newpath);
+      }
+    }
     url = nocache ? enc.url : (_ref = enc.path) != null ? _ref : enc.url;
     url = kiosk.getPortableUrl(url);
     console.log("get " + entry.attributes.title + " as " + url + ", enc " + enc.path + "  / " + enc.url);
