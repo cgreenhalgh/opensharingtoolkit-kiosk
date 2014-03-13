@@ -101,7 +101,7 @@ module.exports = class EntryInfoView extends Backbone.View
 
     recorder.i 'user.option.get',{id:@model.id,devicetype:devicetype.attributes.term,url:url}
 
-    window.open(url,'get')
+    window.open(url,'_self')
 
   optionSendInternet: =>
     @click()

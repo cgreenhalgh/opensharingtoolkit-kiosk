@@ -184,6 +184,7 @@
     }
 
     Router.prototype.routes = {
+      "": "entries",
       "entries": "entries",
       "help": "help",
       "entry/:eid": "entry",
@@ -277,6 +278,10 @@
       entry = this.getEntry(id);
       if (!(entry != null)) return false;
       console.log("preview entry " + id);
+      if (window.views.length < 2) {
+        console.log("preview adding missing entry view " + id);
+        this.entry(id);
+      }
       view = new EntryPreviewView({
         model: entry
       });
@@ -289,6 +294,10 @@
       entry = this.getEntry(id);
       if (!(entry != null)) return false;
       console.log("send(internet) entry " + id);
+      if (window.views.length < 2) {
+        console.log("sendInternet adding missing entry view " + id);
+        this.entry(id);
+      }
       view = new EntrySendInternetView({
         model: entry
       });
@@ -301,6 +310,10 @@
       entry = this.getEntry(id);
       if (!(entry != null)) return false;
       console.log("send(cache) entry " + id);
+      if (window.views.length < 2) {
+        console.log("sendCache adding missing entry view " + id);
+        this.entry(id);
+      }
       view = new EntrySendCacheView({
         model: entry
       });
@@ -331,7 +344,6 @@
         return success();
       };
       router = new Router;
-      Backbone.history.start();
       window.router = router;
       mimetypes = new MimetypeList();
       window.mimetypes = mimetypes;
@@ -364,9 +376,8 @@
       });
       addView(entryview, 'All', 'entries');
       atomfile = kiosk.getAtomFile();
-      loader.load(entries, atomfile);
-      router.navigate("entries", {
-        trigger: true
+      loader.load(entries, atomfile, function() {
+        return Backbone.history.start();
       });
       $(document).on('click', 'a', function(ev) {
         var href;
@@ -1143,7 +1154,7 @@
     }
   };
 
-  loadDevices = function(entries, atomurl, prefix) {
+  loadDevices = function(entries, atomurl, prefix, donefn) {
     var devicesurl;
     devicesurl = prefix + 'devices.json';
     console.log("Loading devices info from " + devicesurl);
@@ -1168,11 +1179,11 @@
             });
           }
         }
-        return loadMimetypes(entries, atomurl, prefix);
+        return loadMimetypes(entries, atomurl, prefix, donefn);
       },
       error: function(xhr, textStatus, errorThrown) {
         console.log("error getting " + devicesurl + ": " + textStatus + ": " + errorThrown);
-        return loadMimetypes(entries, atomurl, prefix);
+        return loadMimetypes(entries, atomurl, prefix, donefn);
       }
     });
   };
@@ -1219,7 +1230,7 @@
     }
   };
 
-  loadMimetypes = function(entries, atomurl, prefix) {
+  loadMimetypes = function(entries, atomurl, prefix, donefn) {
     var mimetypesurl;
     mimetypesurl = prefix + 'mimetypes.json';
     console.log("Loading devices info from " + mimetypesurl);
@@ -1235,11 +1246,11 @@
           mtinfo = data[mt];
           addMimetype(mt, mtinfo);
         }
-        return loadCache(entries, atomurl, prefix);
+        return loadCache(entries, atomurl, prefix, donefn);
       },
       error: function(xhr, textStatus, errorThrown) {
         console.log("error getting " + mimetypesurl + ": " + textStatus + ": " + errorThrown);
-        return loadCache(entries, atomurl, prefix);
+        return loadCache(entries, atomurl, prefix, donefn);
       }
     });
   };
@@ -1257,7 +1268,7 @@
     });
   };
 
-  loadCache = function(entries, atomurl, prefix) {
+  loadCache = function(entries, atomurl, prefix, donefn) {
     var cacheurl;
     cacheurl = prefix + 'cache.json';
     console.log("Loading cache info from " + cacheurl);
@@ -1271,11 +1282,11 @@
         console.log('ok, got cache.json');
         cacheFiles = getCacheFileMap(data);
         fixMimetypeIcons(cacheFiles, prefix);
-        return loadShorturls(entries, atomurl, prefix, data.baseurl, cacheFiles);
+        return loadShorturls(entries, atomurl, prefix, data.baseurl, cacheFiles, donefn);
       },
       error: function(xhr, textStatus, errorThrown) {
         console.log('error getting cache.json: ' + textStatus + ': ' + errorThrown);
-        return loadShorturls(entries, atomurl, prefix, null, {});
+        return loadShorturls(entries, atomurl, prefix, null, {}, donefn);
       }
     });
   };
@@ -1304,7 +1315,7 @@
     return _results;
   };
 
-  loadShorturls = function(entries, atomurl, prefix, baseurl, cacheFiles) {
+  loadShorturls = function(entries, atomurl, prefix, baseurl, cacheFiles, donefn) {
     var shorturlsurl;
     shorturlsurl = prefix + 'shorturls.json';
     console.log("Loading shorturls from " + shorturlsurl);
@@ -1316,11 +1327,11 @@
       success: function(data, textStatus, xhr) {
         console.log('ok, got shorturls.json');
         addShorturls(data, entries.shorturls);
-        return loadEntries(entries, atomurl, prefix, baseurl, cacheFiles);
+        return loadEntries(entries, atomurl, prefix, baseurl, cacheFiles, donefn);
       },
       error: function(xhr, textStatus, errorThrown) {
         console.log('error getting shorturls.json: ' + textStatus + ': ' + errorThrown);
-        return loadEntries(entries, atomurl, prefix, baseurl, cacheFiles);
+        return loadEntries(entries, atomurl, prefix, baseurl, cacheFiles, donefn);
       }
     });
   };
@@ -1338,7 +1349,7 @@
     }
   };
 
-  loadEntries = function(entries, atomurl, prefix, baseurl, cacheFiles) {
+  loadEntries = function(entries, atomurl, prefix, baseurl, cacheFiles, donefn) {
     console.log('loading entries from ' + atomurl);
     return $.ajax({
       url: atomurl,
@@ -1353,23 +1364,25 @@
         feedurl = $('link[rel=\'self\']', data).attr('href');
         console.log("loadEntries " + atomurl + " self " + feedurl);
         kiosk.addKioskEntry(entries, atomurl, feedurl);
-        return $(data).find('entry').each(function(index, el) {
+        $(data).find('entry').each(function(index, el) {
           return addEntry(entries, el, atomurl, prefix, baseurl, cacheFiles);
         });
+        if (donefn != null) return donefn();
       },
       error: function(xhr, textStatus, errorThrown) {
         console.log('error, ' + textStatus + ': ' + errorThrown);
         $('#atomfileErrorModal').foundation('reveal', 'open');
-        return recorder.w('view.error.atomFileError', {
+        recorder.w('view.error.atomFileError', {
           atomurl: atomurl,
           status: textStatus,
           error: errorThrown
         });
+        if (donefn != null) return donefn();
       }
     });
   };
 
-  module.exports.load = function(entries, atomurl) {
+  module.exports.load = function(entries, atomurl, donefn) {
     var base, hi, prefix, si;
     if ((atomurl.indexOf(':')) < 0) {
       console.log('converting local name ' + atomurl + ' to global...');
@@ -1388,7 +1401,7 @@
     }
     si = atomurl.lastIndexOf('/');
     prefix = si < 0 ? '' : atomurl.substring(0, si + 1);
-    return loadDevices(entries, atomurl, prefix);
+    return loadDevices(entries, atomurl, prefix, donefn);
   };
 
 }).call(this);
@@ -3114,7 +3127,7 @@
         devicetype: devicetype.attributes.term,
         url: url
       });
-      return window.open(url, 'get');
+      return window.open(url, '_self');
     };
 
     EntryInfoView.prototype.optionSendInternet = function() {

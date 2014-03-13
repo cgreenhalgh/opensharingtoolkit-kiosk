@@ -91,6 +91,7 @@ popView = ->
 class Router extends Backbone.Router
   routes: 
     #"home" : "entries"
+    "": "entries"
     "entries" : "entries"
     "help" : "help"
     "entry/:eid" : "entry"
@@ -164,6 +165,9 @@ class Router extends Backbone.Router
     if not entry? 
       return false
     console.log "preview entry #{id}"
+    if window.views.length<2
+      console.log "preview adding missing entry view #{id}"
+      @entry id
     view = new EntryPreviewView model: entry
     addView view, "Preview", "preview/#{encodeURIComponent id}"
   
@@ -173,6 +177,9 @@ class Router extends Backbone.Router
     if not entry? 
       return false
     console.log "send(internet) entry #{id}"
+    if window.views.length<2
+      console.log "sendInternet adding missing entry view #{id}"
+      @entry id
     view = new EntrySendInternetView model: entry
     addView view, "Send over Internet", "sendInternet/#{encodeURIComponent id}"
   
@@ -182,6 +189,9 @@ class Router extends Backbone.Router
     if not entry? 
       return false
     console.log "send(cache) entry #{id}"
+    if window.views.length<2
+      console.log "sendCache adding missing entry view #{id}"
+      @entry id
     view = new EntrySendCacheView model: entry
     addView view, "Send locally", "sendCache/#{encodeURIComponent id}"
 
@@ -208,7 +218,6 @@ App =
 
     # in-app virtual pages
     router = new Router
-    Backbone.history.start()
     window.router = router
 
     # default mime types
@@ -258,9 +267,9 @@ App =
     # load entries...
     #entries.add testentry1
     atomfile = kiosk.getAtomFile()
-    loader.load entries, atomfile
-
-    router.navigate("entries", {trigger:true})
+    loader.load entries, atomfile, ()->
+      Backbone.history.start()
+    #router.navigate("entries", {trigger:true})
 
 
     # anchors
