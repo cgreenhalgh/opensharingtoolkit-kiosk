@@ -190,18 +190,18 @@ public class WifiHotspot implements OnSharedPreferenceChangeListener {
 				String toIp = parts[0]+"."+parts[1]+"."+parts[2]+"."+(last+DHCP_POOL_SIZE+1);
 				synchronized (this) {
 					// TODO need local IP address for --address and DHCP range
-					mDnsmasq = new BackgroundExecTask(null, null, "su", "-c", "/system/bin/dnsmasq",
-							"--keep-in-foreground", 
-							"--no-hosts",
-							"--no-poll",
-							"--no-resolv",
-							"--log-queries",
+					mDnsmasq = new BackgroundExecTask(null, null, "su", "-c", "/system/bin/dnsmasq "+
+							"--keep-in-foreground "+ 
+							"--no-hosts "+
+							"--no-poll "+
+							"--no-resolv "+
+							"--log-queries "+
 							// avoid long-term poisining; not supported on built-in dnsmaq
 							//"--max-ttl=0", 
-							"--local-ttl=0", 
-							"--dhcp-option-force=43,ANDROID_METERED", 
-							"--pid-file", "",
-							"--dhcp-range="+fromIp+","+toIp+","+DHCP_LIFETIME,
+							"--local-ttl=0 "+ 
+							"--dhcp-option-force=43,ANDROID_METERED "+ 
+							"--pid-file "+"\"\" "+
+							"--dhcp-range="+fromIp+","+toIp+","+DHCP_LIFETIME+" "+
 							// respond to everything with our own IP!
 							"--address=/#/"+ip);
 					if (!mDnsmasq.started()) {
