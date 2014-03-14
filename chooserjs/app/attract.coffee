@@ -43,13 +43,13 @@ showAttract = () ->
 
 ATTRACT_DELAY = 60000
 
-if not kiosk.isKiosk()
+if kiosk.isKiosk()
   timer = setTimeout showAttract,ATTRACT_DELAY
 
 active = () ->
   if timer?
     clearTimeout timer
-  if not kiosk.isKiosk()
+  if kiosk.isKiosk()
     timer = setTimeout showAttract,ATTRACT_DELAY
   else
     timer = null

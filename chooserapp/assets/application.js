@@ -552,11 +552,11 @@
 
   ATTRACT_DELAY = 60000;
 
-  if (!kiosk.isKiosk()) timer = setTimeout(showAttract, ATTRACT_DELAY);
+  if (kiosk.isKiosk()) timer = setTimeout(showAttract, ATTRACT_DELAY);
 
   active = function() {
     if (timer != null) clearTimeout(timer);
-    if (!kiosk.isKiosk()) {
+    if (kiosk.isKiosk()) {
       timer = setTimeout(showAttract, ATTRACT_DELAY);
     } else {
       timer = null;
