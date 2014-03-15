@@ -135,7 +135,7 @@ module.exports.registerRedirect = (path,url) ->
     console.log "registerRedirect when not kiosk for #{url}"
     false
 
-module.exports.registerExternalRedirect = (host,path,url) ->
+module.exports.registerExternalRedirect = registerExternalRedirect = (host,path,url) ->
   if window.kiosk?
     kiosk = window.kiosk
     kiosk.registerExternalRedirect host,path,url,0
@@ -201,6 +201,7 @@ module.exports.getQrCode = (url) ->
         'http://chart.apis.google.com/chart?cht=qr&chs=150x150&choe=UTF-8&chl='+encodeURIComponent(url)
 
 module.exports.addKioskEntry = (entries,atomurl,ineturl) ->
+    #ineturl=internet feedurl
     console.log "add kiosk entry #{atomurl} / #{ineturl}"
     if not window.kiosk?
       return null
@@ -209,6 +210,22 @@ module.exports.addKioskEntry = (entries,atomurl,ineturl) ->
     ix = baseurl.lastIndexOf('/')
     if ix>=0
       baseurl = baseurl.substring(0,ix+1)
+
+    # NB need to intercept internet URLs for atomfile
+    if ineturl? and ineturl.indexOf('http://')==0
+        ix = ineturl.indexOf('/',7)
+        if ix>7
+          localatomurl = getPortableUrl(atomurl)
+          console.log "register redirect for internet atom file #{ineturl} -> #{localatomurl}"
+          registerExternalRedirect ineturl.substring(7,ix), ineturl.substring(ix), localatomurl
+          # and index.html
+          lix = ineturl.lastIndexOf '/'
+          inetbaseurl = ineturl.slice 0,lix+1
+          ipath = ineturl.substring(ix,lix+1)+"index.html?f="+encodeURIComponent(ineturl)
+          localurl = getPortableUrl(baseurl+"index.html?f="+encodeURIComponent(localatomurl))
+          console.log "register redirect for internet index file #{ineturl.substring(7,ix)} #{ipath} -> #{localurl}"
+          registerExternalRedirect ineturl.substring(7,ix), ipath, localurl
+
     entry = 
       id: "tag:cmg@cs.nott.ac.uk,20140108:/ost/kiosk/self"
       title: "Kiosk View"
@@ -229,6 +246,7 @@ module.exports.addKioskEntry = (entries,atomurl,ineturl) ->
       entry.baseurl = inetbaseurl
       #console.log 'Base URL = '+inetbaseurl
       url = inetbaseurl+"index.html?f="+encodeURIComponent(ineturl)
+
     # local
     path = baseurl+"index.html?f="+encodeURIComponent(getPortableUrl(atomurl))
     console.log "- kiosk entry expanded to #{url} / #{path}"

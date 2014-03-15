@@ -628,7 +628,7 @@
 
 }).call(this);
 }, "kiosk": function(exports, require, module) {(function() {
-  var Entry, REDIRECT_LIFETIME_MS, asset_prefix, createsoundbite, fixaudiourl, getParameter, getPortOpt, getPortableUrl, html5_audiotypes, kiosk, localhost2_prefix, localhost_prefix, makeaudiourl, urlParams, vibrate, _ref, _ref2, _ref3, _ref4;
+  var Entry, REDIRECT_LIFETIME_MS, asset_prefix, createsoundbite, fixaudiourl, getParameter, getPortOpt, getPortableUrl, html5_audiotypes, kiosk, localhost2_prefix, localhost_prefix, makeaudiourl, registerExternalRedirect, urlParams, vibrate, _ref, _ref2, _ref3, _ref4;
 
   Entry = require('models/Entry');
 
@@ -805,7 +805,7 @@
     }
   };
 
-  module.exports.registerExternalRedirect = function(host, path, url) {
+  module.exports.registerExternalRedirect = registerExternalRedirect = function(host, path, url) {
     if (window.kiosk != null) {
       kiosk = window.kiosk;
       return kiosk.registerExternalRedirect(host, path, url, 0);
@@ -870,12 +870,26 @@
   };
 
   module.exports.addKioskEntry = function(entries, atomurl, ineturl) {
-    var baseurl, e, enc, entry, inetbaseurl, ix, path, url;
+    var baseurl, e, enc, entry, inetbaseurl, ipath, ix, lix, localatomurl, localurl, path, url;
     console.log("add kiosk entry " + atomurl + " / " + ineturl);
     if (!(window.kiosk != null)) return null;
     baseurl = window.location.href;
     ix = baseurl.lastIndexOf('/');
     if (ix >= 0) baseurl = baseurl.substring(0, ix + 1);
+    if ((ineturl != null) && ineturl.indexOf('http://') === 0) {
+      ix = ineturl.indexOf('/', 7);
+      if (ix > 7) {
+        localatomurl = getPortableUrl(atomurl);
+        console.log("register redirect for internet atom file " + ineturl + " -> " + localatomurl);
+        registerExternalRedirect(ineturl.substring(7, ix), ineturl.substring(ix), localatomurl);
+        lix = ineturl.lastIndexOf('/');
+        inetbaseurl = ineturl.slice(0, lix + 1);
+        ipath = ineturl.substring(ix, lix + 1) + "index.html?f=" + encodeURIComponent(ineturl);
+        localurl = getPortableUrl(baseurl + "index.html?f=" + encodeURIComponent(localatomurl));
+        console.log("register redirect for internet index file " + (ineturl.substring(7, ix)) + " " + ipath + " -> " + localurl);
+        registerExternalRedirect(ineturl.substring(7, ix), ipath, localurl);
+      }
+    }
     entry = {
       id: "tag:cmg@cs.nott.ac.uk,20140108:/ost/kiosk/self",
       title: "Kiosk View",
