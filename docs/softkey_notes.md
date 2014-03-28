@@ -4,6 +4,8 @@ Trying out an open source soft key option, that might be modified for kiosk use 
 
 ## Floating Soft Keys
 
+Appears to implement the low-level key press event using a root-executed jar for which the source is not available. This seems not to work for me on Android 4.4.2. The build instructions are therefore here for historical interest only.
+
 (Floating Soft Keys)[https://github.com/rhoadster91/FloatingSoftKeys].
 
 Requires libraries (StandOut Window)[https://github.com/pingpongboss/StandOut] and (CircleLayout)[https://github.com/dmitry-zaitsev/CircleLayout]

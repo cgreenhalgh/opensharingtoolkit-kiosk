@@ -2,15 +2,23 @@
 
 Optional application which is responsible for the actual kiosking of the device, i.e. preventing access to other applications or settings from the normal screen. This includes the launcher functionality.
 
-Status: Simple/minimal launcher
+Status: relatively complete - launcher, accessibility service interceptor. 
+(ideally needs replacement Status bar but that requires  signed system app which implies custom OS)
+
+## Setting up
+
+Once the app is installed you should press `home` and then select this app as the launcher `always`.
+
+You should then open Settings > Accessibility > OST Kiosk Lockdown and turn this on. (Make sure you have done the step above first to make it the default launcher!)
+
+You should now be able to access the settings to enable/disable kiosk mode by pressing Home five times in quick succession (i.e. within 5 seconds).
+
+When enabled it will try rather hard to stop you accessing anything other than the chooser app.
+
 
 ## Additional instructions
 
-Kiosking requires a number of additional steps. Much of this is based on (VAUGHNTEEGARDEN's post)[http://thebitplague.wordpress.com/2013/04/05/kiosk-mode-on-the-nexus-7/]
-
-### Setting up
-
-Once the app is installed you should press `home` and then select this app as the launcher `always`.
+Some aspects of kiosking requires a number of additional steps. Much of this is based on (VAUGHNTEEGARDEN's post)[http://thebitplague.wordpress.com/2013/04/05/kiosk-mode-on-the-nexus-7/]
 
 ### Screen lock settings
 
@@ -20,10 +28,16 @@ You could also change the Display > Sleep setting so that it will normally turn 
 
 ### Boot when powered
 
+Note: if you run the battery flat this might make it impossible to start/charge the device, so maybe not.
+
 To ensure it will boot on power, boot into the bootloader (i.e. fastboot mode), and do
 ```
 fastboot oem off-mode-charge 0
 ```
+
+### Install a custom soft key application
+
+For your own sanity, before hiding the standard soft keys, you might want to install a different one that you can at least turn on/off. E.g. "Handy Soft Keys" from google play. This is more discrete than the standard soft keys but means you can still use the device.
 
 ### Hide soft keys
 
@@ -62,5 +76,10 @@ Of course, if you have (e.g.) `vi` or another editor installed on the device the
 Now reboot.
 
 TO go back to normal do essentially the same but comment out or remove the line `qemu.hw.mainkeys=1`. 
+
+## Additional lockdown notes
+
+Only signature&system applications can be given the `STATUS_BAR` permission in order to disable (for example) pull down of the status bar (at least this is the case in android 4.4.2). Consequently it isn't enough just to copy the apk from `/data/app` to `/system/app`, but it will also need to be signed with the system key and hence will generally need to be part of a custom ROM build. (A status bar service needs `STATUS_BAR_SERVICE` permission which is signature, so not much better.)
+
 
 

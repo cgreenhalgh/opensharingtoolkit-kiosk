@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<accessibility-service xmlns:android="http://schemas.android.com/apk/res/android"
+    android:description="@string/accessibility_service_description"
+    android:accessibilityEventTypes="typeWindowStateChanged|typeViewHoverEnter|typeViewHoverExit|typeTouchExplorationGestureStart|typeTouchExplorationGestureEnd"
+    android:accessibilityFeedbackType="feedbackGeneric"
+    android:canRetrieveWindowContent="true"
+    
+    />
+	<!-- android:canRequestTouchExplorationMode="true" -->
+    <!--  all packages android:packageNames="com.example.android.apis" -->
+    <!--  eventTypes: typeAllMask -->
+    <!--  not default - that's fallback android:accessibilityFlags="flagDefault" -->
+    <!--  rate limit?? android:notificationTimeout="100" -->
+    <!--  android:settingsActivity="org.opensharingtoolkit.kiosk.ServiceSettingsActivity"  -->
+    

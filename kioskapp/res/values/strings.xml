@@ -2,6 +2,11 @@
 <resources>
 
     <string name="app_name">OST Kiosk</string>
+    <string name="settings_name">OST Kiosk Settings</string>
     <string name="run_package">org.opensharingtoolkit.chooser</string>
+    <string name="accessibility_service_label">OST Kiosk Lockdown</string>
+    <string name="accessibility_service_description">Supports kiosking of the device for unattended use.</string>
+    <string name="pref_kioskmode_title">Kiosk Device</string>
+    <string name="pref_kioskmode_summary">Intercept view changes and home, preventing normal use.</string>
     
 </resources>

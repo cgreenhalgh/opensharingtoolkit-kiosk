@@ -33,7 +33,13 @@
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
     <!--  system app permission <uses-permission android:name="android.permission.WRITE_SECURE_SETTINGS"/> -->
     <uses-permission android:name="android.permission.WRITE_SETTINGS"/>
-
+    <!--  <uses-permission android:name="android.permission.BIND_ACCESSIBILITY_SERVICE" /> -->
+    <!--  NB you may need to change Eclipse settings to get it to compile the app with this
+          permission - 
+          see http://stackoverflow.com/questions/13801984/permission-is-only-granted-to-system-app
+      -->
+    <uses-permission android:name="android.permission.STATUS_BAR"/>
+    
     <application
         android:allowBackup="true"
         android:icon="@drawable/ic_launcher"
@@ -50,6 +56,34 @@
                 <category android:name="android.intent.category.HOME" />
             </intent-filter>
         </activity>
-        </application>
+        <activity
+            android:name=".SettingsActivity"
+            android:label="@string/settings_name"
+            >
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.DEFAULT" />                
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <!--  accessibility -->
+        <!--  NB note inclusion of permission; android documentation is incorrect on placement -->
+        <service
+            android:exported="false"
+            android:enabled="true"
+            android:name=".KioskAccessibilityService"
+            android:label="@string/accessibility_service_label"
+            android:permission="android.permission.BIND_ACCESSIBILITY_SERVICE" >
+            <intent-filter>
+                <action android:name="android.accessibilityservice.AccessibilityService" />
+            </intent-filter>
+
+  			<meta-data
+      			android:name="android.accessibilityservice"
+      			android:resource="@xml/accessibility_service_config" />
+
+        </service>
+
+    </application>
 
 </manifest>
