@@ -122,7 +122,7 @@ public class SoftKeys /*implements OnTouchListener*/ {
 				if (mService!=null) {
 					WindowManager wm = (WindowManager) mService.getSystemService(Context.WINDOW_SERVICE);
 					View v;
-					while((v=mViews.remove(0))!=null)
+					while(!mViews.isEmpty() && (v=mViews.remove(0))!=null)
 						wm.removeView(v);
 				}
 			}

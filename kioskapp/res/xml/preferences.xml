@@ -12,6 +12,13 @@
         android:selectable="true"/>
     <CheckBoxPreference 
         android:enabled="true" 
+        android:title="@string/pref_kioskmodeonboot_title" 
+        android:summary="@string/pref_kioskmodeonboot_summary"
+        android:key="pref_kioskmodeonboot" 
+        android:defaultValue="false" 
+        android:selectable="true"/>
+    <CheckBoxPreference 
+        android:enabled="true" 
         android:title="@string/pref_softhome_title" 
         android:summary="@string/pref_softhome_summary"
         android:key="pref_softhome" 

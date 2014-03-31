@@ -10,6 +10,8 @@
     <string name="pref_summary">Note: these facilities are only supported when the OST Kiosk accessibility service is enabled</string>
     <string name="pref_kioskmode_title">Kiosk Device</string>
     <string name="pref_kioskmode_summary">Intercept view changes and home, preventing normal use.</string>
+    <string name="pref_kioskmodeonboot_title">Enable kiosk mode on boot</string>
+    <string name="pref_kioskmodeonboot_summary">Turn on kiosk mode when device is booted.</string>
     <string name="pref_softback_title">Show Back</string>
     <string name="pref_softback_summary">Show extra back key on screen (top left, hard to see!).</string>
     <string name="pref_softhome_title">Show Home</string>
