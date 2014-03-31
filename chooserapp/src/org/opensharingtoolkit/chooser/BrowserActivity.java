@@ -11,12 +11,15 @@ import org.opensharingtoolkit.common.Recorder;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.net.http.SslError;
 import android.os.Bundle;
 import android.os.Message;
+import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.KeyEvent;
+import android.view.View;
 import android.webkit.ConsoleMessage;
 import android.webkit.GeolocationPermissions.Callback;
 import android.webkit.HttpAuthHandler;
@@ -50,6 +53,11 @@ public class BrowserActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_browser);
         WebView webView = (WebView)findViewById(R.id.webView);
+		SharedPreferences spref = PreferenceManager.getDefaultSharedPreferences(this);
+		if (spref.getBoolean("pref_softwarerender", false)) {
+			Log.d(TAG,"Setting software rendering on web view");
+			webView.setLayerType(View.LAYER_TYPE_SOFTWARE, null);
+		}
         webView.addJavascriptInterface(new JavascriptHelper(this), "kiosk");
         webView.getSettings().setJavaScriptEnabled(true);
         webView.getSettings().setAllowFileAccessFromFileURLs(true);

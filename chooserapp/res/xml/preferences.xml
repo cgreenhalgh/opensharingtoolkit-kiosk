@@ -38,5 +38,10 @@
 		android:inputType="number"
 		android:defaultValue="100" 
 		android:selectable="true" />
-    
+
+   <CheckBoxPreference android:enabled="true" 
+       android:title="@string/pref_softwarerender_title"
+       android:summary="@string/pref_softwarerender_summary"
+       android:key="pref_softwarerender"
+       android:defaultValue="false"/>
 </PreferenceScreen>
