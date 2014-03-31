@@ -128,6 +128,24 @@ public class WifiHotspot implements OnSharedPreferenceChangeListener {
 			}
 			else if (captiveportal && !mOurDnsmasq) {
 				mOurDnsmasq = true;
+				// may be slow to start?!
+				int maxTries = 10;
+				while (!TaskKiller.findTask(DNSMASQ)) {
+					maxTries--;
+					if (maxTries>0) {
+						Log.d(TAG,"Waiting for native dnsmasq...");
+						try {
+							Thread.sleep(100);
+						}
+						catch (InterruptedException ie) {
+							Log.w(TAG,"wait for dnsmasq interrupted");
+						}
+					}
+					else {
+						Log.w(TAG,"Give up waiting for native dnsmasq");
+						break;
+					}
+				}
 				Log.d(TAG,"Try to restart dnsmasq");
 				restartDnsmasq();
 			}
@@ -145,12 +163,7 @@ public class WifiHotspot implements OnSharedPreferenceChangeListener {
 		else if (state==WifiUtils.WIFI_AP_STATE_DISABLLING) {
 			if (mOurDnsmasq) {
 				Log.d(TAG,"Try to kill our dnsmasq");
-				synchronized (this) {
-					if (mDnsmasq!=null) {
-						mDnsmasq.cancel();
-						mDnsmasq = null;
-					}
-				}
+				// note: can't cancel an su process
 				if (TaskKiller.findTask(DNSMASQ)) {
 					Log.d(TAG,"Found our dnsmasq still alive; try to kill it");
 					TaskKiller.killTask(DNSMASQ, true);
@@ -170,7 +183,7 @@ public class WifiHotspot implements OnSharedPreferenceChangeListener {
 	private void restartDnsmasq() {
 		synchronized (this) {
 			if (mDnsmasq!=null) {
-				mDnsmasq.cancel();
+				// can't cancel su process!
 				mDnsmasq = null;
 			}
 		}
@@ -233,7 +246,7 @@ public class WifiHotspot implements OnSharedPreferenceChangeListener {
 		mContext.unregisterReceiver(mWifiReceiver);
 		synchronized (this) {
 			if (mDnsmasq!=null) {
-				mDnsmasq.cancel();
+				// can't kill su process 
 				mDnsmasq = null;
 			}
 		}
