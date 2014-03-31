@@ -23,5 +23,20 @@
         android:defaultValue="@string/pref_campaignid_default" 
         android:selectable="true"/>
     
+   <EditTextPreference android:enabled="true" 
+    	android:title="@string/pref_lowbrightness_title"
+		android:summary="@string/pref_lowbrightness_summary"
+		android:key="pref_lowbrightness" 
+		android:inputType="number"
+		android:defaultValue="0" 
+		android:selectable="true" />
+    
+   <EditTextPreference android:enabled="true" 
+    	android:title="@string/pref_highbrightness_title"
+		android:summary="@string/pref_highbrightness_summary"
+		android:key="pref_highbrightness" 
+		android:inputType="number"
+		android:defaultValue="100" 
+		android:selectable="true" />
     
 </PreferenceScreen>

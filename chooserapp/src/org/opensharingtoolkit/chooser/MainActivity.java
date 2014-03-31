@@ -48,6 +48,8 @@ public class MainActivity extends BrowserActivity {
         mScreenReceiver = new ScreenReceiver();
         final IntentFilter filter = new IntentFilter(Intent.ACTION_SCREEN_OFF);
         registerReceiver(mScreenReceiver, filter);
+        
+        handleIntent(getIntent());
 	}
 	
 	@Override
@@ -234,4 +236,30 @@ public class MainActivity extends BrowserActivity {
 	    }
 	    return super.onKeyLongPress(keyCode, event);
 	}
+	/* (non-Javadoc)
+	 * @see android.app.Activity#onNewIntent(android.content.Intent)
+	 */
+	@Override
+	protected void onNewIntent(Intent intent) {
+		handleIntent(intent);
+		super.onNewIntent(intent);
+	}
+
+	public static final String ACTION_SET_BRIGHTNESS = "org.opensharingtoolkit.chooser.setBrightness";
+	public static final String EXTRA_BRIGHTNESS = "brightness";
+	
+	private void handleIntent(Intent intent) {
+		Log.d(TAG,"handleIntent "+intent.getAction());
+		if (ACTION_SET_BRIGHTNESS.equals(intent.getAction())) {
+			try {
+				WindowManager.LayoutParams layout = getWindow().getAttributes();
+				layout.screenBrightness = intent.getFloatExtra(EXTRA_BRIGHTNESS, 0.5f); 
+				getWindow().setAttributes(layout);
+				Log.d(TAG,"Set brightness to "+layout.screenBrightness);
+			} catch(Exception e) {
+				Log.e(TAG,"Error setting brightness", e);
+			}
+		}
+	}
+
 }

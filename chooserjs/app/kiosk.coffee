@@ -329,5 +329,14 @@ module.exports.audioLoad = (path) ->
     url = makeaudiourl path
     window.kiosk.audioLoad url
     return playclip: () -> window.kiosk.audioPlay url
-  createsoundbite path
+  # no audio
+  #createsoundbite path
+  return playclip: () -> 
+
+# dim is boolean
+module.exports.dimScreen = (dim) ->
+  if window.kiosk?
+    window.kiosk.dimScreen dim
+  else
+    console.log "non-kiosk - dimScreen "+dim
 

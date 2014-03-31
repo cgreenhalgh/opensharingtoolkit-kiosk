@@ -41,9 +41,12 @@ import android.net.wifi.SupplicantState;
 import android.net.wifi.WifiConfiguration;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
+import android.os.Handler;
 import android.os.Vibrator;
 import android.preference.PreferenceManager;
 import android.util.Log;
+import android.view.Window;
+import android.view.WindowManager;
 import android.webkit.JavascriptInterface;
 
 /** Helper functions for javascript in Kiosk.
@@ -57,6 +60,7 @@ public class JavascriptHelper implements OnAudioFocusChangeListener {
 	//private RedirectServer mRedirectServer;
 	private Recorder mRecorder;
 	private Map<String,MediaPlayer> mMediaPlayers = new HashMap<String,MediaPlayer>();
+	private Handler mHandler = new Handler();
 	
 	public JavascriptHelper(Context context/*, RedirectServer redirectServer*/) {
 		super();
@@ -521,5 +525,44 @@ public class JavascriptHelper implements OnAudioFocusChangeListener {
 			}
 		}
 	}
-	
+	@JavascriptInterface
+	public void dimScreen(boolean dim) {
+		try {
+			int lowBrightness = 0;
+			SharedPreferences spref = PreferenceManager.getDefaultSharedPreferences(mContext);
+			try {
+				lowBrightness = Integer.valueOf(spref.getString("pref_lowbrightness", Integer.toString(lowBrightness)));
+			}
+			catch (Exception e){
+				Log.w(TAG,"Error parsing lowbrightness", e);
+			}
+			if (lowBrightness>100)
+				lowBrightness = 100;
+			if (lowBrightness<0)
+				lowBrightness = 0;
+			int highBrightness = 100;
+			try {
+				highBrightness = Integer.valueOf(spref.getString("pref_highbrightness", Integer.toString(highBrightness)));
+			}
+			catch (Exception e){
+				Log.w(TAG,"Error parsing highBrightness", e);
+			}
+			if (highBrightness>100)
+				highBrightness = 100;
+			if (highBrightness<0)
+				highBrightness = 0;
+			float brightness = dim ? lowBrightness*0.01f : highBrightness*0.01f;
+			final Intent i = new Intent(MainActivity.ACTION_SET_BRIGHTNESS);
+			i.setClass(mContext, MainActivity.class);
+			i.putExtra(MainActivity.EXTRA_BRIGHTNESS, brightness);
+			mHandler.post(new Runnable() {
+				public void run() {
+					Log.d(TAG,"Delayed set brightness");
+					mContext.startActivity(i);
+				}
+			});
+		} catch (Exception e) {
+			Log.e(TAG,"Error setting screenBrightness: "+e, e);
+		}
+	}
 }

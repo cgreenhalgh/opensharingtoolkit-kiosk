@@ -29,14 +29,14 @@ module.exports = class EntryListView extends Backbone.View
     templateEntryListHelp d
 
   events: 
-    'click .entry-list-help-info': 'showAttract'
+    'click .entry-list-help-info': 'showExplain'
     'click': 'close'
 
-  showAttract: () ->
+  showExplain: () ->
     if window.clickFeedback?
       window.clickFeedback()
     recorder.i 'user.requestHelp.info'
-    attract.show()
+    attract.showExplain()
 
   close: (ev)->
     if window.clickFeedback?

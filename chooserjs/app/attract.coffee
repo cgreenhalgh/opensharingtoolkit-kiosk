@@ -2,10 +2,12 @@
 # test
 
 AttractView = require 'views/Attract'
+ExplainView = require 'views/Explain'
 recorder = require 'recorder'
 kiosk = require 'kiosk'
 
 currentAttract = null
+currentExplain = null
 
 resetTimer = null
 
@@ -16,6 +18,7 @@ reset = () ->
   if kiosk.isKiosk()
     console.log "!!!reset!!!"
     recorder.i 'app.reset'
+
     window.options.set devicetype: null
     # fix scrollTop
     if window.views.length>0
@@ -23,6 +26,13 @@ reset = () ->
     window.router.navigate "entries", trigger:true
 
 showAttract = () ->
+  if currentExplain? and $(currentExplain.el).is ":visible"
+    try
+      currentExplain.remove()
+      currentExplain = null
+    catch error
+      console.log "error removing explain on showAttract: #{error}"
+
   if currentAttract? and $(currentAttract.el).is ":visible"
     # no-op
   else
@@ -68,5 +78,19 @@ $(window).on 'scroll', () ->
 
 module.exports.active = active
 module.exports.show = showAttract
+module.exports.showExplain = () ->
+  #console.log "showExplain"
+  if currentExplain? and $(currentExplain.el).is ":visible"
+    # no-op
+  else
+    if currentExplain? 
+      try
+        currentExplain.remove()
+      catch error
+        console.log "error re-showing explain: #{error}"
 
+    recorder.i 'view.explain.show'
+    currentExplain = new ExplainView()
+    $('#mainEntrylistHolder').after currentExplain.el
+    $(currentExplain.el).trigger('isVisible')
 

@@ -8239,8 +8239,32 @@ span.ssid {
   position: absolute;
   background-color: #fbfbfb;
 }
+/* line 463, ../../scss/app.scss */
+.attract-modal .explain-more {
+  z-index: 201;
+  position: fixed;
+  left: 0.2em;
+  bottom: 0.2em;
+  cursor: pointer;
+}
+/* line 470, ../../scss/app.scss */
+.attract-modal .explain-more a {
+  width: 100%;
+}
+/* line 474, ../../scss/app.scss */
+.attract-modal .explain-ok {
+  z-index: 201;
+  position: fixed;
+  right: 0.2em;
+  bottom: 0.2em;
+  cursor: pointer;
+}
+/* line 481, ../../scss/app.scss */
+.attract-modal .explain-ok a {
+  width: 100%;
+}
 
-/* line 465, ../../scss/app.scss */
+/* line 488, ../../scss/app.scss */
 .consent-modal {
   z-index: 190;
   background-color: white;
@@ -8250,19 +8274,19 @@ span.ssid {
   right: 0;
   bottom: 0;
 }
-/* line 473, ../../scss/app.scss */
+/* line 496, ../../scss/app.scss */
 .consent-modal .panel {
   margin-top: 1em;
 }
-/* line 476, ../../scss/app.scss */
+/* line 499, ../../scss/app.scss */
 .consent-modal .consent-button {
   width: 100%;
 }
-/* line 479, ../../scss/app.scss */
+/* line 502, ../../scss/app.scss */
 .consent-modal .consent-logo {
   float: right;
 }
-/* line 482, ../../scss/app.scss */
+/* line 505, ../../scss/app.scss */
 .consent-modal .button-row {
   position: absolute;
   bottom: 0.2em;

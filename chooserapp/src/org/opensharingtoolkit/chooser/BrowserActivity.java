@@ -10,6 +10,7 @@ import org.opensharingtoolkit.common.Recorder;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.net.http.SslError;
 import android.os.Bundle;
@@ -49,7 +50,7 @@ public class BrowserActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_browser);
         WebView webView = (WebView)findViewById(R.id.webView);
-        webView.addJavascriptInterface(new JavascriptHelper(getApplicationContext()), "kiosk");
+        webView.addJavascriptInterface(new JavascriptHelper(this), "kiosk");
         webView.getSettings().setJavaScriptEnabled(true);
         webView.getSettings().setAllowFileAccessFromFileURLs(true);
         webView.getSettings().setDatabaseEnabled(true);

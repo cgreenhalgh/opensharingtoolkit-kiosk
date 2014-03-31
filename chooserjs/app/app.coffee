@@ -15,6 +15,7 @@ DevicetypeChoiceView = require 'views/DevicetypeChoice'
 OptionsDevicetypeLabelView = require 'views/OptionsDevicetypeLabel'
 EntryListHelpView = require 'views/EntryListHelp'
 ConsentView = require 'views/Consent'
+ExplainView = require 'views/Explain'
 
 # atom/entry file loader
 loader = require 'loader'
@@ -290,7 +291,7 @@ App =
           else if href=='-back'
             router.back()
           else if href=='-info'
-            attract.show()
+            attract.showExplain()
           else if href=='-menu'
             console.log 'pass -menu for zurb?'
             return true

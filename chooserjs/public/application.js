@@ -49,7 +49,7 @@
   }
   return this.require.define;
 }).call(this)({"app": function(exports, require, module) {(function() {
-  var App, ConsentView, Devicetype, DevicetypeChoiceView, DevicetypeList, Entry, EntryInfoView, EntryList, EntryListHelpView, EntryListView, EntryPreviewView, EntrySendCacheView, EntrySendInternetView, Mimetype, MimetypeList, Options, OptionsDevicetypeLabelView, Router, SHORT_VIBRATE, addView, attract, canVibrate, chooseDevicetype, clickFeedback, kiosk, loader, popView, recorder, testentry1, touchFeedback, touchsound;
+  var App, ConsentView, Devicetype, DevicetypeChoiceView, DevicetypeList, Entry, EntryInfoView, EntryList, EntryListHelpView, EntryListView, EntryPreviewView, EntrySendCacheView, EntrySendInternetView, ExplainView, Mimetype, MimetypeList, Options, OptionsDevicetypeLabelView, Router, SHORT_VIBRATE, addView, attract, canVibrate, chooseDevicetype, clickFeedback, kiosk, loader, popView, recorder, testentry1, touchFeedback, touchsound;
   var __hasProp = Object.prototype.hasOwnProperty, __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor; child.__super__ = parent.prototype; return child; };
 
   Mimetype = require('models/Mimetype');
@@ -83,6 +83,8 @@
   EntryListHelpView = require('views/EntryListHelp');
 
   ConsentView = require('views/Consent');
+
+  ExplainView = require('views/Explain');
 
   loader = require('loader');
 
@@ -397,7 +399,7 @@
             } else if (href === '-back') {
               router.back();
             } else if (href === '-info') {
-              attract.show();
+              attract.showExplain();
             } else if (href === '-menu') {
               console.log('pass -menu for zurb?');
               return true;
@@ -503,15 +505,19 @@
 
 }).call(this);
 }, "attract": function(exports, require, module) {(function() {
-  var ATTRACT_DELAY, AttractView, RESET_DELAY, active, currentAttract, kiosk, recorder, reset, resetTimer, showAttract, timer;
+  var ATTRACT_DELAY, AttractView, ExplainView, RESET_DELAY, active, currentAttract, currentExplain, kiosk, recorder, reset, resetTimer, showAttract, timer;
 
   AttractView = require('views/Attract');
+
+  ExplainView = require('views/Explain');
 
   recorder = require('recorder');
 
   kiosk = require('kiosk');
 
   currentAttract = null;
+
+  currentExplain = null;
 
   resetTimer = null;
 
@@ -533,6 +539,14 @@
   };
 
   showAttract = function() {
+    if ((currentExplain != null) && $(currentExplain.el).is(":visible")) {
+      try {
+        currentExplain.remove();
+        currentExplain = null;
+      } catch (error) {
+        console.log("error removing explain on showAttract: " + error);
+      }
+    }
     if ((currentAttract != null) && $(currentAttract.el).is(":visible")) {} else {
       if (currentAttract != null) {
         try {
@@ -580,6 +594,22 @@
   module.exports.active = active;
 
   module.exports.show = showAttract;
+
+  module.exports.showExplain = function() {
+    if ((currentExplain != null) && $(currentExplain.el).is(":visible")) {} else {
+      if (currentExplain != null) {
+        try {
+          currentExplain.remove();
+        } catch (error) {
+          console.log("error re-showing explain: " + error);
+        }
+      }
+      recorder.i('view.explain.show');
+      currentExplain = new ExplainView();
+      $('#mainEntrylistHolder').after(currentExplain.el);
+      return $(currentExplain.el).trigger('isVisible');
+    }
+  };
 
 }).call(this);
 }, "getter": function(exports, require, module) {(function() {
@@ -1003,7 +1033,17 @@
         }
       };
     }
-    return createsoundbite(path);
+    return {
+      playclip: function() {}
+    };
+  };
+
+  module.exports.dimScreen = function(dim) {
+    if (window.kiosk != null) {
+      return window.kiosk.dimScreen(dim);
+    } else {
+      return console.log("non-kiosk - dimScreen " + dim);
+    }
   };
 
 }).call(this);
@@ -1908,7 +1948,7 @@
   }
   (function() {
     
-      __out.push('\n<div class="row">\n  <div class="small-12 large-12 columns">\n    <div class="panel">\n      <img src="icons/uon_logo.png" class="consent-logo">\n      <p>This is a prototype being developed by the University of Nottingham.</p>\n      <p>Anonymous usage data is collected to allow us to understand how it is being used and how to improve it. To find out more look at the poster or leaflets nearby.</p>\n      <div class="clear-both"></div>\n    </div>\n  </div>\n</div>\n<div class="row button-row">\n  <div class="small-6 large-6 columns">\n    <a href="-consent-yes" class="button consent-button">OK, that\'s fine</a>\n  </div>\n  <div class="small-6 large-6 columns">\n    <a href="-consent-no" class="button consent-button">No thanks</a>\n  </div>\n</div>\n');
+      __out.push('\n<div class="row">\n  <div class="small-12 large-12 columns">\n    <div class="panel">\n      <img src="icons/uon_logo.png" class="consent-logo">\n      <p>This is a prototype being developed by the University of Nottingham.</p>\n      <p>Anonymous usage data is collected to allow us to understand how it is being used and how to improve it. To find out more look at the poster or leaflets nearby.</p>\n      <div class="clear-both"></div>\n    </div>\n  </div>\n</div>\n<div class="row button-row">\n  <div class="small-6 large-6 columns">\n    <a href="-consent-no" class="button consent-button">No thanks</a>\n  </div>\n  <div class="small-6 large-6 columns">\n    <a href="-consent-yes" class="button consent-button">OK, that\'s fine</a>\n  </div>\n</div>\n');
     
   }).call(__obj);
   __obj.safe = __objSafe, __obj.escape = __escape;
@@ -2463,6 +2503,50 @@
   }).call(__obj);
   __obj.safe = __objSafe, __obj.escape = __escape;
   return __out.join('');
+}}, "templates/Explain": function(exports, require, module) {module.exports = function(__obj) {
+  if (!__obj) __obj = {};
+  var __out = [], __capture = function(callback) {
+    var out = __out, result;
+    __out = [];
+    callback.call(this);
+    result = __out.join('');
+    __out = out;
+    return __safe(result);
+  }, __sanitize = function(value) {
+    if (value && value.ecoSafe) {
+      return value;
+    } else if (typeof value !== 'undefined' && value != null) {
+      return __escape(value);
+    } else {
+      return '';
+    }
+  }, __safe, __objSafe = __obj.safe, __escape = __obj.escape;
+  __safe = __obj.safe = function(value) {
+    if (value && value.ecoSafe) {
+      return value;
+    } else {
+      if (!(typeof value !== 'undefined' && value != null)) value = '';
+      var result = new String(value);
+      result.ecoSafe = true;
+      return result;
+    }
+  };
+  if (!__escape) {
+    __escape = __obj.escape = function(value) {
+      return ('' + value)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;');
+    };
+  }
+  (function() {
+    
+      __out.push('\n<canvas id="explainCanvas"></canvas>\n<div class="explain-more">\n  <a href="-explain-more" class="button consent-button">More...</a>\n</div>\n<div class="explain-ok">\n  <a href="-explain-ok" class="button consent-button">OK</a>\n</div>\n');
+    
+  }).call(__obj);
+  __obj.safe = __objSafe, __obj.escape = __escape;
+  return __out.join('');
 }}, "templates/QRCodeHelp": function(exports, require, module) {module.exports = function(__obj) {
   if (!__obj) __obj = {};
   var __out = [], __capture = function(callback) {
@@ -2524,12 +2608,16 @@
   __obj.safe = __objSafe, __obj.escape = __escape;
   return __out.join('');
 }}, "views/Attract": function(exports, require, module) {(function() {
-  var AttractView, SLIDE_INTERVAL, TRANSITION_DURATION, data, images, queue, recorder, slide, slides, templateAttract;
+  var AttractView, FLASH_DURATION, FLASH_INTERVAL, SLIDE_INTERVAL, TRANSITION_DURATION, attract, data, images, kiosk, queue, recorder, slide, slides, templateAttract;
   var __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; }, __hasProp = Object.prototype.hasOwnProperty, __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor; child.__super__ = parent.prototype; return child; };
 
   templateAttract = require('templates/Attract');
 
   recorder = require('recorder');
+
+  kiosk = require('kiosk');
+
+  attract = require('attract');
 
   createjs.Ticker.timingMode = createjs.Ticker.RAF;
 
@@ -2537,25 +2625,6 @@
 
   slides = [
     [
-      {
-        text: "Do you have a\nsmart phone or\ntablet?",
-        x: 50,
-        y: 50,
-        font: "100px Arial,sans-serif"
-      }, {
-        bitmap: "icons/example_android.png",
-        height: 700,
-        x: 500,
-        y: 300
-      }
-    ], [
-      {
-        text: "Get free digital\nleaflets and other\ndownloads here",
-        x: 50,
-        y: 350,
-        font: "100px Arial,sans-serif"
-      }
-    ], [
       {
         text: "Touch the screen\n to start...",
         x: 50,
@@ -2566,27 +2635,6 @@
         height: 700,
         x: 250,
         y: 0
-      }
-    ], [
-      {
-        text: "Download straight\nto your phone\nusing WiFi or 3G",
-        x: 50,
-        y: 50,
-        font: "100px Arial,sans-serif"
-      }
-    ], [
-      {
-        text: "View downloads,\nand take them away\nwith you",
-        x: 50,
-        y: 350,
-        font: "100px Arial,sans-serif"
-      }
-    ], [
-      {
-        text: "Downloads have been\ncarefully selected\nfor you",
-        x: 30,
-        y: 650,
-        font: "90px Arial,sans-serif"
       }
     ]
   ];
@@ -2615,13 +2663,17 @@
     return _results;
   })();
 
-  console.log("images to load: " + (JSON.stringify(images)));
+  console.log("attract images to load: " + (JSON.stringify(images)));
 
   queue.loadManifest(_.flatten(images));
 
-  TRANSITION_DURATION = 300;
+  TRANSITION_DURATION = 0;
 
   SLIDE_INTERVAL = 3500;
+
+  FLASH_INTERVAL = 20000;
+
+  FLASH_DURATION = 1000;
 
   module.exports = AttractView = (function() {
 
@@ -2633,6 +2685,8 @@
       this.template = __bind(this.template, this);
       this.render = __bind(this.render, this);
       this.nextSlide = __bind(this.nextSlide, this);
+      this.dim = __bind(this.dim, this);
+      this.flash = __bind(this.flash, this);
       AttractView.__super__.constructor.apply(this, arguments);
     }
 
@@ -2644,10 +2698,22 @@
       this.render();
       if (queue.loaded) {
         console.log('queue already loaded on create attract');
-        return this.initStage();
+        this.initStage();
       } else {
-        return queue.on('complete', this.initStage, this);
+        queue.on('complete', this.initStage, this);
       }
+      kiosk.dimScreen(true);
+      return this.flashTimer = setInterval(this.flash, FLASH_INTERVAL);
+    };
+
+    AttractView.prototype.flash = function() {
+      this.dimTimer = setTimeout(this.dim, FLASH_DURATION);
+      return kiosk.dimScreen(false);
+    };
+
+    AttractView.prototype.dim = function() {
+      this.dimTimer = null;
+      return kiosk.dimScreen(true);
     };
 
     AttractView.prototype.initStage = function() {
@@ -2695,7 +2761,9 @@
       slides[0].show.setPosition(0);
       slides[0].show.setPaused(false);
       this.slideIx = 0;
-      this.timer = setInterval(this.nextSlide, SLIDE_INTERVAL);
+      if (slides.length > 1) {
+        this.timer = setInterval(this.nextSlide, SLIDE_INTERVAL);
+      }
       return this.stage.update();
     };
 
@@ -2738,30 +2806,33 @@
       $canvasel.css('width', size + 'px');
       $canvasel.css('top', (ph - size) / 2 + 'px');
       $canvasel.css('left', (pw - size) / 2 + 'px');
-      this.stage.scaleX = size / 1000;
-      this.stage.scaleY = size / 1000;
-      this.stage.canvas.height = size;
-      this.stage.canvas.width = size;
-      return this.stage.update();
+      if (this.stage != null) {
+        this.stage.scaleX = size / 1000;
+        this.stage.scaleY = size / 1000;
+        this.stage.canvas.height = size;
+        this.stage.canvas.width = size;
+        return this.stage.update();
+      }
     };
 
     AttractView.prototype.close = function(ev) {
       this.remove();
+      attract.showExplain();
       return false;
     };
 
     AttractView.prototype.remove = function() {
       if (window.clickFeedback != null) window.clickFeedback();
       recorder.i('view.attract.hide');
+      kiosk.dimScreen(false);
       console.log('close/remove Attract');
       this.$el.remove();
       $(window).off('resize', this.resize);
       queue.off('complete', this.initStage, this);
       createjs.Ticker.removeEventListener("tick", this.stage);
       clearInterval(this.timer);
-      return window.router.navigate("consent", {
-        trigger: true
-      });
+      clearInterval(this.flashTimer);
+      if (this.dimTimer != null) return clearTimer(this.dimTimer);
     };
 
     return AttractView;
@@ -3304,14 +3375,14 @@
     };
 
     EntryListView.prototype.events = {
-      'click .entry-list-help-info': 'showAttract',
+      'click .entry-list-help-info': 'showExplain',
       'click': 'close'
     };
 
-    EntryListView.prototype.showAttract = function() {
+    EntryListView.prototype.showExplain = function() {
       if (window.clickFeedback != null) window.clickFeedback();
       recorder.i('user.requestHelp.info');
-      return attract.show();
+      return attract.showExplain();
     };
 
     EntryListView.prototype.close = function(ev) {
@@ -3614,6 +3685,250 @@
     };
 
     return EntrySendInternetView;
+
+  })();
+
+}).call(this);
+}, "views/Explain": function(exports, require, module) {(function() {
+  var ExplainView, SLIDE_INTERVAL, TRANSITION_DURATION, data, images, queue, recorder, slide, slides, templateExplain;
+  var __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; }, __hasProp = Object.prototype.hasOwnProperty, __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor; child.__super__ = parent.prototype; return child; };
+
+  templateExplain = require('templates/Explain');
+
+  recorder = require('recorder');
+
+  createjs.Ticker.timingMode = createjs.Ticker.RAF;
+
+  createjs.Ticker.setFPS(40);
+
+  slides = [
+    [
+      {
+        text: "Get free digital\nleaflets and other\ndownloads here",
+        x: 50,
+        y: 20,
+        font: "100px Arial,sans-serif"
+      }, {
+        bitmap: "icons/example_android.png",
+        height: 700,
+        x: 625,
+        y: 300
+      }, {
+        text: "Download straight\nto your smart\nphone or tablet\nusing WiFi or 3G",
+        x: 50,
+        y: 450,
+        font: "70px Arial,sans-serif"
+      }
+    ]
+  ];
+
+  queue = new createjs.LoadQueue(true);
+
+  images = (function() {
+    var _i, _len, _results;
+    _results = [];
+    for (_i = 0, _len = slides.length; _i < _len; _i++) {
+      slide = slides[_i];
+      _results.push((function() {
+        var _j, _len2, _results2;
+        _results2 = [];
+        for (_j = 0, _len2 = slide.length; _j < _len2; _j++) {
+          data = slide[_j];
+          if (data.bitmap != null) {
+            _results2.push({
+              src: data.bitmap
+            });
+          }
+        }
+        return _results2;
+      })());
+    }
+    return _results;
+  })();
+
+  console.log("explain images to load: " + (JSON.stringify(images)));
+
+  queue.loadManifest(_.flatten(images));
+
+  TRANSITION_DURATION = 300;
+
+  SLIDE_INTERVAL = 20000;
+
+  module.exports = ExplainView = (function() {
+
+    __extends(ExplainView, Backbone.View);
+
+    function ExplainView() {
+      this.remove = __bind(this.remove, this);
+      this.resize = __bind(this.resize, this);
+      this.template = __bind(this.template, this);
+      this.render = __bind(this.render, this);
+      this.nextSlide = __bind(this.nextSlide, this);
+      this.setTimer = __bind(this.setTimer, this);
+      this.clearTimer = __bind(this.clearTimer, this);
+      ExplainView.__super__.constructor.apply(this, arguments);
+    }
+
+    ExplainView.prototype.tagName = 'div';
+
+    ExplainView.prototype.className = 'attract-modal';
+
+    ExplainView.prototype.initialize = function() {
+      this.render();
+      if (queue.loaded) {
+        console.log('queue already loaded on create explain');
+        return this.initStage();
+      } else {
+        return queue.on('complete', this.initStage, this);
+      }
+    };
+
+    ExplainView.prototype.initStage = function() {
+      var bounds, data, o, obj, qi, slide, _i, _j, _len, _len2, _ref, _ref2, _ref3, _ref4;
+      console.log('initStage');
+      this.stage = new createjs.Stage($('canvas', this.$el).get(0));
+      createjs.Ticker.addEventListener("tick", this.stage);
+      for (_i = 0, _len = slides.length; _i < _len; _i++) {
+        slide = slides[_i];
+        slide.show = new createjs.Timeline();
+        slide.show.loop = false;
+        slide.show.setPaused(true);
+        slide.hide = new createjs.Timeline();
+        slide.hide.loop = false;
+        slide.hide.setPaused(true);
+        for (_j = 0, _len2 = slide.length; _j < _len2; _j++) {
+          data = slide[_j];
+          obj = data.text != null ? (o = new createjs.Text(data.text), o.font = (_ref = data.font) != null ? _ref : data.font = '100px sans-serif', o) : data.bitmap ? (qi = queue.getResult(data.bitmap), console.log("queue item " + data.bitmap + " = " + qi), o = new createjs.Bitmap(qi), bounds = o.getBounds(), (data.width != null) && (data.height != null) ? o.scaleX = o.scaleY = Math.min(data.width / bounds.width, data.height / bounds.height) : data.width != null ? o.scaleX = o.scaleY = data.width / bounds.width : data.height != null ? o.scaleX = o.scaleY = data.height / bounds.height : void 0, o) : (console.log('Unknown explain item ' + JSON.stringify(data)), null);
+          if (obj != null) {
+            obj.color = (_ref2 = data.font) != null ? _ref2 : data.font = '#000';
+            obj.x = (_ref3 = data.x) != null ? _ref3 : data.x = 500;
+            obj.y = (_ref4 = data.y) != null ? _ref4 : data.y = 500;
+            obj.visible = false;
+            this.stage.addChild(obj);
+            data.obj = obj;
+            slide.show.addTween(createjs.Tween.get(obj).to({
+              visible: true,
+              alpha: 0,
+              x: data.text != null ? obj.x - 1000 : obj.x + 1000
+            }).to({
+              visible: true,
+              alpha: 1,
+              x: obj.x
+            }, TRANSITION_DURATION, createjs.Ease.quadOut));
+            slide.hide.addTween(createjs.Tween.get(obj).to({
+              alpha: 1,
+              visible: true
+            }).to({
+              alpha: 0,
+              visible: false
+            }, TRANSITION_DURATION));
+          }
+        }
+      }
+      slides[0].show.setPosition(0);
+      slides[0].show.setPaused(false);
+      this.slideIx = 0;
+      if (slides.length > 1) {
+        this.setTimer();
+      } else {
+        $(".explain-more", this.$el).hide();
+      }
+      return this.stage.update();
+    };
+
+    ExplainView.prototype.clearTimer = function() {
+      try {
+        if (this.timer != null) return clearTimeout(this.timer);
+      } catch (err) {
+        return log("nextSlide client timeout error " + err.message);
+      }
+    };
+
+    ExplainView.prototype.setTimer = function() {
+      this.clearTimer();
+      return this.timer = setTimeout(this.nextSlide, SLIDE_INTERVAL);
+    };
+
+    ExplainView.prototype.nextSlide = function() {
+      this.setTimer();
+      slides[this.slideIx].show.setPaused(true);
+      slides[this.slideIx].hide.setPosition(0);
+      slides[this.slideIx].hide.setPaused(false);
+      this.slideIx = this.slideIx + 1 >= slides.length ? 0 : this.slideIx + 1;
+      slides[this.slideIx].hide.setPaused(true);
+      slides[this.slideIx].show.setPosition(0);
+      return slides[this.slideIx].show.setPaused(false);
+    };
+
+    ExplainView.prototype.render = function() {
+      data = {};
+      this.$el.html(this.template(data));
+      $(window).on('resize', this.resize);
+      return this;
+    };
+
+    ExplainView.prototype.template = function(d) {
+      return templateExplain(d);
+    };
+
+    ExplainView.prototype.events = {
+      'click [href=-explain-more]': 'explainMore',
+      'click [href=-explain-ok]': 'explainOk',
+      'isVisible': 'resize'
+    };
+
+    ExplainView.prototype.resize = function() {
+      var $canvasel, ph, pw, size;
+      console.log('explain resize...');
+      pw = this.$el.width();
+      ph = this.$el.height();
+      size = pw > ph ? ph : pw;
+      console.log("keepMaxSquare: size=" + size);
+      $canvasel = $('canvas', this.$el);
+      $canvasel.css('height', size + 'px');
+      $canvasel.css('width', size + 'px');
+      $canvasel.css('top', (ph - size) / 2 + 'px');
+      $canvasel.css('left', (pw - size) / 2 + 'px');
+      this.stage.scaleX = size / 1000;
+      this.stage.scaleY = size / 1000;
+      this.stage.canvas.height = size;
+      this.stage.canvas.width = size;
+      return this.stage.update();
+    };
+
+    ExplainView.prototype.close = function(ev) {
+      console.log("Explain close");
+      this.remove();
+      window.router.navigate("consent", {
+        trigger: true
+      });
+      return false;
+    };
+
+    ExplainView.prototype.remove = function() {
+      if (window.clickFeedback != null) window.clickFeedback();
+      recorder.i('view.explain.hide');
+      console.log('close/remove Explain');
+      this.$el.remove();
+      $(window).off('resize', this.resize);
+      queue.off('complete', this.initStage, this);
+      createjs.Ticker.removeEventListener("tick", this.stage);
+      return clearInterval(this.timer);
+    };
+
+    ExplainView.prototype.explainOk = function() {
+      if (window.clickFeedback != null) window.clickFeedback();
+      recorder.i('user.explain.ok');
+      return this.close();
+    };
+
+    ExplainView.prototype.explainMore = function() {
+      if (window.clickFeedback != null) window.clickFeedback();
+      recorder.i('user.explain.more');
+      return this.nextSlide();
+    };
+
+    return ExplainView;
 
   })();
 

@@ -1,0 +1,8 @@
+<%# Explain; no particular data?! parent is div class=attract-modal %>
+<canvas id="explainCanvas"></canvas>
+<div class="explain-more">
+  <a href="-explain-more" class="button consent-button">More...</a>
+</div>
+<div class="explain-ok">
+  <a href="-explain-ok" class="button consent-button">OK</a>
+</div>

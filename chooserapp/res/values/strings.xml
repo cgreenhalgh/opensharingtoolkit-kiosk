@@ -16,5 +16,9 @@
     <string name="pref_campaignid_title">Campaign ID</string>
     <string name="pref_campaignid_default"></string>
     <string name="pref_campaignid_summary">This value will be included in content download URLs to help trace triggers for downloads</string>
-
+    <string name="pref_lowbrightness_title">Low brightness (%)</string>
+    <string name="pref_lowbrightness_summary">Brightness of screen (if not automatic) in attract mode</string>
+    <string name="pref_highbrightness_title">High brightness (%)</string>
+    <string name="pref_highbrightness_summary">Brightness of screen (if not automatic) in normal use</string>
+    
 </resources>

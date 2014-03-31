@@ -460,7 +460,30 @@ em;
     position: absolute;
     background-color: rgb(251,251,251);
   };
+  .explain-more {
+    z-index: 201;
+    position: fixed;
+    left: 0.2em;
+    bottom: 0.2em;
+    //width: 40%;
+    cursor: pointer;
+    a {
+      width: 100%;
+    };
+  };
+  .explain-ok {
+    z-index: 201;
+    position: fixed;
+    right: 0.2em;
+    bottom: 0.2em;
+    cursor: pointer;
+    //width: 40%;
+    a {
+      width: 100%;
+    };
+  };
 };
+
 // consent overlay/modal
 .consent-modal {
   z-index: 190;
