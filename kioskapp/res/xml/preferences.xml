@@ -1,10 +1,27 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android" >
+    <PreferenceCategory
+        android:title="@string/pref_title"
+        android:summary="@string/pref_summary"/>
     <CheckBoxPreference 
         android:enabled="true" 
         android:title="@string/pref_kioskmode_title" 
         android:summary="@string/pref_kioskmode_summary"
         android:key="pref_kioskmode" 
+        android:defaultValue="false" 
+        android:selectable="true"/>
+    <CheckBoxPreference 
+        android:enabled="true" 
+        android:title="@string/pref_softhome_title" 
+        android:summary="@string/pref_softhome_summary"
+        android:key="pref_softhome" 
         android:defaultValue="true" 
+        android:selectable="true"/>
+    <CheckBoxPreference 
+        android:enabled="true" 
+        android:title="@string/pref_softback_title" 
+        android:summary="@string/pref_softback_summary"
+        android:key="pref_softback" 
+        android:defaultValue="false" 
         android:selectable="true"/>
 </PreferenceScreen>

@@ -2,18 +2,18 @@
 
 Optional application which is responsible for the actual kiosking of the device, i.e. preventing access to other applications or settings from the normal screen. This includes the launcher functionality.
 
-Status: relatively complete - launcher, accessibility service interceptor. 
+Status: relatively complete - launcher, accessibility service interceptor, soft home/back keys. 
 (ideally needs replacement Status bar but that requires  signed system app which implies custom OS)
 
 ## Setting up
 
 Once the app is installed you should press `home` and then select this app as the launcher `always`.
 
-You should then open Settings > Accessibility > OST Kiosk Lockdown and turn this on. (Make sure you have done the step above first to make it the default launcher!)
+You should then open Settings > Accessibility > OST Kiosk Lockdown and turn this on. 
 
 You should now be able to access the settings to enable/disable kiosk mode by pressing Home five times in quick succession (i.e. within 5 seconds).
 
-When enabled it will try rather hard to stop you accessing anything other than the chooser app.
+When enabled it will try rather hard to stop you accessing anything other than the chooser app. (Make sure you have made it the default launcher before enabling kiosk mode or you may be unable to access the settings to turn it off again!)
 
 
 ## Additional instructions
@@ -37,7 +37,9 @@ fastboot oem off-mode-charge 0
 
 ### Install a custom soft key application
 
-For your own sanity, before hiding the standard soft keys, you might want to install a different one that you can at least turn on/off. E.g. "Handy Soft Keys" from google play. This is more discrete than the standard soft keys but means you can still use the device.
+For your own sanity, before hiding the standard soft keys, you might want to install a different one that you can at least turn on/off. 
+
+Kiosk app now includes its own based softkeys for home/back, although they are barely visible when enabled (deliberately) at the top-left and bottom-right of the screen.
 
 ### Hide soft keys
 

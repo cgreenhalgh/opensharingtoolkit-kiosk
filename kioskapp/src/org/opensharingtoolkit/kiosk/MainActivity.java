@@ -66,7 +66,7 @@ public class MainActivity extends Activity {
 		}
 		else {
 			SharedPreferences spref = PreferenceManager.getDefaultSharedPreferences(this);
-			boolean kioskmode = spref.getBoolean("pref_kioskmode", true);
+			boolean kioskmode = spref.getBoolean("pref_kioskmode", false);
 
 			if (kioskmode) {
 				String pkg = getString(R.string.run_package);

@@ -6,6 +6,7 @@ package org.opensharingtoolkit.kiosk;
 import android.accessibilityservice.AccessibilityService;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.accessibility.AccessibilityEvent;
@@ -14,10 +15,10 @@ import android.view.accessibility.AccessibilityEvent;
  * @author pszcmg
  *
  */
-public class KioskAccessibilityService extends AccessibilityService {
+public class KioskAccessibilityService extends AccessibilityService implements OnSharedPreferenceChangeListener {
 
 	private static final String TAG = "kiosk-accessibility";
-
+	private SoftKeys mSoftKeys = null;
 	/* (non-Javadoc)
 	 * @see android.app.Service#onCreate()
 	 */
@@ -38,6 +39,7 @@ public class KioskAccessibilityService extends AccessibilityService {
 		// TODO Auto-generated method stub
 		super.onServiceConnected();
 		Log.d(TAG,"onServiceConnected");
+		init();
 	}
 
 	/* (non-Javadoc)
@@ -50,12 +52,25 @@ public class KioskAccessibilityService extends AccessibilityService {
 		return super.onGesture(gestureId);
 	}
 
+	/** initialise - from onConnected or onRebind */
+	private void init() {
+		if (mSoftKeys==null)
+			mSoftKeys = new SoftKeys();
+		SharedPreferences spref = PreferenceManager.getDefaultSharedPreferences(this);
+		spref.registerOnSharedPreferenceChangeListener(this);
+		checkSoftkeys(spref);
+	}
+
 	/* (non-Javadoc)
 	 * @see android.app.Service#onUnbind(android.content.Intent)
 	 */
 	@Override
 	public boolean onUnbind(Intent intent) {
 		// TODO Auto-generated method stub
+		SharedPreferences spref = PreferenceManager.getDefaultSharedPreferences(this);
+		spref.unregisterOnSharedPreferenceChangeListener(this);
+		if (mSoftKeys!=null)
+			mSoftKeys.disable();
 		// request rebind (in case??)
 		return true;
 	}
@@ -68,6 +83,7 @@ public class KioskAccessibilityService extends AccessibilityService {
 	public void onRebind(Intent intent) {
 		// TODO Auto-generated method stub
 		Log.d(TAG,"onRebind");
+		init();
 	}
 
 	private String lastPackage;
@@ -78,7 +94,7 @@ public class KioskAccessibilityService extends AccessibilityService {
 	public void onAccessibilityEvent(AccessibilityEvent event) {
 		// TODO Auto-generated method stub
 		SharedPreferences spref = PreferenceManager.getDefaultSharedPreferences(this);
-		boolean kioskmode = spref.getBoolean("pref_kioskmode", true);
+		boolean kioskmode = spref.getBoolean("pref_kioskmode", false);
 		Log.d(TAG,"onAccessibilityEvent "+event.getEventType()+" kioskmode="+kioskmode);
 		if (event.getEventType()==AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED) {
 			String pkg = getString(R.string.run_package);
@@ -115,6 +131,30 @@ public class KioskAccessibilityService extends AccessibilityService {
 	public void onInterrupt() {
 		// TODO Auto-generated method stub
 		Log.d(TAG,"onInterrupt");
+	}
+
+	@Override
+	public void onSharedPreferenceChanged(SharedPreferences sharedPreferences,
+			String key) {
+		// TODO Auto-generated method stub
+		if ("pref_softback".equals(key) || "pref_softhome".equals(key)) {
+			checkSoftkeys(sharedPreferences);
+		}
+	}
+
+	private void checkSoftkeys(SharedPreferences sharedPreferences) {
+		// TODO Auto-generated method stub
+		boolean softhome = sharedPreferences.getBoolean("pref_softhome", false);
+		boolean softback = sharedPreferences.getBoolean("pref_softback", false);
+		Log.d(TAG,"pref_softhome = "+softhome+", pref_softback = "+softback);
+		if (mSoftKeys==null)
+			Log.e(TAG,"mSoftKeys = null (pref_softhome/back changed to "+softhome+"/"+softback+")");
+		else {
+			mSoftKeys.disable();
+			if (softhome || softback)
+				mSoftKeys.enable(this, softhome, softback);
+		}
+
 	}
 
 }
