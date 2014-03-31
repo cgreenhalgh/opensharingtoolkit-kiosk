@@ -278,9 +278,19 @@ public class HttpClientHandler extends Thread {
 			BufferedOutputStream bos = new BufferedOutputStream(s.getOutputStream());
 			OutputStreamWriter osw = new OutputStreamWriter(bos, "US-ASCII");
 			osw.write("HTTP/1.0 "+status+" "+message+"\r\n");
-			osw.write("Content-type: text/plain\r\n");
+			osw.write("Content-type: text/html; charset=UTF-8\r\n");
+			StringBuilder buf= new StringBuilder();
+			buf.append("<!DOCTYPE html PUBLIC \"-//W3C//DTD HTML 4.01 Transitional//EN\" \"http://www.w3.org/TR/html4/loose.dtd\">");
+			buf.append("<html><head><meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\">");
+			buf.append("<meta name=\"viewport\" content=\"width=device-width;\">");
+			buf.append("<title>Error: "+status+": "+message+"</title></head>");
+			buf.append("<body><h1>Error "+status+": "+message+"</h1></body></html>");
+			byte bs [] = buf.toString().getBytes("UTF-8");
+			osw.write("Content-Length: "+bs.length+"\r\n");
 			osw.write("\r\n");
-			osw.write("Something went wrong: "+message+" (HTTP status code "+status+")\n");
+			osw.flush();
+			bos.write(bs);
+			bos.flush();
 			osw.close();
 		} catch (Exception e) {
 			Log.d(TAG,"Error sending error: "+e.getMessage());
