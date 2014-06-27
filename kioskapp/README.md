@@ -9,7 +9,7 @@ Status: relatively complete - launcher, accessibility service interceptor, soft 
 
 Once the app is installed you should press `home` and then select this app as the launcher `always`.
 
-You should then open Settings > Accessibility > OST Kiosk Lockdown and turn this on. 
+Reboot after install (it probably won't be visible in Accessibility when first insatlled). Then open Settings > Accessibility > OST Kiosk Lockdown and turn this on. 
 
 You should now be able to access the settings to enable/disable kiosk mode by pressing Home five times in quick succession (i.e. within 5 seconds).
 

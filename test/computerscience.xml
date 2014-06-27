@@ -8,6 +8,8 @@
     <category scheme="campaign" term="a" label="Test campaign a = kiosk 1"/>
     <category scheme="campaign" term="b" label="Test campaign b = kiosk 2"/>
     <category scheme="campaign" term="m" label="Test campaign m = flyers"/>
+    <category scheme="campaign" term="e" label="Test campaign e = email"/>
+    <category scheme="campaign" term="p" label="Test campaign p = poster"/>
 
     <entry>
      <link rel="alternate" type="image/png" href="http://www.cs.nott.ac.uk/~cmg/AppropriateICT/test/thing1.png"/>
@@ -96,12 +98,12 @@
    </entry>
 
    <entry>  
-     <id>tag:cmg@cs.nott.ac.uk,2014-03-11:/kiosk/computerscience/coursestructures</id>
-     <content>For each of the undergraduate courses in Computer Science this booklet summarises how the course is organised, which subjects you study in which year and what other optional subjects you can choose from.</content>
-     <title>Course Structures</title>
-     <updated>2014-03-11T21:10:00Z</updated> 
+     <id>tag:cmg@cs.nott.ac.uk,2014-03-11:/kiosk/computerscience/coursebrochure2015</id>
+     <content>This is a PDF version of the course brochure for 2015 entry. It has lots of information about studying Computer Science at the University of Nottingham, including general study information, the different courses available and how each course is organised.</content>
+     <title>Course Brochure</title>
+     <updated>2014-06-25T15:15:00Z</updated> 
      <link rel="alternate" type="image/jpg" href="http://www.cs.nott.ac.uk/~cmg/ComputerScience/coursestructureicon.jpg"/>
-     <link rel="enclosure" type="application/pdf" href="http://www.cs.nott.ac.uk/~cmg/ComputerScience/WEB_PDF_UG_course_structure_brochure.pdf"/>
+     <link rel="enclosure" type="application/pdf" href="http://www.cs.nott.ac.uk/~cmg/ComputerScience/Computer_Science_brochure_May_2014.pdf"/>
    </entry>
 
 
