@@ -29,7 +29,8 @@ for entry in entries
   systime = entry.time
   datetime = new Date(systime).toString()
   output = entry.time+"\t"+datetime+"\t"+entry.component+"\t"+entry.event
-  if entry.event=='view.attract.hide' or entry.event=='view.attract.show' or entry.event=='activity.pause' or entry.event=='activity.resume'
+  if entry.event=='view.attract.hide' or entry.event=='view.attract.show'
+    # or entry.event=='activity.pause' or entry.event=='activity.resume'
     outputs.push output
   else if entry.event=='user.selectEntry'
     outputs.push output+"\t"+entry.info.id+"\t"+entry.info.title
@@ -89,7 +90,7 @@ for entry in entries
 
 console.log "Write to #{outfn}..."
 try 
-  out = fs.openSync outfn, "w+"
+  out = fs.openSync outfn, "a"
   for output in outputs
     fs.writeSync out,output
     fs.writeSync out,"\n"
