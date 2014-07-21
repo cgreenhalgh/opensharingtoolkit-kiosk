@@ -4,6 +4,7 @@ http = require 'http'
 fs = require 'fs'
 xml2js = require 'xml2js'
 parse_url = (require 'url').parse
+resolve_url = (require 'url').resolve
 
 if process.argv.length<3 
   console.log 'usage: coffee cb.coffee <KIOSK-ATOM-FILE>'
@@ -202,7 +203,7 @@ make_shorturls = (feed,shorturls) ->
   for entry in feed.entry when not is_hidden entry
     title = entry.title[0]
     # each enclosure    
-    for link in entry.link when link.$.rel == 'enclosure'
+    for link in entry.link ?= [] when link.$.rel == 'enclosure'
       fileurl = link.$.href
       mime = link.$.type
 
@@ -564,34 +565,7 @@ parser.parseString data,(err,result) ->
   fix_cache cache,0
 
 fix_relative_url = (url,path) ->
-  if path.indexOf( ':' ) >=0 
-    return path
-
-  hi = url.indexOf '//'
-  if hi>=0  
-    pi = url.indexOf '/',hi+2
-    if pi<0
-      pi = url.length
-      url = url+'/'
-  else
-    pi = 0
-    console.log "warning: url without host: #{url}"
-    return path
-
-  fi = url.lastIndexOf '/'
-  url = url.substring 0,fi+1
-
-  while path.indexOf( '../' ) == 0
-    si = url.lastIndexOf '/',url.length-2
-    if si>pi
-      path = path.substring 3
-      url = url.substring 0,si+1
-    else
-      console.log "warning: relative URL out of scope: #{path} vs #{url}"      
-
-  if path.indexOf( '/' ) == 0
-    return url.substring( 0,pi ) + path
-  return url+path
+  resolve_url url, path
 
 check_html_file = (cache,ix,file) ->
   si = file.path.lastIndexOf '/'
