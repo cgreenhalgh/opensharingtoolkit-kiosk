@@ -3,7 +3,8 @@ $userAgent = $_SERVER['HTTP_USER_AGENT'];
 $userAddr = $_SERVER['REMOTE_ADDR'];
 $userPort = $_SERVER['REMOTE_PORT'];
 $referer = $_SERVER['HTTP_REFERER'];
-$file = $_GET['f'];
+// extra decode for embedded :, etc.
+$file = urldecode($_GET['f']);
 $mime = $_GET['m'];
 if (empty($file) || empty($mime)) {
   die('Bad request');
@@ -11,7 +12,7 @@ if (empty($file) || empty($mime)) {
   $path = realpath(__DIR__)."/".$file;
   $root = realpath(__DIR__)."/";
   if (strpos($path,$root)!=0 || !file_exists($path)) {
-    die('Not found');
+    die('Not found: '.$file);
   } else {
     $time = time();
     $info = array(
