@@ -429,9 +429,9 @@ parser.parseString data,(err,result) ->
     if file.lastmod?
       console.log 'Check '+file.url
       url = parse_url file.url
-      protocol = url.protocol ? 'http'
+      protocol = url.protocol ?= 'http'
       options = 
-        host: url.host
+        hostname: url.hostname
         port: url.port
         path: url.path
         auth: url.auth
@@ -450,7 +450,7 @@ parser.parseString data,(err,result) ->
           get_cache_file cache,ix,file
           
       req.on 'error',(e) ->
-        console.log 'Error checking '+file.url+': '+e
+        console.log 'Error checking '+file.url+' ('+JSON.stringify( options )+'): '+e
         get_cache_file cache,ix,file
  
       req.end()
