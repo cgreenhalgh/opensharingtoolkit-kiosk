@@ -225,6 +225,9 @@ add_fileurl = (url, fileurls) ->
       #console.log 'add '+url+' to fileurls'
       fileurls.push url 
 
+fix_relative_url = (url,path) ->
+  resolve_url url, path
+
 # cache entry for each
 make_cache = (feed,cache) ->
 
@@ -234,10 +237,10 @@ make_cache = (feed,cache) ->
     hidden = is_hidden entry
     # atom enclosures
     for link in entry.link when link.$.href? and (link.$.rel == 'alternate' or not hidden)
-      add_fileurl link.$.href, fileurls
+      add_fileurl (fix_relative_url cache.baseurl, link.$.href), fileurls
     # media-rss media:thumbnail
     for thumbnail in (entry['media:thumbnail'] ? []) when thumbnail.$.url?
-      add_fileurl thumbnail.$.url, fileurls
+      add_fileurl (fix_relative_url cache.baseurl, thumbnail.$.url), fileurls
   console.dir fileurls
  
 
@@ -294,8 +297,8 @@ get_filename_for_component = (h) ->
 # maps domain name elements and path elements to folders
 get_cache_path = (url) ->
   url = parse_url url
-  # host, port, path (includes query), hash
-  hs = if url.host? then url.host.split '.' else []
+  # hostname, port, path (includes query), hash
+  hs = if url.hostname? then url.hostname.split '.' else []
   # reverse non-IP order
   number = /^[0-9]+$/
   ns = 0
@@ -563,9 +566,6 @@ parser.parseString data,(err,result) ->
       fix_cache cache,ix+1
 
   fix_cache cache,0
-
-fix_relative_url = (url,path) ->
-  resolve_url url, path
 
 check_html_file = (cache,ix,file) ->
   si = file.path.lastIndexOf '/'
