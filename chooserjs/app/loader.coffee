@@ -7,19 +7,37 @@ Devicetype = require 'models/Devicetype'
 kiosk = require 'kiosk'
 recorder = require 'recorder'
 
+indexOfOrEnd = (s, patt) ->
+  ix = s.indexOf patt
+  if ix<0
+    s.length
+  else
+    ix 
+
+isRelativeUrl = (url) ->
+  noq = url.substring 0, (indexOfOrEnd url, '?')
+  noh = noq.substring 0, (indexOfOrEnd noq, '#')
+  cix = indexOfOrEnd noh, ':'
+  six = indexOfOrEnd noh, '/'
+  if cix<six
+    false
+  else if noh.indexOf('//')==0
+    false
+  else 
+    noh.indexOf('/')!=0
+
 getCachePath = (url,cacheFiles,prefix) ->
   if url?
     file = cacheFiles[url]
     if file? and file.path?
       prefix+file.path
     else 
-      #purl = parse_url url
-      #if not purl.protocol and not purl.host and pathname.indexOf('/')!=0
-      #  # relative url
-      #  console.log "Relative url #{url} assumed cached"
-      #  prefix+url
-      #else
-      null
+      if isRelativeUrl url
+        # relative url
+        console.log "Relative url #{url} assumed cached"
+        prefix+url
+      else
+        null
   else
     null
 

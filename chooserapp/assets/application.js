@@ -1048,7 +1048,7 @@
 
 }).call(this);
 }, "loader": function(exports, require, module) {(function() {
-  var Devicetype, Entry, Mimetype, addDevice, addEntry, addMimetype, addShorturls, fixMimetypeIcons, getCacheFileMap, getCachePath, get_baseurl, kiosk, loadCache, loadDevices, loadEntries, loadMimetypes, loadShorturls, recorder;
+  var Devicetype, Entry, Mimetype, addDevice, addEntry, addMimetype, addShorturls, fixMimetypeIcons, getCacheFileMap, getCachePath, get_baseurl, indexOfOrEnd, isRelativeUrl, kiosk, loadCache, loadDevices, loadEntries, loadMimetypes, loadShorturls, recorder;
 
   Entry = require('models/Entry');
 
@@ -1060,6 +1060,31 @@
 
   recorder = require('recorder');
 
+  indexOfOrEnd = function(s, patt) {
+    var ix;
+    ix = s.indexOf(patt);
+    if (ix < 0) {
+      return s.length;
+    } else {
+      return ix;
+    }
+  };
+
+  isRelativeUrl = function(url) {
+    var cix, noh, noq, six;
+    noq = url.substring(0, indexOfOrEnd(url, '?'));
+    noh = noq.substring(0, indexOfOrEnd(noq, '#'));
+    cix = indexOfOrEnd(noh, ':');
+    six = indexOfOrEnd(noh, '/');
+    if (cix < six) {
+      return false;
+    } else if (noh.indexOf('//') === 0) {
+      return false;
+    } else {
+      return noh.indexOf('/') !== 0;
+    }
+  };
+
   getCachePath = function(url, cacheFiles, prefix) {
     var file;
     if (url != null) {
@@ -1067,7 +1092,12 @@
       if ((file != null) && (file.path != null)) {
         return prefix + file.path;
       } else {
-        return null;
+        if (isRelativeUrl(url)) {
+          console.log("Relative url " + url + " assumed cached");
+          return prefix + url;
+        } else {
+          return null;
+        }
       }
     } else {
       return null;
