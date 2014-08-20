@@ -324,6 +324,73 @@ get_cache_path = (url) ->
 doneShorturls = false
 doneCache = false
 
+# may be present unneeded, or not
+add_cache_url = (cache,url,appcache) ->
+  for f in cache.files when f.url == url
+    if appcache?
+      f.appcache = true
+    if f.needed
+      console.log "URL already needed: #{url}"
+      return
+    console.log "URL present, now needed: #{url}"
+    f.needed = true
+    return
+  file = { url: url, needed: true }
+  console.log "Add url #{url}"
+  cache.files.push file
+
+check_appcache = (cache,file) ->
+  if not file.path?
+    return
+  si = file.path.lastIndexOf '/'
+  ei = file.path.lastIndexOf '.'
+  extn = if ei<0 or ei<si then '' else file.path.substring(ei+1)
+  if extn=='appcache' 
+    console.log "check appcache file #{file.url}"  
+    try 
+      appcache = fs.readFileSync file.path,{encoding:'utf8'}
+      lines = appcache.split '\n'
+      lines = for l in lines when l.trim().indexOf('#')!=0 and l.trim().length>0
+        l.trim()
+      if lines.length<=0
+        console.log "Empty appcache manifest #{file.url}"
+        return
+      if lines[0]!='CACHE MANIFEST'
+        console.log "Bad appcache manifest #{file.url}; first line #{lines[0]}"
+      section = "CACHE:"
+      for l,i in lines when i>0
+        if l=="CACHE:" or l=="SETTINGS:" or l=="NETWORK:"
+          section = l
+        else if section=="CACHE:"
+          url = fix_relative_url file.url,l
+          console.log "Found manifest entry #{l} -> #{url}"
+          add_cache_url cache,url
+
+    catch err
+      console.log "Error checking appcache file #{file.path}: #{err}"
+
+check_html_file = (cache,ix,file) ->
+  si = file.path.lastIndexOf '/'
+  ei = file.path.lastIndexOf '.'
+  extn = if ei<0 or ei<si then '' else file.path.substring(ei+1)
+  if extn=='htm' or extn=='html' or extn=='xhtml'
+    try 
+      html = fs.readFileSync file.path,{encoding:'utf8'}
+      hi = html.indexOf '<html '
+      hi2 = html.indexOf '>',hi
+      mi = html.indexOf ' manifest="', hi
+      mi2 = html.indexOf '"', mi+11
+      if mi>=0 and mi2>=mi and mi2<hi2
+        manifest = decodeURI(html.substring mi+11,mi2)
+        # make absolute, schedule for download and check
+        manifesturl = fix_relative_url file.url,manifest
+        console.log "Found html manifest #{manifest} in #{file.url} -> #{manifesturl}" 
+        # set appcache flag
+        add_cache_url cache,manifesturl,true
+
+    catch err
+      console.log "Error checking html file: #{err}"
+
 # parse file(s) and call worker(s)
 parser.parseString data,(err,result) ->
   if err 
@@ -415,12 +482,18 @@ parser.parseString data,(err,result) ->
     else
       file = cache.files[ix]
       #console.log 'fix_cache '+ix+': '+file.url+', was '+file.path
-      if file.needed and file.path? 
+      if file.needed and file.url.indexOf( cache.baseurl )==0
+        file.path = file.url.substring (cache.baseurl.length)
+        console.log "local file #{file.url} -> #{file.path}"
+        check_appcache cache,file
+        check_html_file cache,ix,file
+        fix_cache cache,ix+1
+      else if file.needed and file.path? 
         check_file_modified cache,ix,file
       else if file.needed
         get_cache_file cache,ix,file
       else
-        check_appcache cache,file
+        #check_appcache cache,file
         # not needed!
         fix_cache cache,ix+1
 
@@ -566,73 +639,6 @@ parser.parseString data,(err,result) ->
       fix_cache cache,ix+1
 
   fix_cache cache,0
-
-check_html_file = (cache,ix,file) ->
-  si = file.path.lastIndexOf '/'
-  ei = file.path.lastIndexOf '.'
-  extn = if ei<0 or ei<si then '' else file.path.substring(ei+1)
-  if extn=='htm' or extn=='html' or extn=='xhtml'
-    try 
-      html = fs.readFileSync file.path,{encoding:'utf8'}
-      hi = html.indexOf '<html '
-      hi2 = html.indexOf '>',hi
-      mi = html.indexOf ' manifest="', hi
-      mi2 = html.indexOf '"', mi+11
-      if mi>=0 and mi2>=mi and mi2<hi2
-        manifest = decodeURI(html.substring mi+11,mi2)
-        # make absolute, schedule for download and check
-        manifesturl = fix_relative_url file.url,manifest
-        console.log "Found html manifest #{manifest} in #{file.url} -> #{manifesturl}" 
-        # set appcache flag
-        add_cache_url cache,manifesturl,true
-
-    catch err
-      console.log "Error checking html file: #{err}"
-
-check_appcache = (cache,file) ->
-  if not file.path?
-    return
-  si = file.path.lastIndexOf '/'
-  ei = file.path.lastIndexOf '.'
-  extn = if ei<0 or ei<si then '' else file.path.substring(ei+1)
-  if extn=='appcache' 
-    console.log "check appcache file #{file.url}"  
-    try 
-      appcache = fs.readFileSync file.path,{encoding:'utf8'}
-      lines = appcache.split '\n'
-      lines = for l in lines when l.trim().indexOf('#')!=0 and l.trim().length>0
-        l.trim()
-      if lines.length<=0
-        console.log "Empty appcache manifest #{file.url}"
-        return
-      if lines[0]!='CACHE MANIFEST'
-        console.log "Bad appcache manifest #{file.url}; first line #{lines[0]}"
-      section = "CACHE:"
-      for l,i in lines when i>0
-        if l=="CACHE:" or l=="SETTINGS:" or l=="NETWORK:"
-          section = l
-        else if section=="CACHE:"
-          url = fix_relative_url file.url,l
-          console.log "Found manifest entry #{l} -> #{url}"
-          add_cache_url cache,url
-
-    catch err
-      console.log "Error checking appcache file #{file.path}: #{err}"
-
-# may be present unneeded, or not
-add_cache_url = (cache,url,appcache) ->
-  for f in cache.files when f.url == url
-    if appcache?
-      f.appcache = true
-    if f.needed
-      console.log "URL already needed: #{url}"
-      return
-    console.log "URL present, now needed: #{url}"
-    f.needed = true
-    return
-  file = { url: url, needed: true }
-  console.log "Add url #{url}"
-  cache.files.push file
 
 
 # TODO download icons and non-hidden files

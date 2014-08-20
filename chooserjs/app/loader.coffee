@@ -2,6 +2,7 @@
 Entry = require 'models/Entry'
 Mimetype = require 'models/Mimetype'
 Devicetype = require 'models/Devicetype'
+#parse_url = (require 'url').parse
 
 kiosk = require 'kiosk'
 recorder = require 'recorder'
@@ -11,7 +12,13 @@ getCachePath = (url,cacheFiles,prefix) ->
     file = cacheFiles[url]
     if file? and file.path?
       prefix+file.path
-    else
+    else 
+      #purl = parse_url url
+      #if not purl.protocol and not purl.host and pathname.indexOf('/')!=0
+      #  # relative url
+      #  console.log "Relative url #{url} assumed cached"
+      #  prefix+url
+      #else
       null
   else
     null
