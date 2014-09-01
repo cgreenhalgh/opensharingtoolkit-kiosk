@@ -8021,22 +8021,27 @@ entry-in-list-button {
   word-wrap: break-word;
   border: solid 1px;
   border-radius: 10px;
+  -webkit-user-select: text;
+  -khtml-user-select: text;
+  -moz-user-select: text;
+  -ms-user-select: text;
+  user-select: text;
 }
 
-/* line 280, ../../scss/app.scss */
+/* line 285, ../../scss/app.scss */
 .option-qrcode {
   border: solid 1px;
   border-radius: 10px;
   padding: 10px;
   text-align: center;
 }
-/* line 286, ../../scss/app.scss */
+/* line 291, ../../scss/app.scss */
 .option-qrcode img {
   width: 80%;
   height: auto;
 }
 
-/* line 291, ../../scss/app.scss */
+/* line 296, ../../scss/app.scss */
 .option-step {
   border: 2px solid #a1a1a1;
   padding: 10px 10px;
@@ -8045,13 +8050,13 @@ entry-in-list-button {
   border-radius: 10px;
 }
 
-/* line 302, ../../scss/app.scss */
+/* line 307, ../../scss/app.scss */
 span.ssid {
   font-family: monospace;
   font-weight: bold;
 }
 
-/* line 307, ../../scss/app.scss */
+/* line 312, ../../scss/app.scss */
 .floating-help-button {
   z-index: 20;
   position: fixed;
@@ -8060,19 +8065,19 @@ span.ssid {
   right: 0.2em;
   top: 0.2em;
 }
-/* line 314, ../../scss/app.scss */
+/* line 319, ../../scss/app.scss */
 .floating-help-button img {
   width: 100%;
   height: 100%;
   cursor: pointer;
 }
 
-/* line 320, ../../scss/app.scss */
+/* line 325, ../../scss/app.scss */
 .menubar-help-pad {
   width: 6em;
 }
 
-/* line 323, ../../scss/app.scss */
+/* line 328, ../../scss/app.scss */
 .entry-option-help-button {
   position: absolute;
   right: 0.5em;
@@ -8083,7 +8088,7 @@ span.ssid {
   cursor: pointer;
 }
 
-/* line 333, ../../scss/app.scss */
+/* line 338, ../../scss/app.scss */
 .entry-option-more-help-button {
   width: 3.5rem;
   height: 3.5rem;
@@ -8091,7 +8096,7 @@ span.ssid {
   cursor: pointer;
 }
 
-/* line 340, ../../scss/app.scss */
+/* line 345, ../../scss/app.scss */
 .entry-option-step-help-button {
   width: 3.5rem;
   height: 3.5rem;
@@ -8100,7 +8105,7 @@ span.ssid {
   float: right;
 }
 
-/* line 347, ../../scss/app.scss */
+/* line 352, ../../scss/app.scss */
 .devicetype-help-button {
   width: 3.5rem;
   height: 2 em;
@@ -8108,7 +8113,7 @@ span.ssid {
   cursor: pointer;
 }
 
-/* line 355, ../../scss/app.scss */
+/* line 360, ../../scss/app.scss */
 .devicetype-help-image {
   height: 6em;
   width: auto;
@@ -8116,17 +8121,17 @@ span.ssid {
   float: right;
 }
 
-/* line 361, ../../scss/app.scss */
+/* line 366, ../../scss/app.scss */
 .clear-both {
   clear: both;
 }
 
-/* line 366, ../../scss/app.scss */
+/* line 371, ../../scss/app.scss */
 .help-relative {
   position: relative;
 }
 
-/* line 369, ../../scss/app.scss */
+/* line 374, ../../scss/app.scss */
 .help-below-left-align {
   position: absolute;
   top: 1.5em;
@@ -8135,19 +8140,19 @@ span.ssid {
   text-align: left;
   z-index: 40;
 }
-/* line 377, ../../scss/app.scss */
+/* line 382, ../../scss/app.scss */
 .help-below-left-align img {
   position: relative;
   height: 1.5em;
   width: 1.5em;
 }
-/* line 382, ../../scss/app.scss */
+/* line 387, ../../scss/app.scss */
 .help-below-left-align span {
   position: relative;
   top: 0.8em;
 }
 
-/* line 387, ../../scss/app.scss */
+/* line 392, ../../scss/app.scss */
 .help-below-right-align {
   position: absolute;
   top: 1.5em;
@@ -8156,25 +8161,25 @@ span.ssid {
   text-align: right;
   z-index: 40;
 }
-/* line 395, ../../scss/app.scss */
+/* line 400, ../../scss/app.scss */
 .help-below-right-align img {
   position: relative;
   height: 1.5em;
   width: 1.5em;
 }
-/* line 400, ../../scss/app.scss */
+/* line 405, ../../scss/app.scss */
 .help-below-right-align span {
   position: relative;
   top: 0.8em;
 }
 
-/* line 405, ../../scss/app.scss */
+/* line 410, ../../scss/app.scss */
 .help-label {
   height: 1.5em;
   width: 1.5em;
 }
 
-/* line 410, ../../scss/app.scss */
+/* line 415, ../../scss/app.scss */
 .entry-list-help {
   z-index: 30;
   background-color: rgba(255, 255, 255, 0.8);
@@ -8184,23 +8189,23 @@ span.ssid {
   right: 0;
   bottom: 0;
 }
-/* line 418, ../../scss/app.scss */
+/* line 423, ../../scss/app.scss */
 .entry-list-help .entry-list-help-top {
   height: 3em;
 }
-/* line 421, ../../scss/app.scss */
+/* line 426, ../../scss/app.scss */
 .entry-list-help .help-scroll-vertical {
   width: 1.5em;
   height: 6em;
 }
-/* line 425, ../../scss/app.scss */
+/* line 430, ../../scss/app.scss */
 .entry-list-help .entry-list-help-ok {
   position: fixed;
   right: 0.2em;
   bottom: 0.2em;
   cursor: pointer;
 }
-/* line 431, ../../scss/app.scss */
+/* line 436, ../../scss/app.scss */
 .entry-list-help .entry-list-help-info {
   position: absolute;
   width: 3.5rem;
@@ -8208,23 +8213,23 @@ span.ssid {
   bottom: 1em;
   left: 1em;
 }
-/* line 437, ../../scss/app.scss */
+/* line 442, ../../scss/app.scss */
 .entry-list-help .entry-list-help-info a {
   display: block;
 }
-/* line 440, ../../scss/app.scss */
+/* line 445, ../../scss/app.scss */
 .entry-list-help .entry-list-help-info img {
   width: 100%;
   height: 100%;
   cursor: pointer;
 }
 
-/* line 447, ../../scss/app.scss */
+/* line 452, ../../scss/app.scss */
 .entry-option-step-panel p {
   font-size: 60%;
 }
 
-/* line 451, ../../scss/app.scss */
+/* line 456, ../../scss/app.scss */
 .attract-modal {
   z-index: 200;
   background-color: white;
@@ -8234,12 +8239,12 @@ span.ssid {
   right: 0;
   bottom: 0;
 }
-/* line 459, ../../scss/app.scss */
+/* line 464, ../../scss/app.scss */
 .attract-modal canvas {
   position: absolute;
   background-color: #fbfbfb;
 }
-/* line 463, ../../scss/app.scss */
+/* line 468, ../../scss/app.scss */
 .attract-modal .explain-more {
   z-index: 201;
   position: fixed;
@@ -8247,11 +8252,11 @@ span.ssid {
   bottom: 0.2em;
   cursor: pointer;
 }
-/* line 470, ../../scss/app.scss */
+/* line 475, ../../scss/app.scss */
 .attract-modal .explain-more a {
   width: 100%;
 }
-/* line 474, ../../scss/app.scss */
+/* line 479, ../../scss/app.scss */
 .attract-modal .explain-ok {
   z-index: 201;
   position: fixed;
@@ -8259,12 +8264,12 @@ span.ssid {
   bottom: 0.2em;
   cursor: pointer;
 }
-/* line 481, ../../scss/app.scss */
+/* line 486, ../../scss/app.scss */
 .attract-modal .explain-ok a {
   width: 100%;
 }
 
-/* line 488, ../../scss/app.scss */
+/* line 493, ../../scss/app.scss */
 .consent-modal {
   z-index: 190;
   background-color: white;
@@ -8274,19 +8279,19 @@ span.ssid {
   right: 0;
   bottom: 0;
 }
-/* line 496, ../../scss/app.scss */
+/* line 501, ../../scss/app.scss */
 .consent-modal .panel {
   margin-top: 1em;
 }
-/* line 499, ../../scss/app.scss */
+/* line 504, ../../scss/app.scss */
 .consent-modal .consent-button {
   width: 100%;
 }
-/* line 502, ../../scss/app.scss */
+/* line 507, ../../scss/app.scss */
 .consent-modal .consent-logo {
   float: right;
 }
-/* line 505, ../../scss/app.scss */
+/* line 510, ../../scss/app.scss */
 .consent-modal .button-row {
   position: absolute;
   bottom: 0.2em;

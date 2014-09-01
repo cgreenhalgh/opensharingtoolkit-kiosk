@@ -276,6 +276,11 @@ entry-in-list-button {
   border: solid 1px;
   border-radius: 10px;
   //background-color: #ccc;
+  -webkit-user-select:text;
+  -khtml-user-select:text;
+  -moz-user-select:text;
+  -ms-user-select:text;
+  user-select:text;
 };
 .option-qrcode {
   border: solid 1px;
