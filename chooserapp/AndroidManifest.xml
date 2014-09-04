@@ -60,15 +60,35 @@
             android:exported="false">            
         </service>
         <activity android:name="org.opensharingtoolkit.chooser.SettingsActivity"
-			android:launchMode="singleTop"
+			android:launchMode="standard"
 			android:taskAffinity="org.opensharingtoolkit.kiosk.settings"
-            android:label="@string/add_settings_name" >
+            android:label="@string/add_settings_name" android:clearTaskOnLaunch="true" android:alwaysRetainTaskState="false">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.DEFAULT" />                
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity android:launchMode="standard" 
+			android:taskAffinity="org.opensharingtoolkit.kiosk.settings"
+            android:name="ZipHandlerActivity"
+            android:label="@string/zip_handler_name" >
+            <intent-filter>
+        		<action android:name="android.intent.action.VIEW" />
+        		<category android:name="android.intent.category.DEFAULT" />
+        		<category android:name="android.intent.category.BROWSABLE" />
+        		<data android:scheme="file" />
+        		<data android:mimeType="*/*" />
+        		<data android:pathPattern=".*\\.zip" />
+        		<data android:host="*" />
+            </intent-filter>                
+            <intent-filter>
+        		<action android:name="android.intent.action.VIEW" />
+        		<category android:name="android.intent.category.DEFAULT" />
+        		<category android:name="android.intent.category.BROWSABLE" />
+        		<data android:mimeType="application/zip" />
+            </intent-filter>                
+            </activity>
         </application>
 
 </manifest>

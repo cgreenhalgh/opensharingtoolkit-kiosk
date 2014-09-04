@@ -22,5 +22,6 @@
     <string name="pref_lowbrightness_summary">Brightness of screen (if not automatic) in attract mode</string>
     <string name="pref_highbrightness_title">High brightness (%)</string>
     <string name="pref_highbrightness_summary">Brightness of screen (if not automatic) in normal use</string>
+    <string name="zip_handler_name">Unzip to OST Chooser</string>
     
 </resources>
