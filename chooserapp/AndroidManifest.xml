@@ -62,6 +62,7 @@
         <activity android:name="org.opensharingtoolkit.chooser.SettingsActivity"
 			android:launchMode="standard"
 			android:taskAffinity="org.opensharingtoolkit.kiosk.settings"
+            android:theme="@style/SettingsTheme"
             android:label="@string/add_settings_name" android:clearTaskOnLaunch="true" android:alwaysRetainTaskState="false">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -72,6 +73,7 @@
         <activity android:launchMode="standard" 
 			android:taskAffinity="org.opensharingtoolkit.kiosk.settings"
             android:name="ZipHandlerActivity"
+            android:theme="@style/SettingsTheme"
             android:label="@string/zip_handler_name" >
             <intent-filter>
         		<action android:name="android.intent.action.VIEW" />

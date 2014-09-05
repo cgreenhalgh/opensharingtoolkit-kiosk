@@ -22,4 +22,13 @@
         <item name="android:windowNoTitle">true</item>
      </style>
 
+    <!-- Application theme. -->
+    <style name="SettingsTheme" parent="AppBaseTheme">
+        <!-- All customizations that are NOT specific to a particular API-level can go here. -->
+        <item name="android:windowFullscreen">false</item>
+        <item name="android:windowContentOverlay">@null</item>
+        <item name="android:windowActionBar">false</item>
+        <item name="android:windowNoTitle">false</item>
+     </style>
+
 </resources>

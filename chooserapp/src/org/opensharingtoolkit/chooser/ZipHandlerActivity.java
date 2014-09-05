@@ -24,8 +24,10 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.util.Log;
-import android.webkit.WebView;
-import android.widget.EditText;
+import android.view.View;
+import android.view.View.OnClickListener;
+import android.widget.Button;
+import android.widget.TextView;
 import android.widget.Toast;
 
 /**
@@ -35,18 +37,25 @@ import android.widget.Toast;
 public class ZipHandlerActivity extends Activity {
 
 	private static final String TAG = "chooser-zip";
-	private EditText log;
+	private TextView log;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		// TODO Auto-generated method stub
 		super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_zip_handler);
-        log = (EditText)findViewById(R.id.zip_handler_log);
-        //WebView webView = (WebView)findViewById(R.id.webView);
-		Intent i = getIntent();
-		Log.i(TAG,"onCreate action="+i.getAction()+", data="+i.getData());
-		startUnzip(i.getData());
+        log = (TextView)findViewById(R.id.zip_handler_log);
+        final Button replace = (Button)findViewById(R.id.buttonReplace);
+        replace.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				Log.d(TAG,"Click replace....");
+				replace.setEnabled(false);
+				Intent i = getIntent();
+				Log.i(TAG,"onCreate action="+i.getAction()+", data="+i.getData());
+				startUnzip(i.getData());
+			}
+		});
 	}
 
 	static class Unzip {
@@ -83,6 +92,7 @@ public class ZipHandlerActivity extends Activity {
 			return;
 		}
 		task = new UnzipTask();
+		log.append("Working...");
 		task.execute(new Unzip(data, dir));
 	}
 	
@@ -188,10 +198,10 @@ public class ZipHandlerActivity extends Activity {
 			if (result.errors.size()==0) {
 				log.append("Extracted OK\n");
 				for (String fname: result.configFiles)
-					log.append("Found config file: "+fname);				
+					log.append("Found config file: "+fname+"\n");				
 			    if (result.configFiles.size()>0) {
 			    	String atomfile = result.configFiles.get(0);
-			    	log.append("Setting atomfile to "+atomfile);
+			    	log.append("Setting atomfile to "+atomfile+"\n");
 			    	//pref_atomfile
 			    	try {
 						SharedPreferences spref = PreferenceManager.getDefaultSharedPreferences(ZipHandlerActivity.this);
@@ -203,12 +213,14 @@ public class ZipHandlerActivity extends Activity {
 						//		ZipHandlerActivity.this.finish();
 						//	}
 						//}, 1000);
+						Log.i(TAG, "Long press the top-left corner of the chooser screen to reload the configuration\n");
 			    	}
 			    	catch (Exception e) {
 			    		Log.w(TAG,"Error setting atomfile in preferences: "+e);
 			    	}
 				}
 			}
+	    	log.append("Done\n");
 		}
 
 		@Override
@@ -220,7 +232,6 @@ public class ZipHandlerActivity extends Activity {
 	@Override
 	protected void onNewIntent(Intent i) {
 		Log.i(TAG,"onNewIntent action="+i.getAction()+", data="+i.getData());
-		startUnzip(i.getData());
 	}
 
 	@Override
@@ -233,8 +244,14 @@ public class ZipHandlerActivity extends Activity {
 	protected void onStop() {
 		// TODO Auto-generated method stub
 		super.onStop();
+	}
+
+	@Override
+	protected void onDestroy() {
+		// TODO Auto-generated method stub
+		super.onDestroy();
 		if (task!=null) {
-			Log.d(TAG,"Cancel unzip task on stop");
+			Log.d(TAG,"Cancel unzip task on destroy");
 			
 			if (task.cancel(true)) {
 				Toast.makeText(this, "Warning: config may be corrupt", Toast.LENGTH_LONG).show();

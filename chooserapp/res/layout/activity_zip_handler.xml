@@ -5,20 +5,29 @@
     android:orientation="vertical" >
 
     <TextView
+        android:id="@+id/textView1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/zip_prompt"
+        android:textAppearance="?android:attr/textAppearanceLarge" />
+
+    <Button
+        android:id="@+id/buttonReplace"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/zip_button_replace" />
+
+    <TextView
         android:id="@+id/zip_handler_label1"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Diagnostic output" />
+        android:text="@string/zip_log_title" />
 
-    <EditText
+    <TextView
         android:id="@+id/zip_handler_log"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:ems="10"
-        android:enabled="false"
-        android:inputType="textMultiLine" >
-
-        <requestFocus />
-    </EditText>
+        android:typeface="monospace">
+    </TextView>
 
 </LinearLayout>
