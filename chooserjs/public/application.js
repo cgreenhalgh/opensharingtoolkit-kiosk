@@ -2166,7 +2166,7 @@
   }
   (function() {
     (function() {
-      var compat, dt, _base, _base2, _ref, _ref2, _ref3, _ref4, _ref5, _ref6;
+      var compat, dt, _base, _base2, _ref, _ref2, _ref3, _ref4, _ref5, _ref6, _ref7;
     
       __out.push('\n<div class="small-12 large-12 columns">\n  <h1>');
     
@@ -2186,25 +2186,33 @@
         __out.push('\n');
       }
     
-      __out.push('\n</div>\n<div class="small-12 medium-6 large-6 columns">\n  <p>');
+      __out.push('\n</div>\n<div class="small-12 medium-6 large-6 columns">\n');
     
-      __out.push(__sanitize(this.entry.summary));
+      if (((_ref = this.entry.summary) != null ? _ref : "").trim().indexOf('<') === 0) {
+        __out.push('\n  <!-- summary html -->');
+        __out.push(this.entry.summary);
+        __out.push('\n');
+      } else {
+        __out.push('\n  <!-- summary plain text --><p>');
+        __out.push(__sanitize(this.entry.summary));
+        __out.push('</p> \n');
+      }
     
-      __out.push('</p> \n  <div class="entry-in-list-icon">\n    <div class="dummy"></div>');
+      __out.push('\n  <div class="entry-in-list-icon">\n    <div class="dummy"></div>');
     
       __out.push('\n    <img src="');
     
-      __out.push(__sanitize((_ref = this.entry.iconpath) != null ? _ref : this.entry.iconurl));
+      __out.push(__sanitize((_ref2 = this.entry.iconpath) != null ? _ref2 : this.entry.iconurl));
     
       __out.push('"  class="entry-icon-image">\n  </div>\n</div>\n<div class="small-12 medium-6 large-6 columns">\n  <div class="entry-info-compats">\n    ');
     
-      _ref3 = ((_ref2 = (_base = this.entry).compat) != null ? _ref2 : _base.compat = {});
-      for (dt in _ref3) {
-        compat = _ref3[dt];
+      _ref4 = ((_ref3 = (_base = this.entry).compat) != null ? _ref3 : _base.compat = {});
+      for (dt in _ref4) {
+        compat = _ref4[dt];
         __out.push('<!--\n    --><div class="entry-in-list-compat');
-        __out.push(__sanitize(((_ref4 = window.options.attributes.devicetype) != null ? _ref4.attributes.term : void 0) === dt ? '-current' : ''));
+        __out.push(__sanitize(((_ref5 = window.options.attributes.devicetype) != null ? _ref5.attributes.term : void 0) === dt ? '-current' : ''));
         __out.push('"><!--\n      --><p>');
-        __out.push(__sanitize((_ref5 = window.options.attributes.devicetypes.get(dt)) != null ? (_ref6 = (_base2 = _ref5.attributes).label) != null ? _ref6 : _base2.label = dt : void 0));
+        __out.push(__sanitize((_ref6 = window.options.attributes.devicetypes.get(dt)) != null ? (_ref7 = (_base2 = _ref6.attributes).label) != null ? _ref7 : _base2.label = dt : void 0));
         __out.push('</p><!--\n      --><img src="icons/');
         __out.push(__sanitize(compat === 'builtin' ? 'tick.png' : compat === 'optional' ? 'query.png' : compat === 'app' ? 'tick app.png' : compat === 'none' ? 'cross.png' : 'query app.png'));
         __out.push('"><!--\n    --></div><!--\n  -->');
