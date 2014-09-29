@@ -7,13 +7,13 @@
     <string name="notification_title">Kiosk</string>
     <string name="notification_description">Sharing service is active</string>
     <string name="pref_atomfile">Chooser Content File</string>
-    <string name="pref_atomfile_default">ost.xml</string>
+    <string name="pref_atomfile_default">default.xml</string>
     <string name="add_settings_name">Chooser Settings</string>
     <string name="pref_softwarerender_title">Use software-only renderer</string>
     <string name="pref_softwarerender_summary">May fix some html5 rendering issues in some browsers (need to restart app)</string>
     <string name="pref_hostname_title">Device name</string>
     <string name="pref_hostname_summary">Name of device to use in captive portal mode</string>
-    <string name="pref_hostname_default">leaflets</string>
+    <string name="pref_hostname_default">10.0.0.1</string>
     <string name="pref_campaignid_title">Campaign ID</string>
     <string name="pref_campaignid_default"></string>
     <string name="pref_campaignid_summary">This value will be included in content download URLs to help trace triggers for downloads</string>
@@ -25,4 +25,14 @@
     <string name="zip_prompt">Update OST Chooser file cache and replace configuration with contents of zip file?</string>
     <string name="zip_button_replace">Replace</string>
     <string name="zip_log_title">Diagnostic output</string>
+    <string name="pref_keepscreenon_title">Keep screen on</string>
+    <string name="pref_keepscreenon_summary">Keep screen on if possible</string>
+    <string name="pref_fullscreen_title">Show full screen</string>
+    <string name="pref_fullscreen_summary">Hide notification bar in chooser view</string>
+    <string name="pref_landscape_title">Force landscape orientation</string>
+    <string name="pref_click_title">Sound on click</string>
+    <string name="pref_click_summary">Play sound on touch events</string>
+    <string name="pref_vibrate_title">Vibrate</string>
+    <string name="pref_vibrate_summary">Use vibrate for touch feedback</string>
+    <string name="pref_viewkiosk_title">Show main UI</string>
 </resources>

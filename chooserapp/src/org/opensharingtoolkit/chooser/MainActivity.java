@@ -10,11 +10,14 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.SharedPreferences;
+import android.content.pm.ActivityInfo;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.PowerManager;
 import android.os.PowerManager.WakeLock;
+import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
@@ -31,15 +34,24 @@ public class MainActivity extends BrowserActivity {
 	@Override
 	@SuppressLint("SetJavaScriptEnabled")
 	protected void onCreate(Bundle savedInstanceState) {
+		// TODO Auto-generated method stub
+		super.onCreate(savedInstanceState);	
+
 		// make sure service is running...
 		startService(new Intent(getApplicationContext(), Service.class));
 		
-		// TODO Auto-generated method stub
-		super.onCreate(savedInstanceState);	
-		
-        // keep screen on (if possible) 
-        getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
-        getWindow().addFlags(WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON);
+		SharedPreferences spref = PreferenceManager.getDefaultSharedPreferences(MainActivity.this);
+		if (spref.getBoolean("pref_landscape", false)) {
+			if (getRequestedOrientation()!=ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE)
+				setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
+		} else {
+			if (getRequestedOrientation()!=ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED)
+				setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED);
+		}
+		if (spref.getBoolean("pref_fullscreen", false)) {
+			getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
+                WindowManager.LayoutParams.FLAG_FULLSCREEN);
+		}
         // This seems to be specific to CyanogenMod:
         // getWindow().addFlags(WindowManager.LayoutParams.PREVENT_POWER_KEY);
         
@@ -155,11 +167,36 @@ public class MainActivity extends BrowserActivity {
 	protected void onResume() {
 		mRecorder.i("activity.resume", null);
 		super.onResume();
-		// hide notification??
-		View decorView = getWindow().getDecorView();
-		int uiOptions = View.SYSTEM_UI_FLAG_FULLSCREEN | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN | View.SYSTEM_UI_FLAG_LAYOUT_STABLE;
-		decorView.setSystemUiVisibility(uiOptions);
 
+		SharedPreferences spref = PreferenceManager.getDefaultSharedPreferences(MainActivity.this);
+		if (spref.getBoolean("pref_keepscreenon", false)) {
+			Log.d(TAG,"resume: keepscreenon");
+			// keep screen on (if possible) 
+			getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+			getWindow().addFlags(WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON);
+		} else {
+			Log.d(TAG,"resume: NOT keepscreenon");
+			getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+			getWindow().clearFlags(WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON);			
+		}
+		if (spref.getBoolean("pref_landscape", false)) {
+			if (getRequestedOrientation()!=ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE)
+				setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
+		} else {
+			if (getRequestedOrientation()!=ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED)
+				setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED);
+		}
+		if (spref.getBoolean("pref_fullscreen", false)) {
+			Log.d(TAG,"resume: fullscreen");
+			getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
+                WindowManager.LayoutParams.FLAG_FULLSCREEN);
+			// hide notification??
+			View decorView = getWindow().getDecorView();
+			int uiOptions = View.SYSTEM_UI_FLAG_FULLSCREEN | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN | View.SYSTEM_UI_FLAG_LAYOUT_STABLE;
+			decorView.setSystemUiVisibility(uiOptions);
+		} else {
+			getWindow().setFlags(0, WindowManager.LayoutParams.FLAG_FULLSCREEN);
+		}
 		mStopTime = 0;
 		finishWakeLocker();
 	    // Activity's been resumed
@@ -177,9 +214,10 @@ public class MainActivity extends BrowserActivity {
 				Log.w(TAG,"ACTION_SCREEN_OFF");
 				mRecorder.i("device.screenOff", null);
 				
+				SharedPreferences spref = PreferenceManager.getDefaultSharedPreferences(MainActivity.this);
 				long now = System.currentTimeMillis();
-				if (mStopTime==0 || now-mStopTime < 1000) {
-					Log.w(TAG,"Try to restart...");
+				if (spref.getBoolean("pref_keepscreenon", false) && (mStopTime==0 || now-mStopTime < 1000)) {
+					Log.w(TAG,"Try to restart (keepscreenon)...");
 					mRecorder.i("app.tryWake", null);
 					PowerManager pm = (PowerManager) context.getSystemService(Context.POWER_SERVICE);
 					if (mWakeLock==null)

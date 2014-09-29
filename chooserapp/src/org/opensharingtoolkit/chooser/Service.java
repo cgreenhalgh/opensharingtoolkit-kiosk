@@ -83,7 +83,7 @@ public class Service extends android.app.Service {
 				.setContentTitle(getText(R.string.notification_title))
 				.setContentText(getText(R.string.notification_description))
 				.setSmallIcon(R.drawable.notification_icon)
-				.setContentIntent(PendingIntent.getActivity(this, 0, new Intent(this, MainActivity.class), 0))
+				.setContentIntent(PendingIntent.getActivity(this, 0, new Intent(this, SettingsActivity.class), 0))
 				.build();
 
 		startForeground(SERVICE_NOTIFICATION_ID, notification);
@@ -397,7 +397,7 @@ public class Service extends android.app.Service {
 
 	// starting service...
 	private void handleCommand(Intent intent) {
-		Log.d(TAG,"handleCommand "+intent.getAction());
+		Log.d(TAG,"handleCommand "+(intent!=null ? intent.getAction() : "null"));
 	}
 
 

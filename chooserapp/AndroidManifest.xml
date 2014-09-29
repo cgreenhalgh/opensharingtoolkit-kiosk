@@ -47,7 +47,7 @@
             android:name="org.opensharingtoolkit.chooser.MainActivity"
 			android:launchMode="singleTask"
             android:label="@string/app_name" 
-            android:screenOrientation="landscape"
+            android:screenOrientation="unspecified"
             android:windowSoftInputMode="stateAlwaysHidden" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -55,12 +55,15 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity
+            android:name="org.opensharingtoolkit.chooser.ShowMainActivity">
+        </activity>
         <service 
             android:name="org.opensharingtoolkit.chooser.Service"
             android:exported="false">            
         </service>
         <activity android:name="org.opensharingtoolkit.chooser.SettingsActivity"
-			android:launchMode="standard"
+			android:launchMode="singleTask"
 			android:taskAffinity="org.opensharingtoolkit.kiosk.settings"
             android:theme="@style/SettingsTheme"
             android:label="@string/add_settings_name" android:clearTaskOnLaunch="true" android:alwaysRetainTaskState="false">

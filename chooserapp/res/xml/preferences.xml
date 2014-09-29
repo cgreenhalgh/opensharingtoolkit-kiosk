@@ -1,11 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android" >
-    <EditTextPreference 
-        android:enabled="true" 
-        android:title="@string/pref_atomfile" 
-        android:key="pref_atomfile" 
-        android:defaultValue="@string/pref_atomfile_default" 
-        android:selectable="true"/>
+
+    <Preference android:title="@string/pref_viewkiosk_title" >
+        <intent
+            android:targetClass="org.opensharingtoolkit.chooser.ShowMainActivity"
+            android:targetPackage="org.opensharingtoolkit.chooser" />
+    </Preference>
+
+    <EditTextPreference
+        android:defaultValue="@string/pref_atomfile_default"
+        android:enabled="true"
+        android:key="pref_atomfile"
+        android:selectable="true"
+        android:title="@string/pref_atomfile" />
     
     <EditTextPreference 
         android:enabled="true" 
@@ -39,6 +46,35 @@
 		android:defaultValue="100" 
 		android:selectable="true" />
 
+   <CheckBoxPreference android:enabled="true" 
+       android:title="@string/pref_click_title"
+       android:summary="@string/pref_click_summary"
+       android:key="pref_click"
+       android:defaultValue="false"/>
+   
+   <CheckBoxPreference android:enabled="true" 
+       android:title="@string/pref_vibrate_title"
+       android:summary="@string/pref_vibrate_summary"
+       android:key="pref_vibrate"
+       android:defaultValue="false"/>
+   
+   <CheckBoxPreference android:enabled="true" 
+       android:title="@string/pref_landscape_title"
+       android:key="pref_landscape"
+       android:defaultValue="false"/>
+   
+   <CheckBoxPreference android:enabled="true" 
+       android:title="@string/pref_fullscreen_title"
+       android:summary="@string/pref_fullscreen_summary"
+       android:key="pref_fullscreen"
+       android:defaultValue="false"/>
+   
+   <CheckBoxPreference android:enabled="true" 
+       android:title="@string/pref_keepscreenon_title"
+       android:summary="@string/pref_keepscreenon_summary"
+       android:key="pref_keepscreenon"
+       android:defaultValue="false"/>
+   
    <CheckBoxPreference android:enabled="true" 
        android:title="@string/pref_softwarerender_title"
        android:summary="@string/pref_softwarerender_summary"

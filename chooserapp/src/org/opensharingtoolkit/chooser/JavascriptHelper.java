@@ -45,6 +45,7 @@ import android.os.Handler;
 import android.os.Vibrator;
 import android.preference.PreferenceManager;
 import android.util.Log;
+import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
 import android.webkit.JavascriptInterface;
@@ -364,6 +365,11 @@ public class JavascriptHelper implements OnAudioFocusChangeListener {
 	private static final int MIN_VIBRATE = 200;
 	@JavascriptInterface
 	public boolean vibrate(int duration) {
+		SharedPreferences spref = PreferenceManager.getDefaultSharedPreferences(this.mContext);
+		if (!spref.getBoolean("pref_vibrate", false)) {
+			Log.d(TAG,"Ignore vibrate - no vibrate setting");
+			return false;
+		}
 		try {
 			if (duration < MIN_VIBRATE)
 				duration = MIN_VIBRATE;
@@ -452,6 +458,12 @@ public class JavascriptHelper implements OnAudioFocusChangeListener {
 	private boolean mHasAudioFocus;
 	@JavascriptInterface
 	public boolean audioPlay(String url) {
+		SharedPreferences spref = PreferenceManager.getDefaultSharedPreferences(this.mContext);
+		if (!spref.getBoolean("pref_click", false)) {
+			Log.d(TAG,"Ignore audio "+url+" - no click setting");
+			return false;
+		}
+
 		audioLoad(url);
 		synchronized (mMediaPlayers) {
 			MediaPlayer mp = mMediaPlayers.get(url);
