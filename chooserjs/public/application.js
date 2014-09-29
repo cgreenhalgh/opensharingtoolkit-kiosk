@@ -49,7 +49,7 @@
   }
   return this.require.define;
 }).call(this)({"app": function(exports, require, module) {(function() {
-  var App, ConsentView, Devicetype, DevicetypeChoiceView, DevicetypeList, Entry, EntryInfoView, EntryList, EntryListHelpView, EntryListView, EntryPreviewView, EntrySendCacheView, EntrySendInternetView, ExplainView, Mimetype, MimetypeList, Options, OptionsDevicetypeLabelView, Router, SHORT_VIBRATE, addView, attract, canVibrate, chooseDevicetype, clickFeedback, kiosk, loader, popView, recorder, testentry1, touchFeedback, touchsound;
+  var AboutView, App, ConsentView, Devicetype, DevicetypeChoiceView, DevicetypeList, Entry, EntryInfoView, EntryList, EntryListHelpView, EntryListView, EntryPreviewView, EntrySendCacheView, EntrySendInternetView, ExplainView, Mimetype, MimetypeList, Options, OptionsDevicetypeLabelView, Router, SHORT_VIBRATE, aboutModel, addView, attract, canVibrate, chooseDevicetype, clickFeedback, kiosk, loader, popView, recorder, testentry1, touchFeedback, touchsound;
   var __hasProp = Object.prototype.hasOwnProperty, __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor; child.__super__ = parent.prototype; return child; };
 
   Mimetype = require('models/Mimetype');
@@ -82,6 +82,8 @@
 
   EntryListHelpView = require('views/EntryListHelp');
 
+  AboutView = require('views/About');
+
   ConsentView = require('views/Consent');
 
   ExplainView = require('views/Explain');
@@ -95,6 +97,8 @@
   recorder = require('recorder');
 
   window.views = [];
+
+  aboutModel = new Backbone.Model();
 
   addView = function(view, title, path) {
     var bc, bcas, bcix, bcpath, v, _len;
@@ -189,11 +193,11 @@
       "": "entries",
       "entries": "entries",
       "help": "help",
+      "about": "about",
       "entry/:eid": "entry",
       "preview/:eid": "preview",
       "sendInternet/:eid": "sendInternet",
-      "sendCache/:eid": "sendCache",
-      "consent": "consent"
+      "sendCache/:eid": "sendCache"
     };
 
     Router.prototype.back = function() {
@@ -232,6 +236,20 @@
         addView(view, "Help", "help");
         v.scrollTop = 0;
         return v.$el.show();
+      }
+    };
+
+    Router.prototype.about = function() {
+      var view;
+      attract.active();
+      if (window.views.length === 0) {
+        return console.log("cannot show about - no initial view");
+      } else {
+        attract.active();
+        view = new AboutView({
+          model: aboutModel
+        });
+        return addView(view, "About", "about");
       }
     };
 
@@ -378,7 +396,7 @@
       });
       addView(entryview, 'All', 'entries');
       atomfile = kiosk.getAtomFile();
-      loader.load(entries, atomfile, function() {
+      loader.load(entries, aboutModel, atomfile, function() {
         return Backbone.history.start();
       });
       $(document).on('click', 'a', function(ev) {
@@ -398,8 +416,6 @@
               chooseDevicetype();
             } else if (href === '-back') {
               router.back();
-            } else if (href === '-info') {
-              attract.showExplain();
             } else if (href === '-menu') {
               console.log('pass -menu for zurb?');
               return true;
@@ -505,7 +521,7 @@
 
 }).call(this);
 }, "attract": function(exports, require, module) {(function() {
-  var ATTRACT_DELAY, AttractView, ExplainView, RESET_DELAY, active, currentAttract, currentExplain, kiosk, recorder, reset, resetTimer, showAttract, timer;
+  var ATTRACT_DELAY, AttractView, DEFAULT_DELAY, ExplainView, active, configShowAttract, currentAttract, currentExplain, recorder, reset, showAttract, timer;
 
   AttractView = require('views/Attract');
 
@@ -513,19 +529,16 @@
 
   recorder = require('recorder');
 
-  kiosk = require('kiosk');
+  configShowAttract = false;
 
   currentAttract = null;
 
   currentExplain = null;
 
-  resetTimer = null;
-
-  RESET_DELAY = 60000;
+  DEFAULT_DELAY = 10000;
 
   reset = function() {
-    resetTimer = null;
-    if (kiosk.isKiosk()) {
+    if (configShowAttract) {
       console.log("!!!reset!!!");
       recorder.i('app.reset');
       window.options.set({
@@ -559,25 +572,20 @@
       currentAttract = new AttractView();
       $('#mainEntrylistHolder').after(currentAttract.el);
       $(currentAttract.el).trigger('isVisible');
-      if (resetTimer != null) clearTimeout(resetTimer);
-      return resetTimer = setTimeout(reset, RESET_DELAY);
+      return reset();
     }
   };
 
-  ATTRACT_DELAY = 60000;
+  ATTRACT_DELAY = DEFAULT_DELAY;
 
-  if (kiosk.isKiosk()) timer = setTimeout(showAttract, ATTRACT_DELAY);
+  if (configShowAttract) timer = setTimeout(showAttract, ATTRACT_DELAY);
 
   active = function() {
     if (timer != null) clearTimeout(timer);
-    if (kiosk.isKiosk()) {
-      timer = setTimeout(showAttract, ATTRACT_DELAY);
+    if (configShowAttract) {
+      return timer = setTimeout(showAttract, ATTRACT_DELAY);
     } else {
-      timer = null;
-    }
-    if (resetTimer != null) {
-      clearTimeout(resetTimer);
-      return resetTimer = null;
+      return timer = null;
     }
   };
 
@@ -609,6 +617,13 @@
       $('#mainEntrylistHolder').after(currentExplain.el);
       return $(currentExplain.el).trigger('isVisible');
     }
+  };
+
+  module.exports.setShowAttract = function(val) {
+    console.log("setShowAttract " + val);
+    configShowAttract = val;
+    active();
+    if (configShowAttract) return showAttract();
   };
 
 }).call(this);
@@ -1048,7 +1063,7 @@
 
 }).call(this);
 }, "loader": function(exports, require, module) {(function() {
-  var Devicetype, Entry, Mimetype, addDevice, addEntry, addMimetype, addShorturls, fixMimetypeIcons, getCacheFileMap, getCachePath, get_baseurl, indexOfOrEnd, isRelativeUrl, kiosk, loadCache, loadDevices, loadEntries, loadMimetypes, loadShorturls, recorder;
+  var Devicetype, Entry, Mimetype, addDevice, addEntry, addMimetype, addShorturls, attract, fixMimetypeIcons, getCacheFileMap, getCachePath, get_baseurl, indexOfOrEnd, isRelativeUrl, kiosk, loadCache, loadDevices, loadEntries, loadMimetypes, loadShorturls, recorder;
 
   Entry = require('models/Entry');
 
@@ -1059,6 +1074,8 @@
   kiosk = require('kiosk');
 
   recorder = require('recorder');
+
+  attract = require('attract');
 
   indexOfOrEnd = function(s, patt) {
     var ix;
@@ -1253,7 +1270,7 @@
     }
   };
 
-  loadDevices = function(entries, atomurl, prefix, donefn) {
+  loadDevices = function(entries, aboutModel, atomurl, prefix, donefn) {
     var devicesurl;
     devicesurl = prefix + 'devices.json';
     console.log("Loading devices info from " + devicesurl);
@@ -1278,11 +1295,11 @@
             });
           }
         }
-        return loadMimetypes(entries, atomurl, prefix, donefn);
+        return loadMimetypes(entries, aboutModel, atomurl, prefix, donefn);
       },
       error: function(xhr, textStatus, errorThrown) {
         console.log("error getting " + devicesurl + ": " + textStatus + ": " + errorThrown);
-        return loadMimetypes(entries, atomurl, prefix, donefn);
+        return loadMimetypes(entries, aboutModel, atomurl, prefix, donefn);
       }
     });
   };
@@ -1329,7 +1346,7 @@
     }
   };
 
-  loadMimetypes = function(entries, atomurl, prefix, donefn) {
+  loadMimetypes = function(entries, aboutModel, atomurl, prefix, donefn) {
     var mimetypesurl;
     mimetypesurl = prefix + 'mimetypes.json';
     console.log("Loading devices info from " + mimetypesurl);
@@ -1345,11 +1362,11 @@
           mtinfo = data[mt];
           addMimetype(mt, mtinfo);
         }
-        return loadCache(entries, atomurl, prefix, donefn);
+        return loadCache(entries, aboutModel, atomurl, prefix, donefn);
       },
       error: function(xhr, textStatus, errorThrown) {
         console.log("error getting " + mimetypesurl + ": " + textStatus + ": " + errorThrown);
-        return loadCache(entries, atomurl, prefix, donefn);
+        return loadCache(entries, aboutModel, atomurl, prefix, donefn);
       }
     });
   };
@@ -1367,7 +1384,7 @@
     });
   };
 
-  loadCache = function(entries, atomurl, prefix, donefn) {
+  loadCache = function(entries, aboutModel, atomurl, prefix, donefn) {
     var cacheurl;
     cacheurl = prefix + 'cache.json';
     console.log("Loading cache info from " + cacheurl);
@@ -1381,11 +1398,11 @@
         console.log('ok, got cache.json');
         cacheFiles = getCacheFileMap(data);
         fixMimetypeIcons(cacheFiles, prefix);
-        return loadShorturls(entries, atomurl, prefix, data.baseurl, cacheFiles, donefn);
+        return loadShorturls(entries, aboutModel, atomurl, prefix, data.baseurl, cacheFiles, donefn);
       },
       error: function(xhr, textStatus, errorThrown) {
         console.log('error getting cache.json: ' + textStatus + ': ' + errorThrown);
-        return loadShorturls(entries, atomurl, prefix, null, {}, donefn);
+        return loadShorturls(entries, aboutModel, atomurl, prefix, null, {}, donefn);
       }
     });
   };
@@ -1414,7 +1431,7 @@
     return _results;
   };
 
-  loadShorturls = function(entries, atomurl, prefix, baseurl, cacheFiles, donefn) {
+  loadShorturls = function(entries, aboutModel, atomurl, prefix, baseurl, cacheFiles, donefn) {
     var shorturlsurl;
     shorturlsurl = prefix + 'shorturls.json';
     console.log("Loading shorturls from " + shorturlsurl);
@@ -1426,11 +1443,11 @@
       success: function(data, textStatus, xhr) {
         console.log('ok, got shorturls.json');
         addShorturls(data, entries.shorturls);
-        return loadEntries(entries, atomurl, prefix, baseurl, cacheFiles, donefn);
+        return loadEntries(entries, aboutModel, atomurl, prefix, baseurl, cacheFiles, donefn);
       },
       error: function(xhr, textStatus, errorThrown) {
         console.log('error getting shorturls.json: ' + textStatus + ': ' + errorThrown);
-        return loadEntries(entries, atomurl, prefix, baseurl, cacheFiles, donefn);
+        return loadEntries(entries, aboutModel, atomurl, prefix, baseurl, cacheFiles, donefn);
       }
     });
   };
@@ -1448,7 +1465,7 @@
     }
   };
 
-  loadEntries = function(entries, atomurl, prefix, baseurl, cacheFiles, donefn) {
+  loadEntries = function(entries, aboutModel, atomurl, prefix, baseurl, cacheFiles, donefn) {
     console.log('loading entries from ' + atomurl);
     return $.ajax({
       url: atomurl,
@@ -1456,12 +1473,17 @@
       dataType: 'xml',
       timeout: 10000,
       success: function(data, textStatus, xhr) {
-        var feedbaseurl, feedurl;
+        var feedbaseurl, feedurl, showAttract;
         console.log('ok, got ' + data);
         feedbaseurl = get_baseurl(data);
         baseurl = feedbaseurl != null ? feedbaseurl : baseurl;
         feedurl = $('link[rel=\'self\']', data).attr('href');
         console.log("loadEntries " + atomurl + " self " + feedurl);
+        aboutModel.set({
+          aboutHtml: $('aboutHtml', data).text()
+        });
+        showAttract = $('showAttract', data).text();
+        attract.setShowAttract(showAttract && showAttract.length > 0 && showAttract !== "0" && showAttract.charAt(0) !== 'f');
         kiosk.addKioskEntry(entries, atomurl, feedurl);
         $(data).find('entry').each(function(index, el) {
           return addEntry(entries, el, atomurl, prefix, baseurl, cacheFiles);
@@ -1481,7 +1503,7 @@
     });
   };
 
-  module.exports.load = function(entries, atomurl, donefn) {
+  module.exports.load = function(entries, aboutModel, atomurl, donefn) {
     var base, hi, prefix, si;
     if ((atomurl.indexOf(':')) < 0) {
       console.log('converting local name ' + atomurl + ' to global...');
@@ -1500,7 +1522,7 @@
     }
     si = atomurl.lastIndexOf('/');
     prefix = si < 0 ? '' : atomurl.substring(0, si + 1);
-    return loadDevices(entries, atomurl, prefix, donefn);
+    return loadDevices(entries, aboutModel, atomurl, prefix, donefn);
   };
 
 }).call(this);
@@ -1895,7 +1917,55 @@
   });
 
 }).call(this);
-}, "templates/Attract": function(exports, require, module) {module.exports = function(__obj) {
+}, "templates/About": function(exports, require, module) {module.exports = function(__obj) {
+  if (!__obj) __obj = {};
+  var __out = [], __capture = function(callback) {
+    var out = __out, result;
+    __out = [];
+    callback.call(this);
+    result = __out.join('');
+    __out = out;
+    return __safe(result);
+  }, __sanitize = function(value) {
+    if (value && value.ecoSafe) {
+      return value;
+    } else if (typeof value !== 'undefined' && value != null) {
+      return __escape(value);
+    } else {
+      return '';
+    }
+  }, __safe, __objSafe = __obj.safe, __escape = __obj.escape;
+  __safe = __obj.safe = function(value) {
+    if (value && value.ecoSafe) {
+      return value;
+    } else {
+      if (!(typeof value !== 'undefined' && value != null)) value = '';
+      var result = new String(value);
+      result.ecoSafe = true;
+      return result;
+    }
+  };
+  if (!__escape) {
+    __escape = __obj.escape = function(value) {
+      return ('' + value)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;');
+    };
+  }
+  (function() {
+    
+      __out.push('\n<div class="row">\n  <div class="small-12 large-12 columns">\n    <div class="panel">\n      ');
+    
+      __out.push(this.aboutHtml);
+    
+      __out.push('\n    </div>\n  </div>\n</div>\n<div class="explain-ok">\n  <a href="#" class="button ok-button">OK</a>\n</div>\n\n');
+    
+  }).call(__obj);
+  __obj.safe = __objSafe, __obj.escape = __escape;
+  return __out.join('');
+}}, "templates/Attract": function(exports, require, module) {module.exports = function(__obj) {
   if (!__obj) __obj = {};
   var __out = [], __capture = function(callback) {
     var out = __out, result;
@@ -2298,7 +2368,7 @@
   }
   (function() {
     
-      __out.push('\n<div class="entry-list-help-top"></div>\n<div class="row">\n  <div class="small-6 large-6 columns">\n    <p class="text-centre"><img class="help-scroll-vertical" src="icons/scroll-vertical-hint.png">Drag to scroll up and down</p>\n  </div>\n  <div class="small-6 large-6 columns">\n    <p class="text-centre">Touch an item to find out more</p>\n  </div>\n</div>\n<div class="entry-list-help-info"><a href="-info" class="clickable"><img src="icons/information.png"></a></div>\n<div class="entry-list-help-ok">\n  <a href="-back" class="button">OK</a>\n</div>\n\n');
+      __out.push('\n<div class="entry-list-help-top"></div>\n<div class="row">\n  <div class="small-6 large-6 columns">\n    <p class="text-centre"><img class="help-scroll-vertical" src="icons/scroll-vertical-hint.png">Drag to scroll up and down</p>\n  </div>\n  <div class="small-6 large-6 columns">\n    <p class="text-centre">Touch an item to find out more</p>\n  </div>\n</div>\n<div class="entry-list-help-info"><a href="#" class="clickable show-info"><img src="icons/information.png"></a></div>\n<div class="entry-list-help-ok">\n  <a href="-back" class="button">OK</a>\n</div>\n\n');
     
   }).call(__obj);
   __obj.safe = __objSafe, __obj.escape = __escape;
@@ -2645,7 +2715,74 @@
   }).call(__obj);
   __obj.safe = __objSafe, __obj.escape = __escape;
   return __out.join('');
-}}, "views/Attract": function(exports, require, module) {(function() {
+}}, "views/About": function(exports, require, module) {(function() {
+  var AboutView, attract, recorder, templateAbout;
+  var __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; }, __hasProp = Object.prototype.hasOwnProperty, __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor; child.__super__ = parent.prototype; return child; };
+
+  templateAbout = require('templates/About');
+
+  recorder = require('recorder');
+
+  attract = require('attract');
+
+  module.exports = AboutView = (function() {
+
+    __extends(AboutView, Backbone.View);
+
+    function AboutView() {
+      this.template = __bind(this.template, this);
+      AboutView.__super__.constructor.apply(this, arguments);
+    }
+
+    AboutView.prototype.tagName = 'div';
+
+    AboutView.prototype.className = 'about-modal';
+
+    AboutView.prototype.initialize = function() {
+      this.listenTo(this.model, 'change', this.render);
+      return this.render();
+    };
+
+    AboutView.prototype.render = function() {
+      var data;
+      console.log("render About...");
+      data = {
+        aboutHtml: '<p>Get free digital leaflets and other downloads here.</p>' + '<p>Download straight to your smart phone or tablet using WiFi or 3G.</p>' + '<p>Choose what you want to download, how you want to download it, and then follow the instructions.</p>'
+      };
+      this.$el.html(this.template(_.extend(data, this.model.attributes)));
+      return this;
+    };
+
+    AboutView.prototype.template = function(d) {
+      return templateAbout(d);
+    };
+
+    AboutView.prototype.events = {
+      'click .ok-button': 'close',
+      'click': 'ignore'
+    };
+
+    AboutView.prototype.close = function(ev) {
+      if (window.clickFeedback != null) window.clickFeedback();
+      console.log("about: close");
+      ev.preventDefault();
+      window.router.back();
+      return false;
+    };
+
+    AboutView.prototype.ignore = function(ev) {
+      if (window.clickFeedback != null) window.clickFeedback();
+      ev.preventDefault();
+      ev.stopPropagation();
+      return console.log("about: ignore click");
+    };
+
+    return AboutView;
+
+  })();
+
+}).call(this);
+}, "views/Attract": function(exports, require, module) {(function() {
   var AttractView, FLASH_DURATION, FLASH_INTERVAL, SLIDE_INTERVAL, TRANSITION_DURATION, attract, data, images, kiosk, queue, recorder, slide, slides, templateAttract;
   var __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; }, __hasProp = Object.prototype.hasOwnProperty, __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor; child.__super__ = parent.prototype; return child; };
 
@@ -3366,14 +3503,12 @@
 
 }).call(this);
 }, "views/EntryListHelp": function(exports, require, module) {(function() {
-  var EntryListView, attract, recorder, templateEntryListHelp;
+  var EntryListView, recorder, templateEntryListHelp;
   var __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; }, __hasProp = Object.prototype.hasOwnProperty, __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor; child.__super__ = parent.prototype; return child; };
 
   templateEntryListHelp = require('templates/EntryListHelp');
 
   recorder = require('recorder');
-
-  attract = require('attract');
 
   module.exports = EntryListView = (function() {
 
@@ -3413,17 +3548,23 @@
     };
 
     EntryListView.prototype.events = {
-      'click .entry-list-help-info': 'showExplain',
+      'click .entry-list-help-info': 'showAbout',
+      'click .show-info': 'showAbout',
       'click': 'close'
     };
 
-    EntryListView.prototype.showExplain = function() {
+    EntryListView.prototype.showAbout = function(ev) {
       if (window.clickFeedback != null) window.clickFeedback();
+      ev.preventDefault();
+      ev.stopPropagation();
       recorder.i('user.requestHelp.info');
-      return attract.showExplain();
+      return window.router.navigate("about", {
+        trigger: true
+      });
     };
 
     EntryListView.prototype.close = function(ev) {
+      console.log("Help: close");
       if (window.clickFeedback != null) window.clickFeedback();
       ev.preventDefault();
       window.router.back();
@@ -3937,9 +4078,6 @@
     ExplainView.prototype.close = function(ev) {
       console.log("Explain close");
       this.remove();
-      window.router.navigate("consent", {
-        trigger: true
-      });
       return false;
     };
 

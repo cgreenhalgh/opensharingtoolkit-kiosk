@@ -4,18 +4,16 @@
 AttractView = require 'views/Attract'
 ExplainView = require 'views/Explain'
 recorder = require 'recorder'
-kiosk = require 'kiosk'
 
+configShowAttract = false
 currentAttract = null
 currentExplain = null
 
-resetTimer = null
-
-RESET_DELAY = 60000
+DEFAULT_DELAY = 60000
+# 60000
 
 reset = () ->
-  resetTimer = null
-  if kiosk.isKiosk()
+  if configShowAttract
     console.log "!!!reset!!!"
     recorder.i 'app.reset'
 
@@ -46,26 +44,20 @@ showAttract = () ->
     currentAttract = new AttractView()
     $('#mainEntrylistHolder').after currentAttract.el
     $(currentAttract.el).trigger('isVisible')
-    
-    if resetTimer?
-      clearTimeout resetTimer
-    resetTimer = setTimeout reset,RESET_DELAY
+    reset() 
+   
+ATTRACT_DELAY = DEFAULT_DELAY
 
-ATTRACT_DELAY = 60000
-
-if kiosk.isKiosk()
+if configShowAttract
   timer = setTimeout showAttract,ATTRACT_DELAY
 
 active = () ->
   if timer?
     clearTimeout timer
-  if kiosk.isKiosk()
+  if configShowAttract
     timer = setTimeout showAttract,ATTRACT_DELAY
   else
     timer = null
-  if resetTimer?
-    clearTimeout resetTimer
-    resetTimer = null
 
 $(window).on 'touchstart touchmove touchend mousedown mousemove mouseup', () ->
   active()
@@ -93,4 +85,11 @@ module.exports.showExplain = () ->
     currentExplain = new ExplainView()
     $('#mainEntrylistHolder').after currentExplain.el
     $(currentExplain.el).trigger('isVisible')
+
+module.exports.setShowAttract = (val) ->
+  console.log "setShowAttract #{val}"
+  configShowAttract = val
+  active()
+  if configShowAttract
+    showAttract()
 

@@ -6,6 +6,7 @@ Devicetype = require 'models/Devicetype'
 
 kiosk = require 'kiosk'
 recorder = require 'recorder'
+attract = require 'attract'
 
 indexOfOrEnd = (s, patt) ->
   ix = s.indexOf patt
@@ -144,7 +145,7 @@ addDevice = (devicename,deviceinfo) ->
     if deviceinfo.userAgentPattern?
       devicetype.set userAgentPattern: deviceinfo.userAgentPattern
 
-loadDevices = (entries,atomurl,prefix,donefn) ->
+loadDevices = (entries,aboutModel,atomurl,prefix,donefn) ->
   devicesurl = prefix + 'devices.json'
   console.log "Loading devices info from #{devicesurl}"
   $.ajax
@@ -162,10 +163,10 @@ loadDevices = (entries,atomurl,prefix,donefn) ->
         if devicetype?
           console.log 'set non-kiosk devicetype to '+devicetype.attributes.term
           options.set devicetype: devicetype
-      loadMimetypes entries, atomurl, prefix,donefn
+      loadMimetypes entries, aboutModel, atomurl, prefix,donefn
     error: (xhr, textStatus, errorThrown) ->
       console.log "error getting #{devicesurl}: #{textStatus}: #{errorThrown}"
-      loadMimetypes entries, atomurl, prefix,donefn
+      loadMimetypes entries, aboutModel, atomurl, prefix,donefn
 
 addMimetype = (mime,mtinfo) ->
   mimetype = window.mimetypes.get(mime)
@@ -195,7 +196,7 @@ addMimetype = (mime,mtinfo) ->
         mimetype.compat[dt] = dtcompat    
         kiosk.registerMimetypeCompat mime,dt,dtcompat
 
-loadMimetypes = (entries,atomurl,prefix,donefn) ->
+loadMimetypes = (entries,aboutModel,atomurl,prefix,donefn) ->
   mimetypesurl = prefix + 'mimetypes.json'
   console.log "Loading devices info from #{mimetypesurl}"
   $.ajax
@@ -207,10 +208,10 @@ loadMimetypes = (entries,atomurl,prefix,donefn) ->
       console.log "ok, got #{mimetypesurl}"
       for mt,mtinfo of data
         addMimetype mt,mtinfo
-      loadCache entries, atomurl, prefix,donefn
+      loadCache entries, aboutModel, atomurl, prefix,donefn
     error: (xhr, textStatus, errorThrown) ->
       console.log "error getting #{mimetypesurl}: #{textStatus}: #{errorThrown}"
-      loadCache entries, atomurl, prefix,donefn
+      loadCache entries, aboutModel, atomurl, prefix,donefn
 
 # mimetype icons may be from Internet; use cache if possible
 fixMimetypeIcons = (cacheFiles,prefix) ->
@@ -221,7 +222,7 @@ fixMimetypeIcons = (cacheFiles,prefix) ->
         console.log "Fix mimetype #{mt.attributes.mime} icon #{mt.attributes.icon} -> #{iconpath}"
         mt.attributes.icon = iconpath
 
-loadCache = (entries,atomurl,prefix,donefn) ->
+loadCache = (entries,aboutModel,atomurl,prefix,donefn) ->
   cacheurl = prefix + 'cache.json'
   console.log "Loading cache info from #{cacheurl}"
   $.ajax
@@ -233,10 +234,10 @@ loadCache = (entries,atomurl,prefix,donefn) ->
       console.log 'ok, got cache.json'
       cacheFiles = getCacheFileMap(data)
       fixMimetypeIcons cacheFiles,prefix
-      loadShorturls entries, atomurl, prefix, data.baseurl, cacheFiles,donefn
+      loadShorturls entries, aboutModel, atomurl, prefix, data.baseurl, cacheFiles,donefn
     error: (xhr, textStatus, errorThrown) ->
       console.log 'error getting cache.json: '+textStatus+': '+errorThrown
-      loadShorturls entries, atomurl, prefix, null, {},donefn
+      loadShorturls entries, aboutModel, atomurl, prefix, null, {},donefn
 
 # convert short urls to map by url
 addShorturls = (sus,map) ->
@@ -248,7 +249,7 @@ addShorturls = (sus,map) ->
         if ix>7
           kiosk.registerExternalRedirect su.shorturl.substring(7,ix), su.shorturl.substring(ix), su.url
 
-loadShorturls = (entries, atomurl, prefix, baseurl, cacheFiles,donefn) ->
+loadShorturls = (entries, aboutModel, atomurl, prefix, baseurl, cacheFiles,donefn) ->
   shorturlsurl = prefix + 'shorturls.json'
   console.log "Loading shorturls from #{shorturlsurl}"
   $.ajax
@@ -259,10 +260,10 @@ loadShorturls = (entries, atomurl, prefix, baseurl, cacheFiles,donefn) ->
     success: (data, textStatus, xhr) ->
       console.log 'ok, got shorturls.json'
       addShorturls data,entries.shorturls
-      loadEntries entries, atomurl, prefix, baseurl, cacheFiles,donefn
+      loadEntries entries, aboutModel, atomurl, prefix, baseurl, cacheFiles,donefn
     error: (xhr, textStatus, errorThrown) ->
       console.log 'error getting shorturls.json: '+textStatus+': '+errorThrown
-      loadEntries entries, atomurl, prefix, baseurl, cacheFiles,donefn
+      loadEntries entries, aboutModel, atomurl, prefix, baseurl, cacheFiles,donefn
 
 get_baseurl = (data) ->
   feedurl = $('link[rel=\'self\']', data).attr('href')
@@ -275,7 +276,7 @@ get_baseurl = (data) ->
     return baseurl
 
 
-loadEntries = (entries,atomurl,prefix,baseurl,cacheFiles,donefn) ->  
+loadEntries = (entries,aboutModel,atomurl,prefix,baseurl,cacheFiles,donefn) ->  
   console.log('loading entries from '+atomurl);
   # shorturls.json ?
   $.ajax 
@@ -290,6 +291,9 @@ loadEntries = (entries,atomurl,prefix,baseurl,cacheFiles,donefn) ->
       baseurl = feedbaseurl ? baseurl
       feedurl = $('link[rel=\'self\']', data).attr('href')
       console.log "loadEntries #{atomurl} self #{feedurl}"
+      aboutModel.set aboutHtml: $( 'aboutHtml', data ).text() 
+      showAttract = $( 'showAttract', data ).text()
+      attract.setShowAttract showAttract && showAttract.length>0 && showAttract!="0" && showAttract.charAt(0)!='f' 
       kiosk.addKioskEntry entries,atomurl,feedurl
       $( data ).find('entry').each (index, el) ->
         addEntry entries, el, atomurl, prefix, baseurl, cacheFiles
@@ -302,7 +306,7 @@ loadEntries = (entries,atomurl,prefix,baseurl,cacheFiles,donefn) ->
       if donefn?
         donefn()
 
-module.exports.load = (entries, atomurl, donefn) ->
+module.exports.load = (entries, aboutModel, atomurl, donefn) ->
   # abolute URL...
   if (atomurl.indexOf ':') < 0 
     console.log 'converting local name '+atomurl+' to global...'
@@ -323,5 +327,5 @@ module.exports.load = (entries, atomurl, donefn) ->
   # cache.json -> shorturls.json -> atomurl
   si = atomurl.lastIndexOf '/'
   prefix = if si<0 then '' else atomurl.substring 0,si+1
-  loadDevices entries, atomurl, prefix, donefn
+  loadDevices entries, aboutModel, atomurl, prefix, donefn
 

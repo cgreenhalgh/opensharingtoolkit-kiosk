@@ -27,6 +27,8 @@ recorder = require 'recorder'
 # view stack?!
 window.views = []
 
+aboutModel = new Backbone.Model()
+
 # addView to stack utility
 addView = (view,title,path) ->
   path = '#'+path
@@ -139,7 +141,7 @@ class Router extends Backbone.Router
       console.log "cannot show about - no initial view"
     else
       attract.active()
-      view = new AboutView()
+      view = new AboutView model: aboutModel
       addView view, "About", "about"
 
   consent: ->
@@ -280,7 +282,7 @@ App =
     # load entries...
     #entries.add testentry1
     atomfile = kiosk.getAtomFile()
-    loader.load entries, atomfile, ()->
+    loader.load entries, aboutModel, atomfile, ()->
       Backbone.history.start()
     #router.navigate("entries", {trigger:true})
 

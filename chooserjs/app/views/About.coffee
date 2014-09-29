@@ -10,6 +10,7 @@ module.exports = class AboutView extends Backbone.View
   className: 'about-modal'
 
   initialize: ->
+    @listenTo @model, 'change', @render
     @render()
 
   render: () ->
@@ -18,7 +19,7 @@ module.exports = class AboutView extends Backbone.View
     data = aboutHtml: '<p>Get free digital leaflets and other downloads here.</p>'+
       '<p>Download straight to your smart phone or tablet using WiFi or 3G.</p>'+
       '<p>Choose what you want to download, how you want to download it, and then follow the instructions.</p>'
-    @$el.html @template data
+    @$el.html @template _.extend data, @model.attributes
     @
 
   template: (d) =>
