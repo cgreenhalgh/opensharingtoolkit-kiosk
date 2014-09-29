@@ -14,6 +14,7 @@ EntrySendCacheView = require 'views/EntrySendCache'
 DevicetypeChoiceView = require 'views/DevicetypeChoice'
 OptionsDevicetypeLabelView = require 'views/OptionsDevicetypeLabel'
 EntryListHelpView = require 'views/EntryListHelp'
+AboutView = require 'views/About'
 ConsentView = require 'views/Consent'
 ExplainView = require 'views/Explain'
 
@@ -95,11 +96,12 @@ class Router extends Backbone.Router
     "": "entries"
     "entries" : "entries"
     "help" : "help"
+    "about" : "about"
     "entry/:eid" : "entry"
     "preview/:eid" : "preview"
     "sendInternet/:eid" : "sendInternet"
     "sendCache/:eid" : "sendCache"
-    "consent" : "consent"
+    #"consent" : "consent"
 
   back: ->
     attract.active()
@@ -129,6 +131,16 @@ class Router extends Backbone.Router
       # special case - overlay show entries
       v.scrollTop = 0
       v.$el.show()
+
+  about: ->
+    attract.active()
+    #@entries()
+    if window.views.length==0
+      console.log "cannot show about - no initial view"
+    else
+      attract.active()
+      view = new AboutView()
+      addView view, "About", "about"
 
   consent: ->
     if window.views.length==0
@@ -290,8 +302,6 @@ App =
             chooseDevicetype()
           else if href=='-back'
             router.back()
-          else if href=='-info'
-            attract.showExplain()
           else if href=='-menu'
             console.log 'pass -menu for zurb?'
             return true

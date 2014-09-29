@@ -176,7 +176,6 @@ module.exports = class ExplainView extends Backbone.View
   close: (ev)->
     console.log "Explain close"
     @remove()
-    window.router.navigate("consent",{trigger:true})
     false
 
   remove: =>

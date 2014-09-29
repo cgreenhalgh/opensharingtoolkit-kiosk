@@ -513,3 +513,27 @@ em;
   };
 };
 
+.about-modal {
+  z-index: 190;
+  background-color: rgba(255,255,255,1.0);
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  .panel {
+    margin-top: 1em;
+    //overflow: scroll;
+  }
+  .explain-ok {
+    z-index: 201;
+    position: fixed;
+    right: 0.2em;
+    bottom: 0.2em;
+    //width: 40%;
+    a {
+      width: 100%;
+    };
+  };
+};
+

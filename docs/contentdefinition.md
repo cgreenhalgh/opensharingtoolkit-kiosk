@@ -120,11 +120,16 @@ The atom file is (currently) assumed to be a feed, i.e. have a `feed` (namespace
         <id>tag:cmg@cs.nott.ac.uk,2013-09-26:atom/test/1</id>
         <updated>2013-09-26T12:32:00Z</updated>
         <category scheme="campaign" term="test" label="Example campaign called test"/>
+        <aboutHtml>Some escaped HTML that will be shown on the Information/About screen.</aboutHtml>
 
 	<!-- entries go here... -->
 </feed>
 '''
 Optionally, the feed may include `category` elements with attribute `scheme`=`campaign` where the required attribute `term` is a campaign ID and the optional attribute `label` is a human-readable name for the campaign. Campaign IDs may be included in entry request URLs in order to distinguish different triggers for downloads (e.g. poster, different kiosk(s)).
+
+Optionally the feed may include an `aboutHtml` element, the text contents of which will be inserted into the Help/Information view. (This is a non-atom extension element.)
+
+Optionally the feed may include an `showAttract` element, in which case its content will be treated as a boolean to decide whether to periodically show the attract animation. Default is (now) not to. (This is a non-atom extension element.)
 
 Each content item is specified by a single Atom `entry`. Currently of the mandatory entry elements only `title` is used (`id` and `updated` are not; `author` is also mandatory if not provided by feed, but unused at present). The self link is used to determine the baseurl when using a cache (e.g. by the cache builder).
 

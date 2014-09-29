@@ -164,7 +164,6 @@ module.exports = class AttractView extends Backbone.View
   close: (ev)->
     @remove()
     attract.showExplain()
-    #window.router.navigate("consent",{trigger:true})
     false
 
   remove: =>

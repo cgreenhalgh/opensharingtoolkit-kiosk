@@ -8,7 +8,7 @@
     <p class="text-centre">Touch an item to find out more</p>
   </div>
 </div>
-<div class="entry-list-help-info"><a href="-info" class="clickable"><img src="icons/information.png"></a></div>
+<div class="entry-list-help-info"><a href="#" class="clickable show-info"><img src="icons/information.png"></a></div>
 <div class="entry-list-help-ok">
   <a href="-back" class="button">OK</a>
 </div>

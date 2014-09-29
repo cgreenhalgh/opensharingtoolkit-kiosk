@@ -3,7 +3,6 @@
 templateEntryListHelp = require 'templates/EntryListHelp'
 
 recorder = require 'recorder'
-attract = require 'attract'
 
 module.exports = class EntryListView extends Backbone.View
 
@@ -29,16 +28,20 @@ module.exports = class EntryListView extends Backbone.View
     templateEntryListHelp d
 
   events: 
-    'click .entry-list-help-info': 'showExplain'
+    'click .entry-list-help-info': 'showAbout'
+    'click .show-info': 'showAbout'
     'click': 'close'
 
-  showExplain: () ->
+  showAbout: (ev) ->
     if window.clickFeedback?
       window.clickFeedback()
+    ev.preventDefault()
+    ev.stopPropagation()
     recorder.i 'user.requestHelp.info'
-    attract.showExplain()
+    window.router.navigate("about",{trigger:true})
 
   close: (ev)->
+    console.log "Help: close"
     if window.clickFeedback?
       window.clickFeedback()
     ev.preventDefault()

@@ -1,0 +1,12 @@
+<%# about; no particular data?! parent is div class=about-modal %>
+<div class="row">
+  <div class="small-12 large-12 columns">
+    <div class="panel">
+      <%- @aboutHtml %>
+    </div>
+  </div>
+</div>
+<div class="explain-ok">
+  <a href="#" class="button ok-button">OK</a>
+</div>
+
