@@ -304,7 +304,7 @@ public class MainActivity extends BrowserActivity implements ServiceConnection {
 			} catch(Exception e) {
 				Log.e(TAG,"Error setting brightness", e);
 			}
-		} else if (ACTION_FINISH.equals(intent.getAction())) {
+		} else if (ACTION_FINISH.equals(intent.getAction()) && (intent.getFlags() & Intent.FLAG_ACTIVITY_LAUNCHED_FROM_HISTORY)==0) {
 			Log.i(TAG,"main activity finish on intent");
 			finish();
 		}
