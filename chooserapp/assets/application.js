@@ -535,7 +535,7 @@
 
   currentExplain = null;
 
-  DEFAULT_DELAY = 10000;
+  DEFAULT_DELAY = 60000;
 
   reset = function() {
     if (configShowAttract) {

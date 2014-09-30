@@ -3,10 +3,23 @@
 
     <Preference android:title="@string/pref_viewkiosk_title" >
         <intent
-            android:targetClass="org.opensharingtoolkit.chooser.ShowMainActivity"
+            android:targetClass="org.opensharingtoolkit.chooser.MainActivity"
             android:targetPackage="org.opensharingtoolkit.chooser" />
     </Preference>
 
+    <Preference android:title="@string/pref_closekiosk_title" >
+        <intent
+            android:action="org.opensharingtoolkit.chooser.FINISH"
+            android:targetClass="org.opensharingtoolkit.chooser.MainActivity"
+            android:targetPackage="org.opensharingtoolkit.chooser" />
+    </Preference>
+
+    <CheckBoxPreference android:enabled="true" 
+       android:title="@string/pref_runservice_title"
+       android:summary="@string/pref_runservice_summary"
+       android:key="pref_runservice"
+       android:defaultValue="false"/>
+   
     <EditTextPreference
         android:defaultValue="@string/pref_atomfile_default"
         android:enabled="true"

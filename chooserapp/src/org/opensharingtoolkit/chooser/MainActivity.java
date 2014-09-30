@@ -7,14 +7,17 @@ import android.annotation.SuppressLint;
 import android.app.AlarmManager;
 import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.IBinder;
 import android.os.PowerManager;
 import android.os.PowerManager.WakeLock;
 import android.preference.PreferenceManager;
@@ -25,7 +28,7 @@ import android.view.WindowManager;
 
 import org.opensharingtoolkit.common.Recorder;
 
-public class MainActivity extends BrowserActivity {
+public class MainActivity extends BrowserActivity implements ServiceConnection {
 	
 	public MainActivity() {
 		super("chooser.main");
@@ -38,7 +41,9 @@ public class MainActivity extends BrowserActivity {
 		super.onCreate(savedInstanceState);	
 
 		// make sure service is running...
-		startService(new Intent(getApplicationContext(), Service.class));
+		Intent serviceIntent = new Intent(getApplicationContext(), Service.class);
+		startService(serviceIntent);
+		bindService(serviceIntent, this, Context.BIND_AUTO_CREATE);
 		
 		SharedPreferences spref = PreferenceManager.getDefaultSharedPreferences(MainActivity.this);
 		if (spref.getBoolean("pref_landscape", false)) {
@@ -68,6 +73,7 @@ public class MainActivity extends BrowserActivity {
 	protected void onDestroy() {
 		unregisterReceiver(mScreenReceiver);
 		finishWakeLocker();
+		unbindService(this);
 		super.onDestroy();
 	}
 	
@@ -284,6 +290,7 @@ public class MainActivity extends BrowserActivity {
 	}
 
 	public static final String ACTION_SET_BRIGHTNESS = "org.opensharingtoolkit.chooser.setBrightness";
+	public static final String ACTION_FINISH = "org.opensharingtoolkit.chooser.FINISH";
 	public static final String EXTRA_BRIGHTNESS = "brightness";
 	
 	private void handleIntent(Intent intent) {
@@ -297,7 +304,20 @@ public class MainActivity extends BrowserActivity {
 			} catch(Exception e) {
 				Log.e(TAG,"Error setting brightness", e);
 			}
+		} else if (ACTION_FINISH.equals(intent.getAction())) {
+			Log.i(TAG,"main activity finish on intent");
+			finish();
 		}
+	}
+
+	@Override
+	public void onServiceConnected(ComponentName name, IBinder service) {
+		Log.d(TAG,"Service connected");
+	}
+
+	@Override
+	public void onServiceDisconnected(ComponentName name) {
+		Log.d(TAG,"Service disconnected");
 	}
 
 }

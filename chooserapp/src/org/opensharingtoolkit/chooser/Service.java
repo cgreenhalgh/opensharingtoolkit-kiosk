@@ -38,6 +38,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.content.SharedPreferences;
+import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.content.res.AssetFileDescriptor;
 import android.content.res.AssetManager;
 import android.net.wifi.SupplicantState;
@@ -56,7 +57,7 @@ import android.util.Log;
  * @author pszcmg
  *
  */
-public class Service extends android.app.Service {
+public class Service extends android.app.Service implements OnSharedPreferenceChangeListener {
 
 	private IBinder mBinder = new LocalBinder();
 	
@@ -64,19 +65,32 @@ public class Service extends android.app.Service {
 	private static final int SERVICE_NOTIFICATION_ID = 1;
 	private HttpListener httpListener = null;
 	public static final int HTTP_PORT = 8080;
-
+	private boolean mIsBoundTo = false;
+	
 	// 5 minutes ?!
 	private static final long CACHE_ASSET_TIME_MS = 1000*60*5;
     // 5 minutes ?!
 	private static final long CACHE_FILE_TIME_MS = 1000*60*5;
+
+	private static final long FINISH_DELAY_MS = 1000;
 	private static int port = HTTP_PORT;
 	private Recorder mRecorder = new Recorder(this, "chooser.service");
+	private boolean started = false;
 	
 	@Override
 	public void onCreate() {
 		super.onCreate();
 		
 		Log.d(TAG,"service onCreate");
+	}
+	
+	private void onStart() {
+		if (started)
+			return;
+		started = true;
+			
+		SharedPreferences spref = PreferenceManager.getDefaultSharedPreferences(this);
+		spref.registerOnSharedPreferenceChangeListener(this);
 		
 		// notification
 		Notification notification = new Notification.Builder(getApplicationContext())
@@ -116,21 +130,35 @@ public class Service extends android.app.Service {
 		intentFilter.addAction(WifiUtils.WIFI_AP_STATE_CHANGED_ACTION);
 		registerReceiver(mWifiReceiver, intentFilter);
 		updateNetworkState();
+		
+		mFinishHandler.postDelayed(mCheckFinish, FINISH_DELAY_MS);
 	}
 
 	@Override
 	public void onDestroy() {
 		Log.d(TAG,"service onDestroy");
 		super.onDestroy();
+		onStop();
+	}
+	
+	private void onStop() {
+		if (!started)
+			return;
+		started = false;
 		
+		SharedPreferences spref = PreferenceManager.getDefaultSharedPreferences(this);
+		spref.unregisterOnSharedPreferenceChangeListener(this);
+
 		unregisterReceiver(mWifiReceiver);
 
 		// Unbind from the Hotspot service
-        if (mBound) {
+		try {
             unbindService(mConnection);
-            mBound = false;
         }
-		
+		catch (Exception e) {
+			Log.e(TAG,"Error unbinding hotspot service: "+e);
+		}
+		// removes notification!
 		stopForeground(true);
 		
 		if (httpListener!=null) {
@@ -398,6 +426,7 @@ public class Service extends android.app.Service {
 	// starting service...
 	private void handleCommand(Intent intent) {
 		Log.d(TAG,"handleCommand "+(intent!=null ? intent.getAction() : "null"));
+		onStart();
 	}
 
 
@@ -422,8 +451,46 @@ public class Service extends android.app.Service {
 	 */
 	@Override
 	public IBinder onBind(Intent arg0) {
+		Log.d(TAG,"service onBind => bound");
+		onStart();
+		mIsBoundTo = true;
+		mFinishHandler.removeCallbacks(mCheckFinish);
 		return mBinder;
 	}
+	@Override
+	public void onRebind(Intent intent) {
+		Log.d(TAG,"service onRebind => bound");
+		onStart();
+		mIsBoundTo = true;
+		mFinishHandler.removeCallbacks(mCheckFinish);
+		super.onRebind(intent);
+	}
+
+	@Override
+	public boolean onUnbind(Intent intent) {
+		Log.d(TAG,"service onUnbind => NOT bound");
+		mIsBoundTo = false;
+		mFinishHandler.removeCallbacks(mCheckFinish);
+		mFinishHandler.postDelayed(mCheckFinish, FINISH_DELAY_MS);
+		super.onUnbind(intent);
+		return true;
+	}
+
+	private Handler mFinishHandler = new Handler();
+	private Runnable mCheckFinish = new Runnable() {
+		@Override
+		public void run() {
+			SharedPreferences spref = PreferenceManager.getDefaultSharedPreferences(Service.this);
+			boolean runservice = spref.getBoolean("pref_runservice", false);
+			Log.d(TAG,"CheckFinish: mIsBoundTo="+mIsBoundTo+", runservice="+runservice);
+			if (mIsBoundTo || runservice)
+				return;
+			Log.i(TAG,"Finish service (mIsBoundTo="+mIsBoundTo+", runservice="+runservice+")");
+			// removes notification!
+			onStop();
+			Service.this.stopSelf();
+		}
+	};
 	/** Binder subclass (inner class) with methods for local interaction with service */
 	public class LocalBinder extends android.os.Binder {
 		// local methods... direct access to service
@@ -695,4 +762,18 @@ public class Service extends android.app.Service {
 		}
 		httpContinuation.done(200, "OK", mimeType, length, content, headers);
 	}
+
+	@Override
+	public void onSharedPreferenceChanged(SharedPreferences sharedPreferences,
+			String key) {
+		if ("pref_runservice".equals(key)) {
+			boolean runservice = sharedPreferences.getBoolean("pref_runservice", false);
+			// TODO Auto-generated method stub
+			Log.d(TAG,"service pref_runservice changed to "+runservice);
+			mFinishHandler.removeCallbacks(mCheckFinish);
+			if (!runservice)
+				mFinishHandler.postDelayed(mCheckFinish, FINISH_DELAY_MS);
+		}
+	}
+	
 }
