@@ -1,96 +1,103 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android" >
 
-    <Preference android:title="@string/pref_viewkiosk_title" >
-        <intent
-            android:targetClass="org.opensharingtoolkit.chooser.MainActivity"
-            android:targetPackage="org.opensharingtoolkit.chooser" />
-    </Preference>
+    <PreferenceCategory android:title="@string/pref_generalsettings_title" >
+        <Preference android:title="@string/pref_viewkiosk_title" >
+            <intent
+                android:targetClass="org.opensharingtoolkit.chooser.MainActivity"
+                android:targetPackage="org.opensharingtoolkit.chooser" />
+        </Preference>
+        <Preference
+            android:summary="@string/pref_closekiosk_summary"
+            android:title="@string/pref_closekiosk_title" >
+            <intent
+                android:action="org.opensharingtoolkit.chooser.FINISH"
+                android:targetClass="org.opensharingtoolkit.chooser.MainActivity"
+                android:targetPackage="org.opensharingtoolkit.chooser" />
+        </Preference>
+        <CheckBoxPreference
+            android:defaultValue="false"
+            android:enabled="true"
+            android:key="pref_runservice"
+            android:summary="@string/pref_runservice_summary"
+            android:title="@string/pref_runservice_title" />
+    </PreferenceCategory>
 
-    <Preference android:title="@string/pref_closekiosk_title" >
-        <intent
-            android:action="org.opensharingtoolkit.chooser.FINISH"
-            android:targetClass="org.opensharingtoolkit.chooser.MainActivity"
-            android:targetPackage="org.opensharingtoolkit.chooser" />
-    </Preference>
+    <PreferenceCategory android:title="@string/pref_kiosksettings_title" >
+        <CheckBoxPreference
+            android:defaultValue="false"
+            android:enabled="true"
+            android:key="pref_click"
+            android:summary="@string/pref_click_summary"
+            android:title="@string/pref_click_title" />
+        <CheckBoxPreference
+            android:defaultValue="false"
+            android:enabled="true"
+            android:key="pref_vibrate"
+            android:summary="@string/pref_vibrate_summary"
+            android:title="@string/pref_vibrate_title" />
+        <CheckBoxPreference
+            android:defaultValue="false"
+            android:enabled="true"
+            android:key="pref_landscape"
+            android:title="@string/pref_landscape_title" />
+        <CheckBoxPreference
+            android:defaultValue="false"
+            android:enabled="true"
+            android:key="pref_fullscreen"
+            android:summary="@string/pref_fullscreen_summary"
+            android:title="@string/pref_fullscreen_title" />
+        <CheckBoxPreference
+            android:defaultValue="false"
+            android:enabled="true"
+            android:key="pref_keepscreenon"
+            android:summary="@string/pref_keepscreenon_summary"
+            android:title="@string/pref_keepscreenon_title" />
+        <EditTextPreference
+            android:defaultValue="0"
+            android:enabled="true"
+            android:inputType="number"
+            android:key="pref_lowbrightness"
+            android:selectable="true"
+            android:summary="@string/pref_lowbrightness_summary"
+            android:title="@string/pref_lowbrightness_title" />
+        <EditTextPreference
+            android:defaultValue="100"
+            android:enabled="true"
+            android:inputType="number"
+            android:key="pref_highbrightness"
+            android:selectable="true"
+            android:summary="@string/pref_highbrightness_summary"
+            android:title="@string/pref_highbrightness_title" />
+    </PreferenceCategory>
+    
+    <PreferenceCategory android:title="@string/pref_advancedsettings_title" >
+        <CheckBoxPreference
+            android:defaultValue="false"
+            android:enabled="true"
+            android:key="pref_softwarerender"
+            android:summary="@string/pref_softwarerender_summary"
+            android:title="@string/pref_softwarerender_title" />
+        <EditTextPreference
+            android:defaultValue="@string/pref_atomfile_default"
+            android:enabled="true"
+            android:key="pref_atomfile"
+            android:selectable="true"
+            android:title="@string/pref_atomfile" />
+        <EditTextPreference
+            android:defaultValue="@string/pref_hostname_default"
+            android:enabled="true"
+            android:key="pref_hostname"
+            android:selectable="true"
+            android:summary="@string/pref_hostname_summary"
+            android:title="@string/pref_hostname_title" />
+        <EditTextPreference
+            android:defaultValue="@string/pref_campaignid_default"
+            android:enabled="true"
+            android:key="pref_campaignid"
+            android:selectable="true"
+            android:summary="@string/pref_campaignid_summary"
+            android:title="@string/pref_campaignid_title" />
+    </PreferenceCategory>
 
-    <CheckBoxPreference android:enabled="true" 
-       android:title="@string/pref_runservice_title"
-       android:summary="@string/pref_runservice_summary"
-       android:key="pref_runservice"
-       android:defaultValue="false"/>
-   
-    <EditTextPreference
-        android:defaultValue="@string/pref_atomfile_default"
-        android:enabled="true"
-        android:key="pref_atomfile"
-        android:selectable="true"
-        android:title="@string/pref_atomfile" />
-    
-    <EditTextPreference 
-        android:enabled="true" 
-        android:title="@string/pref_hostname_title" 
-        android:key="pref_hostname" 
-        android:defaultValue="@string/pref_hostname_default" 
-        android:summary="@string/pref_hostname_summary"
-        android:selectable="true"/>
-    
-    <EditTextPreference 
-        android:enabled="true" 
-        android:title="@string/pref_campaignid_title" 
-        android:key="pref_campaignid" 
-        android:summary="@string/pref_campaignid_summary"
-        android:defaultValue="@string/pref_campaignid_default" 
-        android:selectable="true"/>
-    
-   <EditTextPreference android:enabled="true" 
-    	android:title="@string/pref_lowbrightness_title"
-		android:summary="@string/pref_lowbrightness_summary"
-		android:key="pref_lowbrightness" 
-		android:inputType="number"
-		android:defaultValue="0" 
-		android:selectable="true" />
-    
-   <EditTextPreference android:enabled="true" 
-    	android:title="@string/pref_highbrightness_title"
-		android:summary="@string/pref_highbrightness_summary"
-		android:key="pref_highbrightness" 
-		android:inputType="number"
-		android:defaultValue="100" 
-		android:selectable="true" />
-
-   <CheckBoxPreference android:enabled="true" 
-       android:title="@string/pref_click_title"
-       android:summary="@string/pref_click_summary"
-       android:key="pref_click"
-       android:defaultValue="false"/>
-   
-   <CheckBoxPreference android:enabled="true" 
-       android:title="@string/pref_vibrate_title"
-       android:summary="@string/pref_vibrate_summary"
-       android:key="pref_vibrate"
-       android:defaultValue="false"/>
-   
-   <CheckBoxPreference android:enabled="true" 
-       android:title="@string/pref_landscape_title"
-       android:key="pref_landscape"
-       android:defaultValue="false"/>
-   
-   <CheckBoxPreference android:enabled="true" 
-       android:title="@string/pref_fullscreen_title"
-       android:summary="@string/pref_fullscreen_summary"
-       android:key="pref_fullscreen"
-       android:defaultValue="false"/>
-   
-   <CheckBoxPreference android:enabled="true" 
-       android:title="@string/pref_keepscreenon_title"
-       android:summary="@string/pref_keepscreenon_summary"
-       android:key="pref_keepscreenon"
-       android:defaultValue="false"/>
-   
-   <CheckBoxPreference android:enabled="true" 
-       android:title="@string/pref_softwarerender_title"
-       android:summary="@string/pref_softwarerender_summary"
-       android:key="pref_softwarerender"
-       android:defaultValue="false"/>
 </PreferenceScreen>

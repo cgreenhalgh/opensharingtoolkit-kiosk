@@ -38,4 +38,8 @@
     <string name="pref_runservice_title">Keep service running</string>
     <string name="pref_runservice_summary">Keep service running to allow background downloads</string>
     <string name="pref_closekiosk_title">Close main UI</string>
+    <string name="pref_closekiosk_summary">Close main UI and release service</string>
+    <string name="pref_generalsettings_title">General settings</string>
+    <string name="pref_kiosksettings_title">Kiosk UI settings</string>
+    <string name="pref_advancedsettings_title">Advanced Settings (safe to ignore)</string>
 </resources>

@@ -77,6 +77,20 @@ public class MainActivity extends BrowserActivity implements ServiceConnection {
 		super.onDestroy();
 	}
 	
+	@Override
+	protected void onStart() {
+		super.onStart();
+		Log.d(TAG,"onStart");
+	}
+
+	@Override
+	protected void onStop() {
+		super.onStop();
+		Log.d(TAG,"onStop");
+	}
+
+
+
 	private long mStopTime;
 	@Override
 	protected void onPause() {
