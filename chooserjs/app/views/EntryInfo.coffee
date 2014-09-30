@@ -30,7 +30,7 @@ module.exports = class EntryInfoView extends Backbone.View
       optionGet: not kiosk.isKiosk()
       optionSendInternet: url?
       optionSendCache: path? and kiosk.isKiosk()
-      optionPreview: @model.attributes.thumbnails.length > 0      
+      optionPreview: (@model.attributes.thumbnails.length > 0) or (not kiosk.getSafePreview() and not @model.attributes.isKiosk)     
     @$el.html @template data 
     @
 
@@ -80,7 +80,16 @@ module.exports = class EntryInfoView extends Backbone.View
     attract.active()
     recorder.i 'user.option.view',{id:@model.id}
     console.log "option:view entry #{ @model.id }"
-    window.router.navigate "preview/#{ encodeURIComponent @model.id }", trigger:true
+    if not kiosk.getSafePreview() and not @model.attributes.isKiosk
+      enc = @model.attributes.enclosures[0]
+      url =  if not kiosk.isKiosk() then enc.url else (enc.path ? enc.url)
+      url = kiosk.getPortableUrl url
+      console.log "view #{@model.attributes.title} as #{url}, enc #{enc.path}  / #{enc.url}"
+      if not kiosk.openUrl url, enc.mime
+        console.log "openUrl failed - try window.open"
+        window.open url, "_blank"
+    else
+      window.router.navigate "preview/#{ encodeURIComponent @model.id }", trigger:true
 
   optionGet: =>
     @click()

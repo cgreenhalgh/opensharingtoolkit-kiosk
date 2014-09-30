@@ -27,6 +27,12 @@
         <CheckBoxPreference
             android:defaultValue="false"
             android:enabled="true"
+            android:key="pref_safepreview"
+            android:title="@string/pref_safepreview_title" 
+            android:summary="@string/pref_safepreview_summary" />
+        <CheckBoxPreference
+            android:defaultValue="false"
+            android:enabled="true"
             android:key="pref_click"
             android:summary="@string/pref_click_summary"
             android:title="@string/pref_click_title" />

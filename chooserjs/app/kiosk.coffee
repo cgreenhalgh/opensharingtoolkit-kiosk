@@ -187,6 +187,21 @@ module.exports.getCaptiveportalHostname = () ->
     return null
   return window.kiosk.getCaptiveportalHostname()
 
+module.exports.getSafePreview = () ->
+  if not window.kiosk?
+    return true
+  return window.kiosk.getSafePreview()
+
+module.exports.canOpenUrl = (url, mime) ->
+  if not window.kiosk?
+    return false
+  return window.kiosk.canOpenUrl url, mime
+
+module.exports.openUrl = (url, mime) ->
+  if not window.kiosk?
+    return false
+  return window.kiosk.openUrl url, null #, mime
+
 module.exports.getQrCode = (url) ->
   qrurl = 
       # really a kiosk? 

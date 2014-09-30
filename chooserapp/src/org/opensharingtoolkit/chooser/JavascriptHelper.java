@@ -36,7 +36,6 @@ import android.media.MediaPlayer;
 import android.media.MediaPlayer.OnCompletionListener;
 import android.media.MediaPlayer.OnSeekCompleteListener;
 import android.net.Uri;
-import android.net.wifi.SupplicantState;
 import android.net.wifi.WifiConfiguration;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
@@ -107,13 +106,19 @@ public class JavascriptHelper {
 		SharedPreferences spref = PreferenceManager.getDefaultSharedPreferences(mContext);
 		return spref.getString("pref_hostname", "leaflets");
 	}
+	/** get safepreview setting, i.e. show only images as preview, don't open file(s) */
+	@JavascriptInterface
+	public boolean getSafePreview() {
+		SharedPreferences spref = PreferenceManager.getDefaultSharedPreferences(mContext);
+		return spref.getBoolean("pref_safepreview", false);
+	}
 	/** open/handle entry enclosure
 	 * 
 	 * @return true if handled
 	 */
 	@JavascriptInterface
-	public boolean openUrl(String url, String mimeTypeHint, String pageurl) {
-		Log.d(TAG,"openEntry("+url+","+mimeTypeHint+","+pageurl);
+	public boolean openUrl(String url, String mimeTypeHint) {
+		Log.d(TAG,"openEntry("+url+","+mimeTypeHint);
 		JSONObject jo = new JSONObject();
 		try {
 			jo.put("url", url);
@@ -122,7 +127,7 @@ public class JavascriptHelper {
 		catch (Exception e) {
 			Log.e(TAG,"Error marshalling openUrl info", e);
 		}		
-		if (canOpenUrl(url,mimeTypeHint, pageurl)) {
+		if (canOpenUrl(url,mimeTypeHint)) {
 			try {
 				Intent i = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
 				i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
@@ -152,8 +157,8 @@ public class JavascriptHelper {
 	 * @return true if handled
 	 */
 	@JavascriptInterface
-	public boolean canOpenUrl(String url, String mimeTypeHint, String pageurl) {
-		//Log.d(TAG,"openEntry("+url+","+mimeTypeHint+","+pageurl);
+	public boolean canOpenUrl(String url, String mimeTypeHint) {
+		//Log.d(TAG,"openEntry("+url+","+mimeTypeHint);
 		Intent i = makeIntent(url, mimeTypeHint);
 		PackageManager packageManager = mContext.getPackageManager();
 		List<ResolveInfo> activities = packageManager.queryIntentActivities(i, 0);

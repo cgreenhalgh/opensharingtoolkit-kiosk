@@ -42,4 +42,6 @@
     <string name="pref_generalsettings_title">General settings</string>
     <string name="pref_kiosksettings_title">Kiosk UI settings</string>
     <string name="pref_advancedsettings_title">Advanced Settings (safe to ignore)</string>
+    <string name="pref_safepreview_title">No file preview</string>
+    <string name="pref_safepreview_summary">Show images for preview, do not open file</string>
 </resources>

@@ -909,6 +909,21 @@
     return window.kiosk.getCaptiveportalHostname();
   };
 
+  module.exports.getSafePreview = function() {
+    if (!(window.kiosk != null)) return true;
+    return window.kiosk.getSafePreview();
+  };
+
+  module.exports.canOpenUrl = function(url, mime) {
+    if (!(window.kiosk != null)) return false;
+    return window.kiosk.canOpenUrl(url, mime);
+  };
+
+  module.exports.openUrl = function(url, mime) {
+    if (!(window.kiosk != null)) return false;
+    return window.kiosk.openUrl(url, null);
+  };
+
   module.exports.getQrCode = function(url) {
     var qrurl;
     return qrurl = window.kiosk != null ? 'http://localhost:8080/qr?url=' + encodeURIComponent(url) + '&size=150' : window.location.pathname === '/a/index.html' ? 'http://' + window.location.host + '/qr?url=' + encodeURIComponent(url) + '&size=150' : 'http://chart.apis.google.com/chart?cht=qr&chs=150x150&choe=UTF-8&chl=' + encodeURIComponent(url);
@@ -3317,7 +3332,7 @@
         optionGet: !kiosk.isKiosk(),
         optionSendInternet: url != null,
         optionSendCache: (path != null) && kiosk.isKiosk(),
-        optionPreview: this.model.attributes.thumbnails.length > 0
+        optionPreview: (this.model.attributes.thumbnails.length > 0) || (!kiosk.getSafePreview() && !this.model.attributes.isKiosk)
       };
       this.$el.html(this.template(data));
       return this;
@@ -3375,15 +3390,27 @@
     };
 
     EntryInfoView.prototype.optionView = function() {
+      var enc, url, _ref;
       this.click();
       attract.active();
       recorder.i('user.option.view', {
         id: this.model.id
       });
       console.log("option:view entry " + this.model.id);
-      return window.router.navigate("preview/" + (encodeURIComponent(this.model.id)), {
-        trigger: true
-      });
+      if (!kiosk.getSafePreview() && !this.model.attributes.isKiosk) {
+        enc = this.model.attributes.enclosures[0];
+        url = !kiosk.isKiosk() ? enc.url : (_ref = enc.path) != null ? _ref : enc.url;
+        url = kiosk.getPortableUrl(url);
+        console.log("view " + this.model.attributes.title + " as " + url + ", enc " + enc.path + "  / " + enc.url);
+        if (!kiosk.openUrl(url, enc.mime)) {
+          console.log("openUrl failed - try window.open");
+          return window.open(url, "_blank");
+        }
+      } else {
+        return window.router.navigate("preview/" + (encodeURIComponent(this.model.id)), {
+          trigger: true
+        });
+      }
     };
 
     EntryInfoView.prototype.optionGet = function() {
