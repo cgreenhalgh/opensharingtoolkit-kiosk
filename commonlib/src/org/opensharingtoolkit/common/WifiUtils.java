@@ -6,21 +6,16 @@ package org.opensharingtoolkit.common;
 import java.lang.reflect.Method;
 import java.net.Inet4Address;
 import java.net.InetAddress;
-import java.net.InterfaceAddress;
 import java.net.NetworkInterface;
 import java.net.SocketException;
 import java.util.Enumeration;
 import java.util.LinkedList;
-import java.util.List;
 import java.util.Locale;
-
-import org.json.JSONObject;
 
 import android.content.Context;
 import android.net.wifi.WifiConfiguration;
 import android.net.wifi.WifiManager;
 import android.util.Log;
-import android.webkit.JavascriptInterface;
 
 /**
  * @author pszcmg
@@ -106,9 +101,9 @@ public class WifiUtils {
 			return "127.0.0.1";
 		}
 		// IPv4 only for now?!
-		List<InterfaceAddress> ias = ni.getInterfaceAddresses();
-		for (InterfaceAddress ia : ias) {
-			InetAddress addr = ia.getAddress();
+		Enumeration<InetAddress> ias = ni.getInetAddresses();
+		while (ias.hasMoreElements()) {
+			InetAddress addr = ias.nextElement();
 			if (addr.isLoopbackAddress())
 				continue;
 			if (addr.isMulticastAddress())
@@ -145,9 +140,9 @@ public class WifiUtils {
 		}
 		for (NetworkInterface ni : bestnis) {
 			// IPv4 only for now?!
-			List<InterfaceAddress> ias = ni.getInterfaceAddresses();
-			for (InterfaceAddress ia : ias) {
-				InetAddress addr = ia.getAddress();
+			Enumeration<InetAddress> ias = ni.getInetAddresses();
+			while (ias.hasMoreElements()) {
+				InetAddress addr = ias.nextElement();
 				if (addr.isLoopbackAddress())
 					continue;
 				if (addr.isMulticastAddress())

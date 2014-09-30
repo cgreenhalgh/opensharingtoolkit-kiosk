@@ -183,6 +183,7 @@ public class MainActivity extends BrowserActivity implements ServiceConnection {
 	    }   
 	}
 	*/
+	@SuppressLint("NewApi")
 	@Override
 	protected void onResume() {
 		mRecorder.i("activity.resume", null);
@@ -211,9 +212,12 @@ public class MainActivity extends BrowserActivity implements ServiceConnection {
 			getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
                 WindowManager.LayoutParams.FLAG_FULLSCREEN);
 			// hide notification??
-			View decorView = getWindow().getDecorView();
-			int uiOptions = View.SYSTEM_UI_FLAG_FULLSCREEN | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN | View.SYSTEM_UI_FLAG_LAYOUT_STABLE;
-			decorView.setSystemUiVisibility(uiOptions);
+			// API level 11
+			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+				View decorView = getWindow().getDecorView();
+				int uiOptions = View.SYSTEM_UI_FLAG_FULLSCREEN | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN | View.SYSTEM_UI_FLAG_LAYOUT_STABLE;
+				decorView.setSystemUiVisibility(uiOptions);
+			}
 		} else {
 			getWindow().setFlags(0, WindowManager.LayoutParams.FLAG_FULLSCREEN);
 		}

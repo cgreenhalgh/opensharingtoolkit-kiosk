@@ -85,7 +85,7 @@ public class ZipHandlerActivity extends Activity {
 	private void startUnzip(Uri data) {
 		// TODO Auto-generated method stub
 		log.append("Try to unzip "+data.toString()+"\n");
-		File dir = getExternalFilesDir(null);
+		File dir = Compat.getExternalFilesDir(this);
 		if (dir==null) {
 			Log.w(TAG, "getExternalFilesDir with external storage not available");
 			log.append("Could not get application directory to unzip into");
@@ -205,7 +205,7 @@ public class ZipHandlerActivity extends Activity {
 			    	//pref_atomfile
 			    	try {
 						SharedPreferences spref = PreferenceManager.getDefaultSharedPreferences(ZipHandlerActivity.this);
-						spref.edit().putString("pref_atomfile", atomfile).apply();
+						spref.edit().putString("pref_atomfile", atomfile).commit();
 						Log.i(TAG, "Set pref_atomfile to "+atomfile);
 						//new Handler().postDelayed(new Runnable() {
 						//	public void run() {

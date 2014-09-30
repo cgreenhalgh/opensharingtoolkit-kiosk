@@ -4,6 +4,7 @@
 package org.opensharingtoolkit.chooser;
 
 import java.io.ByteArrayInputStream;
+import java.io.UnsupportedEncodingException;
 import java.nio.charset.Charset;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -173,7 +174,14 @@ public class RedirectServer {
 		extraHeaders.put("Pragma", "no-cache");
 		extraHeaders.put("Expires", "0");
 		String response = "See "+r.toUrl;
-		byte body [] = response.getBytes(Charset.forName("UTF-8"));
+		// API level 9
+		byte body[];
+		try {
+			body = response.getBytes("UTF-8");
+		} catch (UnsupportedEncodingException e) {
+			Log.w(TAG,"Problem with encoding: "+e);
+			throw new HttpError(500,"Problem processing UTF-8 response");
+		}
 		httpContinuation.done(307, "Moved temporarily", "text/plan", body.length, new ByteArrayInputStream(body), extraHeaders);
 	}
 }

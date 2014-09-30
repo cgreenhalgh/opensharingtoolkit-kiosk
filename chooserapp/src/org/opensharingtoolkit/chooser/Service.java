@@ -8,6 +8,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
+import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.net.NetworkInterface;
 import java.net.URLDecoder;
@@ -29,6 +30,7 @@ import org.opensharingtoolkit.common.Hotspot;
 import org.opensharingtoolkit.common.Recorder;
 import org.opensharingtoolkit.common.WifiUtils;
 
+import android.annotation.SuppressLint;
 import android.app.Notification;
 import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
@@ -39,18 +41,21 @@ import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
+import android.content.pm.PackageInfo;
 import android.content.res.AssetFileDescriptor;
 import android.content.res.AssetManager;
 import android.net.wifi.SupplicantState;
 import android.net.wifi.WifiConfiguration;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
+import android.os.Build;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
 import android.os.Messenger;
 import android.os.RemoteException;
 import android.preference.PreferenceManager;
+import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 
 /**
@@ -93,7 +98,8 @@ public class Service extends android.app.Service implements OnSharedPreferenceCh
 		spref.registerOnSharedPreferenceChangeListener(this);
 		
 		// notification
-		Notification notification = new Notification.Builder(getApplicationContext())
+		// API level 11
+		Notification notification = new NotificationCompat.Builder(getApplicationContext())
 				.setContentTitle(getText(R.string.notification_title))
 				.setContentText(getText(R.string.notification_description))
 				.setSmallIcon(R.drawable.notification_icon)
@@ -656,16 +662,21 @@ public class Service extends android.app.Service implements OnSharedPreferenceCh
 		Log.d(TAG,"Sending "+path+" as "+mimeType);
 		return mimeType;
 	}
+	//@SuppressLint("NewApi")
 	private void handleAssetRequest(String path, Map<String,String> requestHeaders, String requestBody,
 			HttpContinuation httpContinuation) throws IOException, HttpError {
 		path = checkPath(path);
 		Map<String,String> headers = new HashMap<String,String>();
 		long lastModified = 0;
-		try {
-			lastModified = this.getPackageManager().getPackageInfo("org.opensharingtoolkit.chooser", 0).lastUpdateTime;
-		}catch (Exception e) {
-			Log.e(TAG,"Error getting package update time for last modified: "+e, e);
-		}
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.GINGERBREAD)
+			try {
+				// API level 9
+				PackageInfo pi = this.getPackageManager().getPackageInfo("org.opensharingtoolkit.chooser", 0);
+				Field f = PackageInfo.class.getField("lastUpdateTime");
+				lastModified = f.getLong(pi);
+			}catch (Exception e) {
+				Log.e(TAG,"Error getting package update time for last modified: "+e, e);
+			}
 		if (lastModified!=0) {
 			HttpUtils.handleNotModifiedSince(requestHeaders, lastModified);
 			HttpUtils.setHeaderLastModified(headers, lastModified);
@@ -726,7 +737,7 @@ public class Service extends android.app.Service implements OnSharedPreferenceCh
 		if (path.contains(".."))
 			throw new HttpError(403, "Access denied");
 			
-		File dir = getExternalFilesDir(null);
+		File dir = Compat.getExternalFilesDir(this);
 		if (dir==null) {
 			Log.w(TAG, "handleFileRequest with external storage not available");
 			throw new HttpError(404, "File not found");

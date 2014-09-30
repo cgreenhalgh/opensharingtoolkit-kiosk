@@ -6,6 +6,6 @@
 	<classpathentry exported="true" kind="con" path="com.android.ide.eclipse.adt.LIBRARIES"/>
 	<classpathentry exported="true" kind="con" path="com.android.ide.eclipse.adt.DEPENDENCIES"/>
 	<classpathentry kind="lib" path="libs/zxing-core-2.3-SNAPSHOT.jar"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/commonlib"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/opensharingtoolkit-commonlib"/>
 	<classpathentry kind="output" path="bin/classes"/>
 </classpath>

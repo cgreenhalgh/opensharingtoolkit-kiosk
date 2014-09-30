@@ -71,7 +71,7 @@ public class CacheServer {
 	}
 
 	private void updateCache(Context context) {
-		File dir = context.getExternalFilesDir(null);
+		File dir = Compat.getExternalFilesDir(context);
 		if (dir==null) {
 			Log.w(TAG, "getLocalFilePrefix with external storage not available");
 			return;

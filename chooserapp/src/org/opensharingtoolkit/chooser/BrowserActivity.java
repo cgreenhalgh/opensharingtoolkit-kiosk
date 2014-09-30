@@ -14,6 +14,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.net.http.SslError;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Message;
 import android.preference.PreferenceManager;
@@ -37,6 +38,7 @@ import android.widget.Toast;
  * @author pszcmg
  *
  */
+@SuppressLint("Registered")
 public class BrowserActivity extends Activity {
 
 	public static final String TAG = "kiosk";
@@ -47,7 +49,7 @@ public class BrowserActivity extends Activity {
 		mRecorder = new Recorder(this, component);
 	}
 	
-	@SuppressLint("SetJavaScriptEnabled")
+	@SuppressLint({ "SetJavaScriptEnabled", "NewApi" })
 	@Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -56,50 +58,36 @@ public class BrowserActivity extends Activity {
 		SharedPreferences spref = PreferenceManager.getDefaultSharedPreferences(this);
 		if (spref.getBoolean("pref_softwarerender", false)) {
 			Log.d(TAG,"Setting software rendering on web view");
-			webView.setLayerType(View.LAYER_TYPE_SOFTWARE, null);
+			// API level 11
+			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+				webView.setLayerType(View.LAYER_TYPE_SOFTWARE, null);
+			}
 		}
         webView.addJavascriptInterface(new JavascriptHelper(this), "kiosk");
         webView.getSettings().setJavaScriptEnabled(true);
-        webView.getSettings().setAllowFileAccessFromFileURLs(true);
+        // API level 16
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+			webView.getSettings().setAllowFileAccessFromFileURLs(true);
+		}
+        // API level 5
         webView.getSettings().setDatabaseEnabled(true);
         webView.getSettings().setBuiltInZoomControls(false);
+        // API level 5
         webView.getSettings().setDatabasePath(getApplicationContext().getFilesDir().getPath()+"/org.opensharingtoolkit.chooser/databases/");
+        // API level 7
         webView.getSettings().setDomStorageEnabled(true);
-        webView.getSettings().setMediaPlaybackRequiresUserGesture(false);
+        // API level 17
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
+			webView.getSettings().setMediaPlaybackRequiresUserGesture(false);
+		}
         webView.setWebChromeClient(new WebChromeClient() {
         	public void onProgressChanged(WebView view, int progress) {
         		Log.d(TAG,"progress "+progress);
         	}
-
-			@Override
-			public boolean onConsoleMessage(ConsoleMessage consoleMessage) {
-				// Note, default onConsoleMessage will output the information to Log
-				//String msg = "console: ("+consoleMessage.sourceId()+":"+consoleMessage.lineNumber()+") "+consoleMessage.message();
-				return super.onConsoleMessage(consoleMessage);
-			}
-
-			@Override
-			public void onExceededDatabaseQuota(String url,
-					String databaseIdentifier, long quota,
-					long estimatedDatabaseSize, long totalQuota,
-					QuotaUpdater quotaUpdater) {
-				// TODO Auto-generated method stub
-				super.onExceededDatabaseQuota(url, databaseIdentifier, quota,
-						estimatedDatabaseSize, totalQuota, quotaUpdater);
-			}
-
-			@Override
-			public void onGeolocationPermissionsHidePrompt() {
-				// TODO Auto-generated method stub
-				super.onGeolocationPermissionsHidePrompt();
-			}
-
-			@Override
-			public void onGeolocationPermissionsShowPrompt(String origin,
-					Callback callback) {
-				// TODO Auto-generated method stub
-				super.onGeolocationPermissionsShowPrompt(origin, callback);
-			}
+        	// onConsoleMessage - level 8 - default is ok anyway
+        	// onExceededDatabaseQuota - level 5
+        	// onGeolocationPermissionsHidePrompt - level 5
+        	// onGeolocationPermissionsShowPrompt - level 5
 
 			@Override
 			public boolean onJsAlert(WebView view, String url, String message,
@@ -113,37 +101,28 @@ public class BrowserActivity extends Activity {
 					Log.w(TAG,"Error converting JsAlert to json", e);
 				}
 				mRecorder.w("js.alert", jo);
-				// TODO Auto-generated method stub
 				return super.onJsAlert(view, url, message, result);
 			}
 
 			@Override
 			public boolean onJsBeforeUnload(WebView view, String url,
 					String message, JsResult result) {
-				// TODO Auto-generated method stub
 				return super.onJsBeforeUnload(view, url, message, result);
 			}
 
 			@Override
 			public boolean onJsConfirm(WebView view, String url,
 					String message, JsResult result) {
-				// TODO Auto-generated method stub
 				return super.onJsConfirm(view, url, message, result);
 			}
 
 			@Override
 			public boolean onJsPrompt(WebView view, String url, String message,
 					String defaultValue, JsPromptResult result) {
-				// TODO Auto-generated method stub
 				return super.onJsPrompt(view, url, message, defaultValue, result);
 			}
 
-			@Override
-			public void onReachedMaxAppCacheSize(long requiredStorage,
-					long quota, QuotaUpdater quotaUpdater) {
-				// TODO Auto-generated method stub
-				super.onReachedMaxAppCacheSize(requiredStorage, quota, quotaUpdater);
-			}
+			// onReachedMaxAppCacheSize - level 7 
 
 			@Override
 			public void onReceivedTitle(WebView view, String title) {
@@ -192,19 +171,8 @@ public class BrowserActivity extends Activity {
 				super.onReceivedHttpAuthRequest(view, handler, host, realm);
 			}
 
-			@Override
-			public void onReceivedLoginRequest(WebView view, String realm,
-					String account, String args) {
-				// TODO Auto-generated method stub
-				super.onReceivedLoginRequest(view, realm, account, args);
-			}
-
-			@Override
-			public void onReceivedSslError(WebView view,
-					SslErrorHandler handler, SslError error) {
-				// TODO Auto-generated method stub
-				super.onReceivedSslError(view, handler, error);
-			}
+			// onReceivedLoginRequest - level 12
+			// onReceivedSslError - level 8
 
 			@Override
 			public void onScaleChanged(WebView view, float oldScale,
@@ -219,13 +187,14 @@ public class BrowserActivity extends Activity {
 				super.onUnhandledKeyEvent(view, event);
 			}
 
-			@Override
-			public WebResourceResponse shouldInterceptRequest(WebView view,
-					String url) {
-				Log.d(TAG,"shouldInterceptRequest "+url);
-				// TODO Auto-generated method stub
-				return super.shouldInterceptRequest(view, url);
-			}
+			// shouldInterceptRequest - level 11
+//			@Override
+//			public WebResourceResponse shouldInterceptRequest(WebView view,
+//					String url) {
+//				Log.d(TAG,"shouldInterceptRequest "+url);
+//				// TODO Auto-generated method stub
+//				return super.shouldInterceptRequest(view, url);
+//			}
 
 			@Override
 			public void doUpdateVisitedHistory(WebView view, String url,
@@ -262,6 +231,7 @@ public class BrowserActivity extends Activity {
 	@Override
 	public void onBackPressed() {
 		if (!handleBackPressed())
+			// level 5
 			super.onBackPressed();
 	}    
 }

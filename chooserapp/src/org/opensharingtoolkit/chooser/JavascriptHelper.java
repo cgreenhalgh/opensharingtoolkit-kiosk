@@ -16,14 +16,13 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.opensharingtoolkit.common.Record;
 import org.opensharingtoolkit.common.Recorder;
 import org.opensharingtoolkit.common.WifiUtils;
-
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -41,6 +40,7 @@ import android.net.wifi.SupplicantState;
 import android.net.wifi.WifiConfiguration;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
+import android.os.Build;
 import android.os.Handler;
 import android.os.Vibrator;
 import android.preference.PreferenceManager;
@@ -55,7 +55,7 @@ import android.webkit.JavascriptInterface;
  * @author pszcmg
  *
  */
-public class JavascriptHelper implements OnAudioFocusChangeListener {
+public class JavascriptHelper {
 	private static final String TAG = "JavascriptHelper";
 	private Context mContext;
 	//private RedirectServer mRedirectServer;
@@ -304,7 +304,7 @@ public class JavascriptHelper implements OnAudioFocusChangeListener {
 	@JavascriptInterface
 	public String getLocalFilePrefix() {
 		// should be on external storage
-		File dir = mContext.getExternalFilesDir(null);
+		File dir = Compat.getExternalFilesDir(mContext);
 		if (dir==null) {
 			mRecorder.i("js.query.localFilePrefix.error", null);
 			Log.w(TAG, "getLocalFilePrefix with external storage not available");
@@ -363,6 +363,7 @@ public class JavascriptHelper implements OnAudioFocusChangeListener {
 		}
 	}
 	private static final int MIN_VIBRATE = 200;
+	@SuppressLint("NewApi")
 	@JavascriptInterface
 	public boolean vibrate(int duration) {
 		SharedPreferences spref = PreferenceManager.getDefaultSharedPreferences(this.mContext);
@@ -373,11 +374,14 @@ public class JavascriptHelper implements OnAudioFocusChangeListener {
 		try {
 			if (duration < MIN_VIBRATE)
 				duration = MIN_VIBRATE;
-			Vibrator vib = (Vibrator) mContext.getSystemService(Context.VIBRATOR_SERVICE);
-			if (vib.hasVibrator()) {
-				Log.d(TAG,"vibrate "+duration);
-				vib.vibrate(duration);
-				return true;
+			// API level 11
+			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+				Vibrator vib = (Vibrator) mContext.getSystemService(Context.VIBRATOR_SERVICE);
+				if (vib.hasVibrator()) {
+					Log.d(TAG,"vibrate "+duration);
+					vib.vibrate(duration);
+					return true;
+				}
 			}
 			Log.d(TAG,"no vibrator");
 			return false;
@@ -422,28 +426,29 @@ public class JavascriptHelper implements OnAudioFocusChangeListener {
 							mp.start();
 						}
 					});
-					mp.setOnCompletionListener(new OnCompletionListener() {
-						@Override
-						public void onCompletion(MediaPlayer mp) {
-							Log.d(TAG,"completed audio");
-							synchronized (this) {
-								if (mHasAudioFocus) {
-									mHasAudioFocus = false;
-									// Note: we'll try to release each time (and re-gain next time) 
-									// because otherwise we still lose the start of the first sound
-									// after a pause due to output device selection delay
-									try {
-										AudioManager audioManager = (AudioManager) mContext.getSystemService(Context.AUDIO_SERVICE);
-										audioManager.abandonAudioFocus(JavascriptHelper.this);
-										Log.d(TAG,"release audio focus");
-									}
-									catch (Exception e)  {
-										Log.e(TAG,"error releasing audio focus: "+e);
-									}
-								}
-							}
-						}
-					});
+					// audio focus - API level 8
+//					mp.setOnCompletionListener(new OnCompletionListener() {
+//						@Override
+//						public void onCompletion(MediaPlayer mp) {
+//							Log.d(TAG,"completed audio");
+//							synchronized (this) {
+//								if (mHasAudioFocus) {
+//									mHasAudioFocus = false;
+//									// Note: we'll try to release each time (and re-gain next time) 
+//									// because otherwise we still lose the start of the first sound
+//									// after a pause due to output device selection delay
+//									try {
+//										AudioManager audioManager = (AudioManager) mContext.getSystemService(Context.AUDIO_SERVICE);
+//										audioManager.abandonAudioFocus(JavascriptHelper.this);
+//										Log.d(TAG,"release audio focus");
+//									}
+//									catch (Exception e)  {
+//										Log.e(TAG,"error releasing audio focus: "+e);
+//									}
+//								}
+//							}
+//						}
+//					});
 					Log.d(TAG,"Created MediaPlayer for "+url);
 					return true;
 				}
@@ -468,34 +473,35 @@ public class JavascriptHelper implements OnAudioFocusChangeListener {
 		synchronized (mMediaPlayers) {
 			MediaPlayer mp = mMediaPlayers.get(url);
 			if (mp!=null) {
-				try {
-					AudioManager audioManager = (AudioManager) mContext.getSystemService(Context.AUDIO_SERVICE);
-					boolean hasFocus = false;
-					synchronized (this) {
-						mMediaPlayer = mp;
-						hasFocus = mHasAudioFocus;
-					}
-					if (hasFocus) {
+				// Audio focus - API level 8
+//				try {
+//					AudioManager audioManager = (AudioManager) mContext.getSystemService(Context.AUDIO_SERVICE);
+//					boolean hasFocus = false;
+//					synchronized (this) {
+//						mMediaPlayer = mp;
+//						hasFocus = mHasAudioFocus;
+//					}
+//					if (hasFocus) {
 						audioPlayInternal(); 
-					} else {
-						int result = audioManager.requestAudioFocus(this, AudioManager.STREAM_NOTIFICATION,
-						    AudioManager.AUDIOFOCUS_GAIN_TRANSIENT_MAY_DUCK);
-	
-						if (result != AudioManager.AUDIOFOCUS_REQUEST_GRANTED) {
-							Log.d(TAG,"Could not get audio focus");
-						}
-						else {
-							Log.d(TAG,"received audio focus");
-							synchronized(this) {
-								mHasAudioFocus = true;
-							}
-							audioPlayInternal();
-						}
-					}
-				}
-				catch (Exception e) {
-					Log.e(TAG,"Error getting audio focus: "+e);
-				}
+//					} else {
+//						int result = audioManager.requestAudioFocus(this, AudioManager.STREAM_NOTIFICATION,
+//						    AudioManager.AUDIOFOCUS_GAIN_TRANSIENT_MAY_DUCK);
+//	
+//						if (result != AudioManager.AUDIOFOCUS_REQUEST_GRANTED) {
+//							Log.d(TAG,"Could not get audio focus");
+//						}
+//						else {
+//							Log.d(TAG,"received audio focus");
+//							synchronized(this) {
+//								mHasAudioFocus = true;
+//							}
+//							audioPlayInternal();
+//						}
+//					}
+//				}
+//				catch (Exception e) {
+//					Log.e(TAG,"Error getting audio focus: "+e);
+//				}
 			}
 			else
 				Log.d(TAG,"Could not play audio "+url+" - could not make player");
@@ -522,21 +528,24 @@ public class JavascriptHelper implements OnAudioFocusChangeListener {
 		}
 	}
 
-	@Override
-	public void onAudioFocusChange(int focusChange) {
-		if (focusChange==AudioManager.AUDIOFOCUS_GAIN) {
-			Log.d(TAG,"audio gained focus");
-			audioPlayInternal();
-		} else {
-			Log.d(TAG,"audio lost focus ("+focusChange+")");
-			// give up
-			synchronized (this) {
-				if (mMediaPlayer!=null && mMediaPlayer.isPlaying())
-					mMediaPlayer.pause();
-				mHasAudioFocus = false;
-			}
-		}
-	}
+	// API level 8
+//	private class AudioFocusListener implements OnAudioFocusChangeListener {
+//		@Override
+//		public void onAudioFocusChange(int focusChange) {
+//			if (focusChange==AudioManager.AUDIOFOCUS_GAIN) {
+//				Log.d(TAG,"audio gained focus");
+//				audioPlayInternal();
+//			} else {
+//				Log.d(TAG,"audio lost focus ("+focusChange+")");
+//				// give up
+//				synchronized (this) {
+//					if (mMediaPlayer!=null && mMediaPlayer.isPlaying())
+//						mMediaPlayer.pause();
+//					mHasAudioFocus = false;
+//				}
+//			}
+//		}
+//	}
 	@JavascriptInterface
 	public void dimScreen(boolean dim) {
 		try {
