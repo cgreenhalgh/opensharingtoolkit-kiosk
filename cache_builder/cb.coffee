@@ -289,7 +289,7 @@ make_cache = (feed,cache) ->
 get_filename_for_component = (h) ->
   if h=='' 
     return '_'
-  h = encodeURIComponent h
+  h = decodeURIComponent h
   return h.replace("~","_")
   # is that enough??
 
@@ -381,7 +381,7 @@ check_html_file = (cache,ix,file) ->
       mi = html.indexOf ' manifest="', hi
       mi2 = html.indexOf '"', mi+11
       if mi>=0 and mi2>=mi and mi2<hi2
-        manifest = decodeURI(html.substring mi+11,mi2)
+        manifest = (html.substring mi+11,mi2)
         # make absolute, schedule for download and check
         manifesturl = fix_relative_url file.url,manifest
         console.log "Found html manifest #{manifest} in #{file.url} -> #{manifesturl}" 
