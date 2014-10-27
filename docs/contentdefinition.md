@@ -81,9 +81,9 @@ The `mimetypes.json` file defines known mimetypes (including which devices suppo
 
 The `cache.json` file, if present, should be a object with a `baseurl` property the value of which is the Internet-accessible URL of the directory holding the original/definitive copy of the atom file and other local assets. E.g.
 
-'''
+```
 { "baseurl": "http://www.cs.nott.ac.uk/~cmg/AppropriateICT/opensharingtoolkit-kiosk/assets/test/" }
-'''
+```
 
 This is used by the kiosk in Internet mode to generate Internet-accessible URLs for Phones to download files from (rather than the on-kiosk cache files). However it is probably safer to use the atom file feed self link (which should be present) to determine the original home/reference location of the atom file (the cache builder uses this to determine the value for baseurl).
 
@@ -99,9 +99,9 @@ In general files from the cache should be used when possible.
 
 The `shorturls.json` file, if present, should be an array of objects, each with a `url` property which is an Internet-accessible URL and a `shorturl` property which is an Internet-accessible (e.g. goo.gl) short URL which redirects to that url. Typically the URLs should be for the get.html helper application with parameter values for helping to download a particular file. E.g.
 
-'''
+```
 [{"url":"http://www.cs.nott.ac.uk/~cmg/AppropriateICT/opensharingtoolkit-kiosk/assets/get.html?u=http%3A%2F%2Fwww.cs.nott.ac.uk%2F~cmg%2FAppropriateICT%2Fopensharingtoolkit-kiosk%2Fassets%2Ftest%2Fthing1.pdf&t=First%20thing&a=http%3A%2F%2Fplay.google.com%2Fstore%2Fapps%2Fdetails%3Fid%3Dcom.adobe.reader", "shorturl":"http://goo.gl/y8Udxb"},{"url":"http://www.cs.nott.ac.uk/~cmg/AppropriateICT/opensharingtoolkit-kiosk/assets/get.html?u=http%3A%2F%2Fwww.cs.nott.ac.uk%2F~cmg%2FAppropriateICT%2Fopensharingtoolkit-kiosk%2Fassets%2Ftest%2Fthing1.pdf&t=First%20thing&a=https%3A%2F%2Fitunes.apple.com%2Fgb%2Fapp%2Fadobe-reader%2Fid469337564%3Fmt%3D8%26uo%3D4","shorturl":"http://goo.gl/5CA4Xn"}]
-'''
+```
 
 This is used by the kiosk in Internet mode when providing URL and QRCode for the user to get a file on their phone. If no short URL is found then the long URL is given to the user. Note that off-internet mode does NOT require or use short URLs as it uses its own built-in URL shortener.
 
@@ -111,7 +111,7 @@ Atom Syndication Format is used to provide the content index. This is defined in
 
 The atom file is (currently) assumed to be a feed, i.e. have a `feed` (namespace `http://www.w3.org/2005/Atom`) root element. The mandatory feed elements are not currently used (`id`, `title`, `updated`). For example:
 
-'''
+```
 <?xml version="1.0" encoding="utf-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
  
@@ -124,7 +124,7 @@ The atom file is (currently) assumed to be a feed, i.e. have a `feed` (namespace
 
 	<!-- entries go here... -->
 </feed>
-'''
+```
 Optionally, the feed may include `category` elements with attribute `scheme`=`campaign` where the required attribute `term` is a campaign ID and the optional attribute `label` is a human-readable name for the campaign. Campaign IDs may be included in entry request URLs in order to distinguish different triggers for downloads (e.g. poster, different kiosk(s)).
 
 Optionally the feed may include an `aboutHtml` element, the text contents of which will be inserted into the Help/Information view. (This is a non-atom extension element.)
@@ -148,7 +148,7 @@ In addition media-rss media:thumbnail elements with attribute `url` should be us
 
 For example, a PDF document `thing1.pdf` (MIME type `application/pdf`) with icon `thing1.png` entitled `First thing`:
 
-'''
+```
        <entry>
                 <title>First thing</title>
                 <link rel="alternate" type="image/png" href="thing1.png" />
@@ -161,11 +161,11 @@ For example, a PDF document `thing1.pdf` (MIME type `application/pdf`) with icon
                       <email>cmg@cs.nott.ac.uk</email>
                 </author>
         </entry>
-'''
+```
 
 For example, the Adobe reader application for Android, which provides support for PDF files (MIME type `application/pdf`):
 
-'''
+```
        <entry>
                 <title>Adobe Reader</title>
                 <!-- it's an app that supports a mime type -->
@@ -182,11 +182,11 @@ For example, the Adobe reader application for Android, which provides support fo
                       <name>Adobe</name>
                 </author>
         </entry>
-'''
+```
 
 Note that the app is hidden. The MIME type for an Android app is `application/vnd.android.package-archive` and the URL for the app is the corresponding Google Play URL. The iPhone version of the app is described by:
 
-'''
+```
         <entry>
                 <title>Adobe Reader</title>
                 <!-- it's an app that supports a mime type -->
@@ -203,7 +203,7 @@ Note that the app is hidden. The MIME type for an Android app is `application/vn
                       <name>Adobe</name>
                 </author>
         </entry>
-'''
+```
 
 Note that there is no official MIME type for iPhone applications; the placeholder `application/x-itunes-app` is used internally. The URL is for the app on itunes.
 
