@@ -284,7 +284,14 @@ public class HttpClientHandler extends Thread {
 			buf.append("<html><head><meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\">");
 			buf.append("<meta name=\"viewport\" content=\"width=device-width;\">");
 			buf.append("<title>Error: "+status+": "+message+"</title></head>");
-			buf.append("<body><h1>Error "+status+": "+message+"</h1></body></html>");
+			buf.append("<body><h1>Error "+status+": "+message+"</h1>");
+			String hostaddress = service.getCachedHostAddress();
+			if (hostaddress!=null) {
+				int port = Service.getPort();
+				String url = "http://"+hostaddress+(port!=80 ? ":"+port : "")+"/";
+				buf.append("Home page: <a href=\""+url+"\">"+url+"</a>");
+			}
+			buf.append("</body></html>");
 			byte bs [] = buf.toString().getBytes("UTF-8");
 			osw.write("Content-Length: "+bs.length+"\r\n");
 			osw.write("\r\n");

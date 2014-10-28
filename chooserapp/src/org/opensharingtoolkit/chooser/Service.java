@@ -352,6 +352,9 @@ public class Service extends android.app.Service implements OnSharedPreferenceCh
 			Log.d(TAG,"updateNetworkState ignored: state="+state);
 		}
 	}
+	public String getCachedHostAddress() {
+		return mHostaddress;
+	}
 	private String getHostAddress() {
 		NetworkInterface ni = WifiUtils.getWifiInterface();
 		if (ni==null) {
@@ -515,6 +518,8 @@ public class Service extends android.app.Service implements OnSharedPreferenceCh
 				GetServer.singleton().handleRequest(this, path, headers, httpContinuation);
 			else if (path.equals("/recent") || path.startsWith("/recent?"))
 				GetServer.singleton().handleRequestForRecent(this, path, headers, httpContinuation);
+			else if (path.equals("/") || path.startsWith("/?"))
+				GetServer.singleton().handleRequestForHome(this, path, headers, httpContinuation);
 			else if (path.startsWith("/a/"))
 				handleAssetRequest(path.substring("/a".length()), headers, requestBody, httpContinuation);
 			else if (path.startsWith("/f/"))

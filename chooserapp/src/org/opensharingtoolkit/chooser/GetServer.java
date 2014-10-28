@@ -243,4 +243,36 @@ public class GetServer {
 		}
 	    httpContinuation.done(200, "OK", "text/html", data.length, new ByteArrayInputStream(data), null);
 	}
+	// handle request - called from Service
+	public void handleRequestForHome(Context context, String path, Map<String, String> headers, HttpContinuation httpContinuation) throws HttpError {
+		StringBuilder resp = new StringBuilder();
+		resp.append("<!DOCTYPE html PUBLIC \"-//W3C//DTD HTML 4.01 Transitional//EN\" \"http://www.w3.org/TR/html4/loose.dtd\">\n"+
+            "<html>"+
+            "<head>"+
+            "<meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\">"+
+            "<meta name=\"viewport\" content=\"width=device-width, user-scalable=false;\">"+
+            "<title>Information Hub</title>"+
+            "</head>"+
+            "<body>"+
+            "<p>You're on the ");
+		int wifiState = WifiUtils.getWifiState(context);
+		if (wifiState==WifiUtils.WIFI_AP_STATE_ENABLED || wifiState==WifiUtils.WIFI_AP_STATE_ENABLING) {
+			resp.append("kiosk network (this is not the Internet)");
+		}
+		else {
+			resp.append("local network");
+		}
+		resp.append("</p>");
+		resp.append("<h2><a href=\"/recent\">Recently requested items</a></h2>");
+		resp.append("</body></html>");
+		
+	    Log.d(TAG,"get home done");
+	    byte data[];
+		try {
+			data = resp.toString().getBytes("UTF-8");
+		} catch (UnsupportedEncodingException e) {
+			throw new HttpError(500, "Error converting get home response to bytes");
+		}
+	    httpContinuation.done(200, "OK", "text/html", data.length, new ByteArrayInputStream(data), null);
+	}
 }
