@@ -24,6 +24,7 @@
     <string name="zip_handler_name">Unzip to OST Chooser</string>
     <string name="zip_prompt">Update OST Chooser file cache and replace configuration with contents of zip file?</string>
     <string name="zip_button_replace">Replace</string>
+    <string name="zip_button_reload">Show main UI and reload content</string>
     <string name="zip_log_title">Diagnostic output</string>
     <string name="pref_keepscreenon_title">Keep screen on</string>
     <string name="pref_keepscreenon_summary">Keep screen on if possible</string>
@@ -35,6 +36,7 @@
     <string name="pref_vibrate_title">Vibrate</string>
     <string name="pref_vibrate_summary">Use vibrate for touch feedback</string>
     <string name="pref_viewkiosk_title">Show main UI</string>
+    <string name="pref_restartkiosk_title">Show main UI and reload content</string>
     <string name="pref_runservice_title">Keep service running</string>
     <string name="pref_runservice_summary">Keep service running to allow background downloads</string>
     <string name="pref_closekiosk_title">Close main UI</string>
@@ -44,4 +46,7 @@
     <string name="pref_advancedsettings_title">Advanced Settings (safe to ignore)</string>
     <string name="pref_safepreview_title">No file preview</string>
     <string name="pref_safepreview_summary">Show images for preview, do not open file</string>
+    <string name="pref_demosettings_title">Test/demo settings</string>
+    <string name="pref_democontent_title">Download test content</string>
+    <string name="democontent_url">http://www.cs.nott.ac.uk/~cmg/GooglePlay/InformationHub/demo-content-v5.zip</string>
 </resources>

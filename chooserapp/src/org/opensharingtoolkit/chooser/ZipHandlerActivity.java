@@ -56,6 +56,18 @@ public class ZipHandlerActivity extends Activity {
 				startUnzip(i.getData());
 			}
 		});
+        final Button reload = (Button)findViewById(R.id.buttonReload);
+        reload.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				Log.d(TAG,"Click reload....");
+				replace.setEnabled(false);
+				Intent i = new Intent();
+				i.setAction(MainActivity.ACTION_RELOAD);
+				i.setClass(getApplicationContext(), MainActivity.class);
+				startActivity(i);
+			}
+		});
 	}
 
 	static class Unzip {
@@ -193,6 +205,10 @@ public class ZipHandlerActivity extends Activity {
 
 		@Override
 		protected void onPostExecute(Result result) {
+			if (this.isCancelled())
+				return;
+	        final Button reload = (Button)findViewById(R.id.buttonReload);
+	        reload.setEnabled(true);
 			for (String error: result.errors)
 				log.append(error);
 			if (result.errors.size()==0) {

@@ -17,6 +17,13 @@
         android:layout_height="wrap_content"
         android:text="@string/zip_button_replace" />
 
+    <Button
+        android:id="@+id/buttonReload"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:enabled="false"
+        android:text="@string/zip_button_reload" />
+
     <TextView
         android:id="@+id/zip_handler_label1"
         android:layout_width="wrap_content"

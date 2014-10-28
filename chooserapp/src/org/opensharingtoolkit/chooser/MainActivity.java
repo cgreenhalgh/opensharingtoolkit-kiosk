@@ -309,6 +309,7 @@ public class MainActivity extends BrowserActivity implements ServiceConnection {
 
 	public static final String ACTION_SET_BRIGHTNESS = "org.opensharingtoolkit.chooser.setBrightness";
 	public static final String ACTION_FINISH = "org.opensharingtoolkit.chooser.FINISH";
+	public static final String ACTION_RELOAD = "org.opensharingtoolkit.chooser.RELOAD";
 	public static final String EXTRA_BRIGHTNESS = "brightness";
 	
 	private void handleIntent(Intent intent) {
@@ -325,6 +326,9 @@ public class MainActivity extends BrowserActivity implements ServiceConnection {
 		} else if (ACTION_FINISH.equals(intent.getAction()) && (intent.getFlags() & Intent.FLAG_ACTIVITY_LAUNCHED_FROM_HISTORY)==0) {
 			Log.i(TAG,"main activity finish on intent");
 			finish();
+		} else if (ACTION_RELOAD.equals(intent.getAction()) && (intent.getFlags() & Intent.FLAG_ACTIVITY_LAUNCHED_FROM_HISTORY)==0) {
+			Log.i(TAG,"main activity reload on intent");
+			reload();
 		}
 	}
 

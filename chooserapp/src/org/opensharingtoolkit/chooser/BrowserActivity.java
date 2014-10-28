@@ -218,6 +218,14 @@ public class BrowserActivity extends Activity {
         webView.loadUrl(url);
     }
 
+	protected void reload() {
+        WebView webView = (WebView)findViewById(R.id.webView);
+        if (webView!=null) {
+	        String url = getString(R.string.default_url);
+	        Log.d(TAG,"reload default url "+url);
+	        webView.loadUrl(url);
+        }
+	}
 	protected boolean handleBackPressed() {
         WebView webView = (WebView)findViewById(R.id.webView);
         if (webView!=null && webView.canGoBack()) {

@@ -8,6 +8,13 @@
                 android:targetPackage="org.opensharingtoolkit.chooser" />
         </Preference>
         <Preference
+            android:title="@string/pref_restartkiosk_title" >
+            <intent
+                android:action="org.opensharingtoolkit.chooser.RELOAD"
+                android:targetClass="org.opensharingtoolkit.chooser.MainActivity"
+                android:targetPackage="org.opensharingtoolkit.chooser" />
+        </Preference>
+        <Preference
             android:summary="@string/pref_closekiosk_summary"
             android:title="@string/pref_closekiosk_title" >
             <intent
@@ -23,6 +30,15 @@
             android:title="@string/pref_runservice_title" />
     </PreferenceCategory>
 
+    <PreferenceCategory android:title="@string/pref_demosettings_title" >
+        <Preference android:title="@string/pref_democontent_title" >
+            <intent
+                android:action="android.intent.action.VIEW"
+                android:data="@string/democontent_url" />
+            <!-- android:category="android.intent.category.BROWSABLE" -->
+        </Preference>
+    </PreferenceCategory>
+        
     <PreferenceCategory android:title="@string/pref_kiosksettings_title" >
         <CheckBoxPreference
             android:defaultValue="false"
