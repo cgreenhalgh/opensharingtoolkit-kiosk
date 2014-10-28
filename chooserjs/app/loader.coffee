@@ -35,8 +35,8 @@ getCachePath = (url,cacheFiles,prefix) ->
     else 
       if isRelativeUrl url
         # relative url
-        console.log "Relative url #{url} assumed cached"
-        prefix+url
+        console.log "Relative url #{url} assumed cached as #{decodeURI url}"
+        prefix+decodeURI( url )
       else
         null
   else

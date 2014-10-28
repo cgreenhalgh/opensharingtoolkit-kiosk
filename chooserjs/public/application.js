@@ -1125,8 +1125,8 @@
         return prefix + file.path;
       } else {
         if (isRelativeUrl(url)) {
-          console.log("Relative url " + url + " assumed cached");
-          return prefix + url;
+          console.log("Relative url " + url + " assumed cached as " + (decodeURI(url)));
+          return prefix + decodeURI(url);
         } else {
           return null;
         }
