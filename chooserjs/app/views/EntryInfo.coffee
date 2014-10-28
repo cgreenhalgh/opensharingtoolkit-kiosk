@@ -82,7 +82,7 @@ module.exports = class EntryInfoView extends Backbone.View
     console.log "option:view entry #{ @model.id }"
     if not kiosk.getSafePreview() and not @model.attributes.isKiosk
       enc = @model.attributes.enclosures[0]
-      url =  if not kiosk.isKiosk() then enc.url else (enc.path ? enc.url)
+      url =  if not kiosk.isKiosk() then enc.url else (encodeURI( enc.path ) ? enc.url)
       url = kiosk.getPortableUrl url
       console.log "view #{@model.attributes.title} as #{url}, enc #{enc.path}  / #{enc.url}"
       if not kiosk.openUrl url, enc.mime

@@ -648,7 +648,7 @@
         console.log("Removed explicit port from kiosk path " + path + " -> " + newpath);
       }
     }
-    url = nocache ? enc.url : (_ref = enc.path) != null ? _ref : enc.url;
+    url = nocache ? enc.url : (_ref = encodeURI(enc.path)) != null ? _ref : enc.url;
     url = kiosk.getPortableUrl(url);
     console.log("get " + entry.attributes.title + " as " + url + ", enc " + enc.path + "  / " + enc.url);
     baseurl = nocache && (entry.attributes.baseurl != null) ? entry.attributes.baseurl : window.location.href;
@@ -3399,7 +3399,7 @@
       console.log("option:view entry " + this.model.id);
       if (!kiosk.getSafePreview() && !this.model.attributes.isKiosk) {
         enc = this.model.attributes.enclosures[0];
-        url = !kiosk.isKiosk() ? enc.url : (_ref = enc.path) != null ? _ref : enc.url;
+        url = !kiosk.isKiosk() ? enc.url : (_ref = encodeURI(enc.path)) != null ? _ref : enc.url;
         url = kiosk.getPortableUrl(url);
         console.log("view " + this.model.attributes.title + " as " + url + ", enc " + enc.path + "  / " + enc.url);
         if (!kiosk.openUrl(url, enc.mime)) {

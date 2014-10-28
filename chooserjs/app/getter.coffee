@@ -21,7 +21,7 @@ module.exports.getGetUrl = (entry, devicetype, nocache) ->
       console.log "Removed explicit port from kiosk path #{path} -> #{newpath}"
 
   # use cache copy if available
-  url = if nocache then enc.url else (enc.path ? enc.url)
+  url = if nocache then enc.url else (encodeURI( enc.path ) ? enc.url)
   url = kiosk.getPortableUrl url
   console.log "get #{entry.attributes.title} as #{url}, enc #{enc.path}  / #{enc.url}"
 
