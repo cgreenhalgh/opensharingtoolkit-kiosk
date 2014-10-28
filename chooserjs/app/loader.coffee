@@ -27,16 +27,17 @@ isRelativeUrl = (url) ->
   else 
     noh.indexOf('/')!=0
 
+# actually a URL, but local (not really a path!)
 getCachePath = (url,cacheFiles,prefix) ->
   if url?
     file = cacheFiles[url]
     if file? and file.path?
-      prefix+file.path
+      prefix+encodeURI( file.path )
     else 
       if isRelativeUrl url
         # relative url
         console.log "Relative url #{url} assumed cached as #{decodeURI url}"
-        prefix+decodeURI( url )
+        prefix+url
       else
         null
   else
